@@ -1,0 +1,201 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #0b0f14;
+  color: white;
+}
+
+nav {
+  height: 75px;
+  padding: 0 7%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #202832;
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.logo span {
+  color: #39e58c;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links a {
+  color: #b8c0ca;
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  color: white;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+}
+
+.nav-btn,
+.search-box button {
+  background: #39e58c;
+  color: #07110b;
+  font-weight: bold;
+  padding: 13px 22px;
+  border-radius: 8px;
+}
+
+.hero {
+  text-align: center;
+  padding: 100px 20px 80px;
+}
+
+.tagline {
+  color: #39e58c;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+h1 {
+  font-size: clamp(45px, 7vw, 80px);
+  margin: 18px 0;
+}
+
+h1 span {
+  color: #39e58c;
+}
+
+.hero-text {
+  color: #9ca6b2;
+  font-size: 18px;
+  margin-bottom: 35px;
+}
+
+.search-box {
+  max-width: 650px;
+  margin: auto;
+  display: flex;
+  background: #151b23;
+  padding: 7px;
+  border: 1px solid #29333f;
+  border-radius: 12px;
+}
+
+.search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: white;
+  padding: 15px;
+  font-size: 15px;
+}
+
+.services,
+.how {
+  padding: 70px 7%;
+  text-align: center;
+}
+
+.services h2,
+.how h2 {
+  font-size: 35px;
+}
+
+.services > p {
+  color: #8e98a5;
+  margin: 10px 0 35px;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.service-card {
+  background: #121820;
+  border: 1px solid #242e39;
+  padding: 30px;
+  border-radius: 14px;
+  font-size: 30px;
+}
+
+.service-card h3 {
+  font-size: 17px;
+  margin-top: 12px;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin-top: 40px;
+}
+
+.steps div {
+  padding: 25px;
+}
+
+.steps b {
+  color: #39e58c;
+  font-size: 20px;
+}
+
+.steps h3 {
+  margin: 12px 0;
+}
+
+.steps p {
+  color: #8e98a5;
+}
+
+footer {
+  border-top: 1px solid #202832;
+  padding: 35px 7%;
+  color: #8e98a5;
+}
+
+footer strong {
+  color: white;
+}
+
+@media (max-width: 700px) {
+  .nav-links {
+    display: none;
+  }
+
+  .service-grid,
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-btn {
+    display: none;
+  }
+
+  .search-box {
+    flex-direction: column;
+    background: transparent;
+    border: none;
+  }
+
+  .search-box input {
+    background: #151b23;
+    border: 1px solid #29333f;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+}
