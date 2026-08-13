@@ -199,3 +199,81 @@ footer strong {
     margin-bottom: 10px;
   }
 }
+/* QuickFix Search Results */
+
+.results {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 40px;
+  background: #111820;
+  border: 1px solid #27313d;
+  border-radius: 16px;
+}
+
+.results h2 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.results > p {
+  color: #aeb8c4;
+  line-height: 1.6;
+}
+
+.provider-card {
+  margin-top: 30px;
+  padding: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: #18212b;
+  border: 1px solid #303b48;
+  border-radius: 14px;
+}
+
+.provider-card h3 {
+  margin: 0 0 10px;
+  font-size: 21px;
+}
+
+.provider-card p {
+  margin: 6px 0;
+  color: #aeb8c4;
+}
+
+.contact-btn {
+  padding: 13px 22px;
+  border: none;
+  border-radius: 8px;
+  background: #35e28b;
+  color: #07100b;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.contact-btn:hover {
+  transform: translateY(-2px);
+}
+
+.demo-note {
+  margin-top: 25px;
+  font-size: 14px;
+  color: #788594 !important;
+}
+
+@media (max-width: 600px) {
+  .results {
+    margin: 40px 20px;
+    padding: 25px;
+  }
+
+  .provider-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .contact-btn {
+    width: 100%;
+  }
+}
