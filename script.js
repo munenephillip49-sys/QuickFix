@@ -1,23 +1,40 @@
-// QuickFix basic interactions
+document.addEventListener("DOMContentLoaded", () => {
 
-document.addEventListener("DOMContentLoaded", function () {
+    console.log("QuickFix JavaScript loaded successfully");
 
-    // Find a Fix buttons
-    const findFixButtons = document.querySelectorAll(
-        "#findFix, .find-fix, button"
-    );
+    // Find a Fix button
+    const findButtons = document.querySelectorAll("button");
 
-    findFixButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
+    findButtons.forEach(button => {
+        button.addEventListener("click", () => {
 
-            const searchBox = document.querySelector(
-                'input[placeholder*="help"], input[placeholder*="problem"]'
-            );
+            const searchInput = document.querySelector(".search-box input");
 
-            if (searchBox && searchBox.value.trim() !== "") {
-                alert("Searching for: " + searchBox.value.trim());
-            } else {
-                alert("Please enter the problem you need help with.");
+            if (searchInput) {
+                const problem = searchInput.value.trim();
+
+                if (problem === "") {
+                    alert("Please enter a problem you need help with.");
+                    searchInput.focus();
+                    return;
+                }
+
+                alert("Finding help for: " + problem);
+            }
+        });
+    });
+
+    // Service cards
+    const serviceCards = document.querySelectorAll(".service-card");
+
+    serviceCards.forEach(card => {
+        card.style.cursor = "pointer";
+
+        card.addEventListener("click", () => {
+            const service = card.querySelector("h3");
+
+            if (service) {
+                alert("You selected: " + service.textContent);
             }
         });
     });
