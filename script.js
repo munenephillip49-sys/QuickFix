@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (foundService) {
 
             resultsSection.innerHTML = `
-                <h2>${foundService.icon} ${foundService.name} Help</h2>
+                <h2>${foundService.icon} ${foundService.name}</h2>
                 <p>${foundService.description}</p>
 
                 <div class="provider-card">
