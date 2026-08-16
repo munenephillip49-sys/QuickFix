@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // SUPABASE CONNECTION
     // ==============================
 
-    const SUPABASE_URL = "https://dpaqoamvgxbcztoaxxqv.supabase.co/rest/v1/";
+    const SUPABASE_URL = "https://dpaqoamvgxbcztoaxxqv.supabase.co";
 
     const SUPABASE_KEY = "sb_publishable_PmI-ae0wRI4rrGg00KLHAA_Pws_TFJm";
 
