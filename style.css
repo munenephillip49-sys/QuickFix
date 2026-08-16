@@ -342,3 +342,9 @@ footer strong {
     background: #111;
     color: #fff;
 }
+/* Navigation buttons */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
