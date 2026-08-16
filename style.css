@@ -327,8 +327,8 @@ footer strong {
 }
 /* Provider button */
 .provider-btn {
-    background: transparent;
-    color: #111;
+    background: #111;
+    color: #fff;
     border: 1px solid #111;
     padding: 12px 20px;
     border-radius: 8px;
@@ -339,7 +339,7 @@ footer strong {
 }
 
 .provider-btn:hover {
-    background: #111;
+    background: #333;
     color: #fff;
 }
 /* Navigation buttons */
