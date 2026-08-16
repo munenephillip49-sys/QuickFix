@@ -107,6 +107,42 @@
     <strong>QuickFix</strong>
     <p>Making everyday problems easier to solve.</p>
   </footer>
+  <section id="provider-form-section" class="provider-form-section" style="display: none;">
+
+  <div class="provider-form">
+
+    <h2>Join QuickFix</h2>
+
+    <p>Offer your service and help people in your area.</p>
+
+    <input id="providerName" type="text" placeholder="Your name or business name">
+
+    <select id="providerService">
+      <option value="">Choose your service</option>
+      <option value="Plumbing">Plumbing</option>
+      <option value="Electrical">Electrical</option>
+      <option value="Phone Repair">Phone Repair</option>
+      <option value="Computer Help">Computer Help</option>
+      <option value="Car Repair">Car Repair</option>
+      <option value="Home Repairs">Home Repairs</option>
+    </select>
+
+    <input id="providerLocation" type="text" placeholder="Your location">
+
+    <input id="providerPhone" type="tel" placeholder="Phone number">
+
+    <textarea id="providerDescription"
+      placeholder="Briefly describe your service"></textarea>
+
+    <button id="submitProvider" class="nav-btn">
+      Join QuickFix
+    </button>
+
+    <p id="providerMessage"></p>
+
+  </div>
+
+</section>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
