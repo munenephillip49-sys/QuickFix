@@ -1,66 +1,131 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ==============================
+    // ==========================================
     // SUPABASE CONNECTION
-    // ==============================
+    // ==========================================
 
-    const SUPABASE_URL = "https://dpaqoamvgxbcztoaxxqv.supabase.co";
+    const SUPABASE_URL =
+        "https://dpaqoamvgxbcztoaxxqv.supabase.co";
 
-    const SUPABASE_KEY = "sb_publishable_PmI-ae0wRI4rrGg00KLHAA_Pws_TFJm";
+    const SUPABASE_KEY =
+        "sb_publishable_PmI-ae0wRI4rrGg00KLHAA_Pws_TFJm";
 
-    const supabase = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
-
-
-    // ==============================
-    // ELEMENTS
-    // ==============================
-
-    const searchInput = document.querySelector(".search-box input");
-    const searchButton = document.querySelector(".search-box button");
-    const serviceCards = document.querySelectorAll(".service-card");
-    const navLinks = document.querySelectorAll(".nav-links a");
-    const getStartedButton = document.querySelector(".nav-btn");
+    const supabase =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
 
 
-    // ==============================
-    // RESULTS SECTION
-    // ==============================
+    // ==========================================
+    // GET WEBSITE ELEMENTS
+    // ==========================================
 
-    const resultsSection = document.createElement("section");
+    const searchInput =
+        document.querySelector(".search-box input");
+
+    const searchButton =
+        document.querySelector(".search-box button");
+
+    const serviceCards =
+        document.querySelectorAll(".service-card");
+
+    const navLinks =
+        document.querySelectorAll(".nav-links a");
+
+    const getStartedButton =
+        document.querySelector(".nav-btn");
+
+    const joinProviderButton =
+        document.querySelector("#joinProvider");
+
+    const providerFormSection =
+        document.querySelector("#provider-form-section");
+
+    const submitProviderButton =
+        document.querySelector("#submitProvider");
+
+    const providerMessage =
+        document.querySelector("#providerMessage");
+
+
+    // ==========================================
+    // CHECK IMPORTANT ELEMENTS
+    // ==========================================
+
+    if (!searchInput) {
+        console.error("QuickFix: Search input not found.");
+        return;
+    }
+
+    if (!searchButton) {
+        console.error("QuickFix: Search button not found.");
+        return;
+    }
+
+
+    // ==========================================
+    // CREATE RESULTS SECTION
+    // ==========================================
+
+    const resultsSection =
+        document.createElement("section");
 
     resultsSection.id = "results";
     resultsSection.className = "results";
     resultsSection.style.display = "none";
 
-    document.querySelector("main").insertBefore(
-        resultsSection,
-        document.querySelector("#services")
-    );
+
+    const main =
+        document.querySelector("main");
+
+    const servicesSection =
+        document.querySelector("#services");
+
+    if (main && servicesSection) {
+
+        main.insertBefore(
+            resultsSection,
+            servicesSection
+        );
+
+    }
 
 
-    // ==============================
-    // SEARCH PROVIDERS
-    // ==============================
+    // ==========================================
+    // SEARCH FOR PROVIDERS
+    // ==========================================
 
     async function searchService() {
 
-        const search = searchInput.value.trim();
+        const search =
+            searchInput.value.trim();
 
         if (search === "") {
-            alert("Please enter the problem you need help with.");
+
+            alert(
+                "Please enter the problem or service you need help with."
+            );
+
             searchInput.focus();
+
             return;
         }
+
+
+        // Show loading message
 
         resultsSection.style.display = "block";
 
         resultsSection.innerHTML = `
             <h2>🔎 Finding help...</h2>
-            <p>Searching QuickFix providers for "${search}"</p>
+
+            <p>
+                Searching QuickFix providers for
+                "<strong>${search}</strong>"
+            </p>
         `;
+
 
         resultsSection.scrollIntoView({
             behavior: "smooth"
@@ -69,27 +134,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
 
-            const { data, error } = await supabase
+            // Search Supabase
+
+            const {
+                data,
+                error
+            } = await supabase
                 .from("providers")
                 .select("*")
-                .ilike("service", `%${search}%`);
+                .ilike(
+                    "service",
+                    `%${search}%`
+                );
 
+
+            // --------------------------------------
+            // DATABASE ERROR
+            // --------------------------------------
 
             if (error) {
-                console.error(error);
+
+                console.error(
+                    "Supabase search error:",
+                    error
+                );
 
                 resultsSection.innerHTML = `
                     <h2>⚠️ Something went wrong</h2>
-                    <p>We couldn't connect to QuickFix providers.</p>
+
+                    <p>
+                        We couldn't connect to QuickFix providers.
+                    </p>
+
+                    <p>
+                        Please try again.
+                    </p>
                 `;
 
                 return;
             }
 
 
-            // ==============================
-            // NO PROVIDERS
-            // ==============================
+            // --------------------------------------
+            // NO PROVIDERS FOUND
+            // --------------------------------------
 
             if (!data || data.length === 0) {
 
@@ -102,9 +190,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     </p>
 
                     <p>
-                        Try another service such as:
-                        Plumbing, Electrical, Phone Repair,
-                        Computer Help, Car Repair or Home Repairs.
+                        Try:
+                        Plumbing,
+                        Electrical,
+                        Phone Repair,
+                        Computer Help,
+                        Car Repair,
+                        or Home Repairs.
                     </p>
                 `;
 
@@ -112,15 +204,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
 
-            // ==============================
+            // --------------------------------------
             // PROVIDERS FOUND
-            // ==============================
+            // --------------------------------------
 
             resultsSection.innerHTML = `
                 <h2>🛠️ ${search} providers</h2>
 
                 <p>
-                    We found ${data.length} provider${data.length > 1 ? "s" : ""}.
+                    We found
+                    ${data.length}
+                    provider${data.length > 1 ? "s" : ""}.
                 </p>
 
                 <div class="provider-list"></div>
@@ -128,46 +222,77 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             const providerList =
-                resultsSection.querySelector(".provider-list");
+                resultsSection.querySelector(
+                    ".provider-list"
+                );
 
+
+            // --------------------------------------
+            // CREATE PROVIDER CARDS
+            // --------------------------------------
 
             data.forEach(function (provider) {
 
-                const card = document.createElement("div");
+                const card =
+                    document.createElement("div");
 
-                card.className = "provider-card";
+                card.className =
+                    "provider-card";
 
 
                 card.innerHTML = `
+
                     <div class="provider-info">
 
-                        <h3>🛠️ ${provider.name}</h3>
-
-                        <p>📍 ${provider.location || "Location not provided"}</p>
+                        <h3>
+                            🛠️ ${provider.name}
+                        </h3>
 
                         <p>
-                            ${provider.description || "Professional local service provider."}
+                            📍 ${
+                                provider.location ||
+                                "Location not provided"
+                            }
                         </p>
 
                         <p>
-                            ⭐ ${provider.rating || "New provider"}
+                            ${
+                                provider.description ||
+                                "Professional local service provider."
+                            }
+                        </p>
+
+                        <p>
+                            ⭐ ${
+                                provider.rating ||
+                                "New provider"
+                            }
                         </p>
 
                     </div>
+
 
                     <div class="provider-actions">
 
                         ${
                             provider.phone
-                            ? `<a
-                                class="contact-btn"
-                                href="tel:${provider.phone}">
-                                📞 Call Provider
-                               </a>`
-                            : ""
+                                ? `
+                                    <a
+                                        class="contact-btn"
+                                        href="tel:${provider.phone}"
+                                    >
+                                        📞 Call Provider
+                                    </a>
+                                `
+                                : `
+                                    <span>
+                                        Contact unavailable
+                                    </span>
+                                `
                         }
 
                     </div>
+
                 `;
 
 
@@ -177,13 +302,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
 
+
+        // ==========================================
+        // CONNECTION ERROR
+        // ==========================================
+
         catch (error) {
 
-            console.error(error);
+            console.error(
+                "QuickFix connection error:",
+                error
+            );
 
             resultsSection.innerHTML = `
                 <h2>⚠️ Connection error</h2>
-                <p>Please try again.</p>
+
+                <p>
+                    Something went wrong while
+                    searching for providers.
+                </p>
+
+                <p>
+                    Please try again.
+                </p>
             `;
 
         }
@@ -191,9 +332,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ==============================
-    // FIND A FIX
-    // ==============================
+    // ==========================================
+    // FIND A FIX BUTTON
+    // ==========================================
 
     searchButton.addEventListener(
         "click",
@@ -201,176 +342,393 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
-    // ENTER KEY
+    // ==========================================
+    // PRESS ENTER TO SEARCH
+    // ==========================================
 
     searchInput.addEventListener(
         "keydown",
         function (event) {
 
             if (event.key === "Enter") {
+
+                event.preventDefault();
+
                 searchService();
+
             }
 
         }
     );
 
 
-    // ==============================
+    // ==========================================
     // SERVICE CARDS
-    // ==============================
+    // ==========================================
 
-    serviceCards.forEach(function (card) {
+    serviceCards.forEach(
+        function (card) {
 
-        card.style.cursor = "pointer";
+            card.style.cursor =
+                "pointer";
 
-        card.addEventListener(
+
+            card.addEventListener(
+                "click",
+                function () {
+
+                    const heading =
+                        card.querySelector("h3");
+
+
+                    if (!heading) {
+                        return;
+                    }
+
+
+                    const serviceName =
+                        heading.textContent.trim();
+
+
+                    searchInput.value =
+                        serviceName;
+
+
+                    searchService();
+
+                }
+            );
+
+        }
+    );
+
+
+    // ==========================================
+    // GET STARTED BUTTON
+    // ==========================================
+
+    if (getStartedButton) {
+
+        getStartedButton.addEventListener(
             "click",
             function () {
 
-                const serviceName =
-                    card.querySelector("h3").textContent;
+                const hero =
+                    document.querySelector(".hero");
 
-                searchInput.value = serviceName;
 
-                searchService();
+                if (hero) {
+
+                    hero.scrollIntoView({
+                        behavior: "smooth"
+                    });
+
+                }
+
+
+                setTimeout(
+                    function () {
+
+                        searchInput.focus();
+
+                    },
+                    500
+                );
 
             }
         );
 
-    });
+    }
 
 
-    // ==============================
-    // GET STARTED
-    // ==============================
+    // ==========================================
+    // JOIN AS PROVIDER
+    // ==========================================
 
-    getStartedButton.addEventListener(
-        "click",
-        function () {
+    if (joinProviderButton) {
 
-            searchInput.focus();
-
-            document.querySelector(".hero").scrollIntoView({
-                behavior: "smooth"
-            });
-
-        }
-    );
-
-
-    // ==============================
-    // NAVIGATION
-    // ==============================
-
-    navLinks.forEach(function (link) {
-
-        link.addEventListener(
+        joinProviderButton.addEventListener(
             "click",
-            function (event) {
+            function () {
 
-                const destination =
-                    link.getAttribute("href");
-
-
-                if (destination === "#") {
-
-                    event.preventDefault();
-
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
-
+                if (!providerFormSection) {
                     return;
                 }
 
 
-                const section =
-                    document.querySelector(destination);
+                providerFormSection.style.display =
+                    "block";
 
 
-                if (section) {
+                providerFormSection.scrollIntoView({
+                    behavior: "smooth"
+                });
 
-                    event.preventDefault();
+            }
+        );
 
-                    section.scrollIntoView({
-                        behavior: "smooth"
-                    });
+    }
+
+
+    // ==========================================
+    // PROVIDER REGISTRATION
+    // ==========================================
+
+    if (submitProviderButton) {
+
+        submitProviderButton.addEventListener(
+            "click",
+            async function () {
+
+                const nameInput =
+                    document.querySelector(
+                        "#providerName"
+                    );
+
+                const serviceInput =
+                    document.querySelector(
+                        "#providerService"
+                    );
+
+                const locationInput =
+                    document.querySelector(
+                        "#providerLocation"
+                    );
+
+                const phoneInput =
+                    document.querySelector(
+                        "#providerPhone"
+                    );
+
+                const descriptionInput =
+                    document.querySelector(
+                        "#providerDescription"
+                    );
+
+
+                if (
+                    !nameInput ||
+                    !serviceInput ||
+                    !locationInput ||
+                    !phoneInput
+                ) {
+
+                    console.error(
+                        "QuickFix: Provider form elements are missing."
+                    );
+
+                    return;
+
+                }
+
+
+                const name =
+                    nameInput.value.trim();
+
+                const service =
+                    serviceInput.value.trim();
+
+                const location =
+                    locationInput.value.trim();
+
+                const phone =
+                    phoneInput.value.trim();
+
+                const description =
+                    descriptionInput
+                        ? descriptionInput.value.trim()
+                        : "";
+
+
+                // ----------------------------------
+                // VALIDATION
+                // ----------------------------------
+
+                if (
+                    !name ||
+                    !service ||
+                    !location ||
+                    !phone
+                ) {
+
+                    if (providerMessage) {
+
+                        providerMessage.textContent =
+                            "Please fill in all required fields.";
+
+                    }
+
+                    return;
+
+                }
+
+
+                if (providerMessage) {
+
+                    providerMessage.textContent =
+                        "Submitting your provider profile...";
+
+                }
+
+
+                // ----------------------------------
+                // INSERT PROVIDER INTO SUPABASE
+                // ----------------------------------
+
+                try {
+
+                    const {
+                        error
+                    } = await supabase
+                        .from("providers")
+                        .insert([
+                            {
+                                name: name,
+                                service: service,
+                                location: location,
+                                phone: phone,
+                                description: description
+                            }
+                        ]);
+
+
+                    // ----------------------------------
+                    // INSERT ERROR
+                    // ----------------------------------
+
+                    if (error) {
+
+                        console.error(
+                            "Provider registration error:",
+                            error
+                        );
+
+
+                        if (providerMessage) {
+
+                            providerMessage.textContent =
+                                "Something went wrong. Please try again.";
+
+                        }
+
+                        return;
+
+                    }
+
+
+                    // ----------------------------------
+                    // SUCCESS
+                    // ----------------------------------
+
+                    if (providerMessage) {
+
+                        providerMessage.textContent =
+                            "✅ You're now listed on QuickFix!";
+
+                    }
+
+
+                    // Clear form
+
+                    nameInput.value = "";
+                    serviceInput.value = "";
+                    locationInput.value = "";
+                    phoneInput.value = "";
+
+
+                    if (descriptionInput) {
+
+                        descriptionInput.value = "";
+
+                    }
+
+                }
+
+
+                catch (error) {
+
+                    console.error(
+                        "Provider registration failed:",
+                        error
+                    );
+
+
+                    if (providerMessage) {
+
+                        providerMessage.textContent =
+                            "Something went wrong. Please try again.";
+
+                    }
 
                 }
 
             }
         );
 
-    });
-
-});
-// ==============================
-// PROVIDER REGISTRATION
-// ==============================
-
-const joinProviderButton = document.querySelector("#joinProvider");
-const providerFormSection = document.querySelector("#provider-form-section");
-const submitProviderButton = document.querySelector("#submitProvider");
-const providerMessage = document.querySelector("#providerMessage");
-
-joinProviderButton.addEventListener("click", function () {
-
-    providerFormSection.style.display = "block";
-
-    providerFormSection.scrollIntoView({
-        behavior: "smooth"
-    });
-
-});
-
-submitProviderButton.addEventListener("click", async function () {
-
-    const name = document.querySelector("#providerName").value.trim();
-    const service = document.querySelector("#providerService").value;
-    const location = document.querySelector("#providerLocation").value.trim();
-    const phone = document.querySelector("#providerPhone").value.trim();
-    const description = document.querySelector("#providerDescription").value.trim();
-
-    if (!name || !service || !location || !phone) {
-
-        providerMessage.textContent =
-            "Please fill in all required fields.";
-
-        return;
     }
 
-    providerMessage.textContent = "Submitting your provider profile...";
 
-    const { error } = await supabase
-        .from("providers")
-        .insert([
-            {
-                name: name,
-                service: service,
-                location: location,
-                phone: phone,
-                description: description
-            }
-        ]);
+    // ==========================================
+    // NAVIGATION
+    // ==========================================
 
-    if (error) {
+    navLinks.forEach(
+        function (link) {
 
-        console.error(error);
+            link.addEventListener(
+                "click",
+                function (event) {
 
-        providerMessage.textContent =
-            "Something went wrong. Please try again.";
+                    const destination =
+                        link.getAttribute("href");
 
-        return;
-    }
 
-    providerMessage.textContent =
-        "✅ You're now listed on QuickFix!";
+                    if (
+                        !destination ||
+                        destination === "#"
+                    ) {
 
-    document.querySelector("#providerName").value = "";
-    document.querySelector("#providerService").value = "";
-    document.querySelector("#providerLocation").value = "";
-    document.querySelector("#providerPhone").value = "";
-    document.querySelector("#providerDescription").value = "";
+                        event.preventDefault();
+
+                        window.scrollTo({
+                            top: 0,
+                            behavior: "smooth"
+                        });
+
+                        return;
+
+                    }
+
+
+                    const section =
+                        document.querySelector(
+                            destination
+                        );
+
+
+                    if (section) {
+
+                        event.preventDefault();
+
+                        section.scrollIntoView({
+                            behavior: "smooth"
+                        });
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+    // ==========================================
+    // QUICKFIX READY
+    // ==========================================
+
+    console.log(
+        "✅ QuickFix is ready."
+    );
 
 });
