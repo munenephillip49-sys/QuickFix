@@ -305,3 +305,72 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+// ==============================
+// PROVIDER REGISTRATION
+// ==============================
+
+const joinProviderButton = document.querySelector("#joinProvider");
+const providerFormSection = document.querySelector("#provider-form-section");
+const submitProviderButton = document.querySelector("#submitProvider");
+const providerMessage = document.querySelector("#providerMessage");
+
+joinProviderButton.addEventListener("click", function () {
+
+    providerFormSection.style.display = "block";
+
+    providerFormSection.scrollIntoView({
+        behavior: "smooth"
+    });
+
+});
+
+submitProviderButton.addEventListener("click", async function () {
+
+    const name = document.querySelector("#providerName").value.trim();
+    const service = document.querySelector("#providerService").value;
+    const location = document.querySelector("#providerLocation").value.trim();
+    const phone = document.querySelector("#providerPhone").value.trim();
+    const description = document.querySelector("#providerDescription").value.trim();
+
+    if (!name || !service || !location || !phone) {
+
+        providerMessage.textContent =
+            "Please fill in all required fields.";
+
+        return;
+    }
+
+    providerMessage.textContent = "Submitting your provider profile...";
+
+    const { error } = await supabase
+        .from("providers")
+        .insert([
+            {
+                name: name,
+                service: service,
+                location: location,
+                phone: phone,
+                description: description
+            }
+        ]);
+
+    if (error) {
+
+        console.error(error);
+
+        providerMessage.textContent =
+            "Something went wrong. Please try again.";
+
+        return;
+    }
+
+    providerMessage.textContent =
+        "✅ You're now listed on QuickFix!";
+
+    document.querySelector("#providerName").value = "";
+    document.querySelector("#providerService").value = "";
+    document.querySelector("#providerLocation").value = "";
+    document.querySelector("#providerPhone").value = "";
+    document.querySelector("#providerDescription").value = "";
+
+});
