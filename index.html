@@ -18,13 +18,17 @@
       <a href="#how">How It Works</a>
       <a href="#about">About</a>
     </div>
-<div class="nav-actions">
-  <button class="provider-btn" id="joinProvider">Join as a Provider</button>
-    <button class="nav-btn">Get Started</button>
-</div>
+
+    <div class="nav-actions">
+      <button class="provider-btn" id="joinProvider">
+        Join as a Provider
+      </button>
+      <button class="nav-btn">Get Started</button>
+    </div>
   </nav>
 
   <main>
+
     <section id="home" class="hero">
       <p class="tagline">LOCAL HELP, MADE SIMPLE</p>
 
@@ -77,73 +81,132 @@
         </div>
       </div>
     </section>
+
   </main>
-<section id="about" class="about">
-  <h2>About QuickFix</h2>
 
-  <p>
-    QuickFix makes it easier to find reliable local service providers
-    when you need help with everyday problems.
-  </p>
+  <section id="about" class="about">
+    <h2>About QuickFix</h2>
 
-  <div class="about-grid">
-    <div>
-      <h3>🔎 Find Help</h3>
-      <p>Search for the service you need in seconds.</p>
+    <p>
+      QuickFix makes it easier to find reliable local service providers
+      when you need help with everyday problems.
+    </p>
+
+    <div class="about-grid">
+      <div>
+        <h3>🔎 Find Help</h3>
+        <p>Search for the service you need in seconds.</p>
+      </div>
+
+      <div>
+        <h3>🤝 Local Providers</h3>
+        <p>Connect with people who can solve the problem.</p>
+      </div>
+
+      <div>
+        <h3>⚡ Simple & Fast</h3>
+        <p>No complicated process. Find help and get it fixed.</p>
+      </div>
     </div>
+  </section>
 
-    <div>
-      <h3>🤝 Local Providers</h3>
-      <p>Connect with people who can solve the problem.</p>
-    </div>
-
-    <div>
-      <h3>⚡ Simple & Fast</h3>
-      <p>No complicated process. Find help and get it fixed.</p>
-    </div>
-  </div>
-</section>
   <footer>
     <strong>QuickFix</strong>
     <p>Making everyday problems easier to solve.</p>
   </footer>
-  <section id="provider-form-section" class="provider-form-section" style="display: none;">
 
-  <div class="provider-form">
 
-    <h2>Join QuickFix</h2>
+  <!-- PROVIDER MODAL -->
 
-    <p>Offer your service and help people in your area.</p>
+  <section id="provider-form-section" class="provider-modal">
 
-    <input id="providerName" type="text" placeholder="Your name or business name">
+    <div class="provider-form">
 
-    <select id="providerService">
-      <option value="">Choose your service</option>
-      <option value="Plumbing">Plumbing</option>
-      <option value="Electrical">Electrical</option>
-      <option value="Phone Repair">Phone Repair</option>
-      <option value="Computer Help">Computer Help</option>
-      <option value="Car Repair">Car Repair</option>
-      <option value="Home Repairs">Home Repairs</option>
-    </select>
+      <button id="closeProvider" class="close-provider" type="button">
+        &times;
+      </button>
 
-    <input id="providerLocation" type="text" placeholder="Your location">
+      <div class="provider-icon">
+        🛠️
+      </div>
 
-    <input id="providerPhone" type="tel" placeholder="Phone number">
+      <p class="provider-label">JOIN QUICKFIX</p>
 
-    <textarea id="providerDescription"
-      placeholder="Briefly describe your service"></textarea>
+      <h2>Become a Provider</h2>
 
-    <button id="submitProvider" class="nav-btn">
-      Join QuickFix
-    </button>
+      <p class="provider-intro">
+        Turn your skills into opportunities. Help people around you
+        and grow your local reputation.
+      </p>
 
-    <p id="providerMessage"></p>
+      <div class="form-group">
+        <label for="providerName">Name or Business Name</label>
+        <input
+          id="providerName"
+          type="text"
+          placeholder="e.g. Phillip Repairs"
+        >
+      </div>
 
-  </div>
+      <div class="form-group">
+        <label for="providerService">Service</label>
 
-</section>
+        <select id="providerService">
+          <option value="">Choose your service</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="Electrical">Electrical</option>
+          <option value="Phone Repair">Phone Repair</option>
+          <option value="Computer Help">Computer Help</option>
+          <option value="Car Repair">Car Repair</option>
+          <option value="Home Repairs">Home Repairs</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="providerLocation">Location</label>
+        <input
+          id="providerLocation"
+          type="text"
+          placeholder="e.g. Nairobi"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="providerPhone">Phone Number</label>
+        <input
+          id="providerPhone"
+          type="tel"
+          placeholder="e.g. +254 7XX XXX XXX"
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="providerDescription">About Your Service</label>
+
+        <textarea
+          id="providerDescription"
+          placeholder="Tell customers what you do..."
+        ></textarea>
+      </div>
+
+      <button id="submitProvider" class="provider-submit" type="button">
+        Become a Provider
+      </button>
+
+      <p id="providerMessage"></p>
+
+      <p class="provider-note">
+        By joining QuickFix, you agree to provide reliable and
+        professional services to customers.
+      </p>
+
+    </div>
+
+  </section>
+
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
+  <script src="script.js"></script>
+
 </body>
 </html>
