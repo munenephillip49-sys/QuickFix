@@ -42,6 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const providerFormSection =
         document.querySelector("#provider-form-section");
 
+    const closeProviderButton =
+        document.querySelector("#closeProvider");
+
     const submitProviderButton =
         document.querySelector("#submitProvider");
 
@@ -442,6 +445,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ==========================================
+    // OPEN PROVIDER MODAL
+    // ==========================================
+
+    function openProviderModal() {
+
+        if (!providerFormSection) {
+            return;
+        }
+
+        providerFormSection.classList.add("active");
+
+        document.body.classList.add("modal-open");
+
+        if (providerMessage) {
+            providerMessage.textContent = "";
+        }
+
+    }
+
+
+    // ==========================================
+    // CLOSE PROVIDER MODAL
+    // ==========================================
+
+    function closeProviderModal() {
+
+        if (!providerFormSection) {
+            return;
+        }
+
+        providerFormSection.classList.remove("active");
+
+        document.body.classList.remove("modal-open");
+
+    }
+
+
+    // ==========================================
     // JOIN AS PROVIDER
     // ==========================================
 
@@ -449,25 +490,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
         joinProviderButton.addEventListener(
             "click",
-            function () {
+            openProviderModal
+        );
 
-                if (!providerFormSection) {
-                    return;
+    }
+
+
+    // ==========================================
+    // CLOSE BUTTON
+    // ==========================================
+
+    if (closeProviderButton) {
+
+        closeProviderButton.addEventListener(
+            "click",
+            closeProviderModal
+        );
+
+    }
+
+
+    // ==========================================
+    // CLICK OUTSIDE MODAL TO CLOSE
+    // ==========================================
+
+    if (providerFormSection) {
+
+        providerFormSection.addEventListener(
+            "click",
+            function (event) {
+
+                if (event.target === providerFormSection) {
+
+                    closeProviderModal();
+
                 }
-
-
-                providerFormSection.style.display =
-                    "block";
-
-
-                providerFormSection.scrollIntoView({
-                    behavior: "smooth"
-                });
 
             }
         );
 
     }
+
+
+    // ==========================================
+    // ESCAPE KEY TO CLOSE
+    // ==========================================
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Escape") {
+
+                closeProviderModal();
+
+            }
+
+        }
+    );
 
 
     // ==========================================
@@ -571,6 +651,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
+                submitProviderButton.disabled = true;
+
+
                 // ----------------------------------
                 // INSERT PROVIDER INTO SUPABASE
                 // ----------------------------------
@@ -611,6 +694,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         }
 
+                        submitProviderButton.disabled = false;
+
                         return;
 
                     }
@@ -635,12 +720,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     locationInput.value = "";
                     phoneInput.value = "";
 
-
                     if (descriptionInput) {
 
                         descriptionInput.value = "";
 
                     }
+
+
+                    submitProviderButton.disabled = false;
+
+
+                    // Close after successful registration
+
+                    setTimeout(
+                        function () {
+
+                            closeProviderModal();
+
+                        },
+                        1800
+                    );
 
                 }
 
@@ -659,6 +758,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             "Something went wrong. Please try again.";
 
                     }
+
+                    submitProviderButton.disabled = false;
 
                 }
 
