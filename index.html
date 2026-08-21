@@ -114,7 +114,38 @@
     <strong>QuickFix</strong>
     <p>Making everyday problems easier to solve.</p>
   </footer>
+<section id="request-modal" class="provider-modal">
+  <div class="provider-form">
 
+    <button id="closeRequest" class="close-provider" type="button">&times;</button>
+
+    <p class="provider-label">QUICKFIX REQUEST</p>
+    <h2>Request This Service</h2>
+    <p class="provider-intro" id="requestProviderName"></p>
+
+    <div class="form-group">
+      <label>What do you need?</label>
+      <textarea id="requestDescription" placeholder="Describe the problem..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Your Location</label>
+      <input id="requestLocation" type="text" placeholder="e.g. Chuka">
+    </div>
+
+    <div class="form-group">
+      <label>Phone Number</label>
+      <input id="requestPhone" type="tel" placeholder="07XXXXXXXX">
+    </div>
+
+    <button id="submitRequest" class="provider-submit" type="button">
+      Send Request
+    </button>
+
+    <p id="requestMessage"></p>
+
+  </div>
+</section>
 
   <!-- PROVIDER MODAL -->
 
