@@ -50,7 +50,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const providerMessage =
         document.querySelector("#providerMessage");
+// ==========================================
+// AUTH ELEMENTS
+// ==========================================
 
+const authModal =
+    document.querySelector("#auth-modal");
+
+const closeAuth =
+    document.querySelector("#closeAuth");
+
+const authEmail =
+    document.querySelector("#authEmail");
+
+const authPassword =
+    document.querySelector("#authPassword");
+
+const authSubmit =
+    document.querySelector("#authSubmit");
+
+const authMessage =
+    document.querySelector("#authMessage");
+
+const authTitle =
+    document.querySelector("#authTitle");
+
+const authIntro =
+    document.querySelector("#authIntro");
+
+const switchAuthMode =
+    document.querySelector("#switchAuthMode");
+
+let authMode = "signup";
 
     // ==========================================
     // REQUEST ELEMENTS
