@@ -146,7 +146,59 @@
 
   </div>
 </section>
+<!-- AUTH MODAL -->
+<section id="auth-modal" class="provider-modal">
 
+  <div class="provider-form">
+
+    <button id="closeAuth" class="close-provider" type="button">
+      &times;
+    </button>
+
+    <div class="provider-icon">
+      🔐
+    </div>
+
+    <p class="provider-label">QUICKFIX ACCOUNT</p>
+
+    <h2 id="authTitle">Create Your Account</h2>
+
+    <p class="provider-intro" id="authIntro">
+      Create an account to join QuickFix as a provider.
+    </p>
+
+    <div class="form-group">
+      <label>Email Address</label>
+      <input
+        id="authEmail"
+        type="email"
+        placeholder="you@example.com"
+      >
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input
+        id="authPassword"
+        type="password"
+        placeholder="At least 6 characters"
+      >
+    </div>
+
+    <button id="authSubmit" class="provider-submit" type="button">
+      Create Account
+    </button>
+
+    <p id="authMessage"></p>
+
+    <button id="switchAuthMode" type="button"
+      style="background:none;border:none;color:white;cursor:pointer;margin-top:15px;">
+      Already have an account? Log in
+    </button>
+
+  </div>
+
+</section>
   <!-- PROVIDER MODAL -->
 
   <section id="provider-form-section" class="provider-modal">
