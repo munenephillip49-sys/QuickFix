@@ -751,35 +751,245 @@ let authMode = "signup";
     // JOIN AS PROVIDER
     // ==========================================
 
-    if (joinProviderButton) {
+    // ==========================================
+// AUTHENTICATION
+// ==========================================
 
-        joinProviderButton.addEventListener(
-            "click",
-            async function () {
+function openAuthModal() {
 
-                const {
-                    data: {
-                        session
-                    }
-                } = await supabase.auth.getSession();
+    authModal.classList.add("active");
+    document.body.classList.add("modal-open");
+
+    authMessage.textContent = "";
+
+}
 
 
-                if (session) {
+function closeAuthModal() {
 
-                    openProviderModal();
+    authModal.classList.remove("active");
+    document.body.classList.remove("modal-open");
 
-                } else {
+}
 
-                    alert(
-                        "Please create an account or log in first."
-                    );
+
+function updateAuthMode() {
+
+    if (authMode === "signup") {
+
+        authTitle.textContent =
+            "Create Your Account";
+
+        authIntro.textContent =
+            "Create an account to join QuickFix as a provider.";
+
+        authSubmit.textContent =
+            "Create Account";
+
+        switchAuthMode.textContent =
+            "Already have an account? Log in";
+
+    } else {
+
+        authTitle.textContent =
+            "Welcome Back";
+
+        authIntro.textContent =
+            "Log in to continue to QuickFix.";
+
+        authSubmit.textContent =
+            "Log In";
+
+        switchAuthMode.textContent =
+            "Don't have an account? Create one";
+
+    }
+
+}
+
+
+if (closeAuth) {
+
+    closeAuth.addEventListener(
+        "click",
+        closeAuthModal
+    );
+
+}
+
+
+if (switchAuthMode) {
+
+    switchAuthMode.addEventListener(
+        "click",
+        function () {
+
+            authMode =
+                authMode === "signup"
+                    ? "login"
+                    : "signup";
+
+            updateAuthMode();
+
+            authMessage.textContent = "";
+
+        }
+    );
+
+}
+
+
+if (authSubmit) {
+
+    authSubmit.addEventListener(
+        "click",
+        async function () {
+
+            const email =
+                authEmail.value.trim();
+
+            const password =
+                authPassword.value;
+
+
+            if (!email || !password) {
+
+                authMessage.textContent =
+                    "Enter your email and password.";
+
+                return;
+
+            }
+
+
+            if (password.length < 6) {
+
+                authMessage.textContent =
+                    "Password must be at least 6 characters.";
+
+                return;
+
+            }
+
+
+            authSubmit.disabled = true;
+
+            authMessage.textContent =
+                "Please wait...";
+
+
+            let result;
+
+
+            if (authMode === "signup") {
+
+                result =
+                    await supabase.auth.signUp({
+                        email,
+                        password
+                    });
+
+            } else {
+
+                result =
+                    await supabase.auth.signInWithPassword({
+                        email,
+                        password
+                    });
+
+            }
+
+
+            if (result.error) {
+
+                console.error(result.error);
+
+                authMessage.textContent =
+                    result.error.message;
+
+                authSubmit.disabled = false;
+
+                return;
+
+            }
+
+
+            // SIGNUP
+            if (authMode === "signup") {
+
+                if (!result.data.session) {
+
+                    authMessage.textContent =
+                        "✅ Account created! Check your email, verify it, then log in.";
+
+                    authSubmit.disabled = false;
+
+                    return;
 
                 }
 
             }
-        );
 
-    }
+
+            // LOGIN SUCCESS
+            authMessage.textContent =
+                "✅ Login successful!";
+
+
+            setTimeout(
+                function () {
+
+                    closeAuthModal();
+
+                    openProviderModal();
+
+                    authSubmit.disabled = false;
+
+                },
+                700
+            );
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// JOIN AS PROVIDER
+// ==========================================
+
+if (joinProviderButton) {
+
+    joinProviderButton.addEventListener(
+        "click",
+        async function () {
+
+            const {
+                data: {
+                    user
+                }
+            } = await supabase.auth.getUser();
+
+
+            if (user) {
+
+                openProviderModal();
+
+            } else {
+
+                authMode = "signup";
+
+                updateAuthMode();
+
+                openAuthModal();
+
+            }
+
+        }
+    );
+
+}
 
 
     // ==========================================
