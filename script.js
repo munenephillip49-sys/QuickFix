@@ -50,7 +50,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const providerMessage =
         document.querySelector("#providerMessage");
+const requestModal = document.querySelector("#request-modal");
+const closeRequest = document.querySelector("#closeRequest");
+const requestProviderName = document.querySelector("#requestProviderName");
+const requestDescription = document.querySelector("#requestDescription");
+const requestLocation = document.querySelector("#requestLocation");
+const requestPhone = document.querySelector("#requestPhone");
+const submitRequest = document.querySelector("#submitRequest");
+const requestMessage = document.querySelector("#requestMessage");
 
+let selectedProvider = null;
 
     // ==========================================
     // CHECK IMPORTANT ELEMENTS
