@@ -616,7 +616,76 @@ let selectedProvider = null;
 
                 const service =
                     serviceInput.value.trim();
+function openRequestModal(provider) {
+    selectedProvider = provider;
 
+    requestProviderName.textContent =
+        `Requesting ${provider.service} from ${provider.name}`;
+
+    requestDescription.value = "";
+    requestLocation.value = "";
+    requestPhone.value = "";
+    requestMessage.textContent = "";
+
+    requestModal.classList.add("active");
+}
+
+closeRequest.addEventListener("click", () => {
+    requestModal.classList.remove("active");
+});
+                submitRequest.addEventListener("click", async () => {
+
+    const description = requestDescription.value.trim();
+    const location = requestLocation.value.trim();
+    const phone = requestPhone.value.trim();
+
+    if (!description || !location || !phone) {
+        requestMessage.textContent =
+            "Please complete all fields.";
+        return;
+    }
+
+    const {
+        data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        requestMessage.textContent =
+            "Please log in before requesting a service.";
+        return;
+    }
+
+    submitRequest.disabled = true;
+    requestMessage.textContent = "Sending request...";
+
+    const { error } = await supabase
+        .from("service_requests")
+        .insert({
+            customer_id: user.id,
+            provider_id: selectedProvider.id,
+            service: selectedProvider.service,
+            description: description,
+            location: location,
+            phone: phone
+        });
+
+    if (error) {
+        console.error(error);
+        requestMessage.textContent =
+            "Failed to send request.";
+        submitRequest.disabled = false;
+        return;
+    }
+
+    requestMessage.textContent =
+        "✅ Request sent successfully!";
+
+    setTimeout(() => {
+        requestModal.classList.remove("active");
+    }, 1200);
+
+    submitRequest.disabled = false;
+});
                 const location =
                     locationInput.value.trim();
 
