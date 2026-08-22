@@ -1312,7 +1312,224 @@ if (joinProviderButton) {
         }
     );
 
+// ==========================================
+// PROVIDER DASHBOARD
+// ==========================================
 
+const dashboard =
+    document.querySelector("#provider-dashboard");
+
+const requestList =
+    document.querySelector("#request-list");
+
+const dashboardMessage =
+    document.querySelector("#dashboardMessage");
+
+
+async function loadProviderRequests() {
+
+    if (!dashboard || !requestList) {
+        return;
+    }
+
+    const {
+        data: {
+            user
+        }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        dashboardMessage.textContent =
+            "Log in as a provider to view your requests.";
+
+        return;
+    }
+
+    const {
+        data: provider,
+        error: providerError
+    } = await supabase
+        .from("providers")
+        .select("id, name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+    if (providerError || !provider) {
+
+        dashboardMessage.textContent =
+            "You don't have a provider profile yet.";
+
+        return;
+    }
+
+    const {
+        data: requests,
+        error
+    } = await supabase
+        .from("service_requests")
+        .select("*")
+        .eq("provider_id", provider.id)
+        .order("created_at", {
+            ascending: false
+        });
+
+    if (error) {
+
+        console.error(error);
+
+        dashboardMessage.textContent =
+            "Unable to load requests.";
+
+        return;
+    }
+
+    if (!requests || requests.length === 0) {
+
+        dashboardMessage.textContent =
+            "No service requests yet.";
+
+        requestList.innerHTML = "";
+
+        return;
+    }
+
+    dashboardMessage.textContent =
+        `${requests.length} request${requests.length > 1 ? "s" : ""}`;
+
+    requestList.innerHTML = "";
+
+    requests.forEach(function (request) {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "request-card";
+
+        card.innerHTML = `
+
+            <h3>🛠️ ${request.service}</h3>
+
+            <p>
+                <strong>Problem:</strong>
+                ${request.description}
+            </p>
+
+            <p>
+                📍 ${request.location}
+            </p>
+
+            <p>
+                📞 ${request.phone}
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                ${request.status}
+            </p>
+
+            ${
+                request.status === "pending"
+                    ? `
+                        <button class="accept-request">
+                            ✅ Accept
+                        </button>
+
+                        <button class="decline-request">
+                            ❌ Decline
+                        </button>
+                    `
+                    : ""
+            }
+
+        `;
+
+
+        const acceptButton =
+            card.querySelector(".accept-request");
+
+        const declineButton =
+            card.querySelector(".decline-request");
+
+
+        if (acceptButton) {
+
+            acceptButton.addEventListener(
+                "click",
+                function () {
+
+                    updateRequestStatus(
+                        request.id,
+                        "accepted"
+                    );
+
+                }
+            );
+
+        }
+
+
+        if (declineButton) {
+
+            declineButton.addEventListener(
+                "click",
+                function () {
+
+                    updateRequestStatus(
+                        request.id,
+                        "declined"
+                    );
+
+                }
+            );
+
+        }
+
+
+        requestList.appendChild(card);
+
+    });
+
+}
+
+
+async function updateRequestStatus(
+    requestId,
+    status
+) {
+
+    const {
+        error
+    } = await supabase
+        .from("service_requests")
+        .update({
+            status: status,
+            provider_response_at:
+                new Date().toISOString()
+        })
+        .eq("id", requestId);
+
+
+    if (error) {
+
+        console.error(error);
+
+        alert(
+            "Unable to update request."
+        );
+
+        return;
+    }
+
+
+    loadProviderRequests();
+
+}
+
+
+// Load dashboard
+loadProviderRequests();
+    
     // ==========================================
     // QUICKFIX READY
     // ==========================================
