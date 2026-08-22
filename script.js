@@ -50,6 +50,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const providerMessage =
         document.querySelector("#providerMessage");
+    const providerDashboardBtn =
+    document.querySelector("#providerDashboardBtn");
 // ==========================================
 // AUTH ELEMENTS
 // ==========================================
