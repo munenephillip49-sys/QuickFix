@@ -1531,6 +1531,45 @@ async function updateRequestStatus(
 
 // Load dashboard
 loadProviderRequests();
+    // ==========================================
+// OPEN PROVIDER DASHBOARD
+// ==========================================
+
+if (providerDashboardBtn) {
+
+    providerDashboardBtn.addEventListener(
+        "click",
+        async function () {
+
+            const {
+                data: {
+                    user
+                }
+            } = await supabase.auth.getUser();
+
+            if (!user) {
+
+                alert("Please log in first.");
+
+                return;
+            }
+
+            if (dashboard) {
+
+                dashboard.style.display = "block";
+
+                dashboard.scrollIntoView({
+                    behavior: "smooth"
+                });
+
+                loadProviderRequests();
+
+            }
+
+        }
+    );
+
+}
     
     // ==========================================
     // QUICKFIX READY
