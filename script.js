@@ -52,6 +52,17 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector("#providerMessage");
     const providerDashboardBtn =
     document.querySelector("#providerDashboardBtn");
+    const customerDashboard =
+    document.querySelector("#customer-dashboard");
+
+const customerDashboardBtn =
+    document.querySelector("#customerDashboardBtn");
+
+const customerRequestList =
+    document.querySelector("#customer-request-list");
+
+const customerDashboardMessage =
+    document.querySelector("#customerDashboardMessage");
 // ==========================================
 // AUTH ELEMENTS
 // ==========================================
