@@ -1581,7 +1581,154 @@ if (providerDashboardBtn) {
     );
 
 }
-    
+    // ==========================================
+// CUSTOMER DASHBOARD
+// ==========================================
+
+async function loadCustomerRequests() {
+
+    const {
+        data: {
+            user
+        }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+
+        customerDashboardMessage.textContent =
+            "Please log in to view your requests.";
+
+        return;
+    }
+
+    const {
+        data: requests,
+        error
+    } = await supabase
+        .from("service_requests")
+        .select(`
+            *,
+            providers (
+                name,
+                phone
+            )
+        `)
+        .eq("customer_id", user.id)
+        .order("created_at", {
+            ascending: false
+        });
+
+    if (error) {
+
+        console.error(error);
+
+        customerDashboardMessage.textContent =
+            "Unable to load your requests.";
+
+        return;
+    }
+
+    if (!requests || requests.length === 0) {
+
+        customerDashboardMessage.textContent =
+            "You haven't made any service requests yet.";
+
+        customerRequestList.innerHTML = "";
+
+        return;
+    }
+
+    customerDashboardMessage.textContent =
+        `${requests.length} request${requests.length > 1 ? "s" : ""}`;
+
+    customerRequestList.innerHTML = "";
+
+    requests.forEach(function (request) {
+
+        const card =
+            document.createElement("div");
+
+        card.className = "request-card";
+
+        card.innerHTML = `
+
+            <h3>🛠️ ${request.service}</h3>
+
+            <p>
+                <strong>Provider:</strong>
+                ${request.providers?.name || "Provider"}
+            </p>
+
+            <p>
+                📍 ${request.location}
+            </p>
+
+            <p>
+                ${request.description}
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                ${request.status}
+            </p>
+
+            ${
+                request.status === "accepted"
+                    ? `
+                        <a
+                            class="contact-btn"
+                            href="tel:${request.providers?.phone || ""}"
+                        >
+                            📞 Contact Provider
+                        </a>
+                    `
+                    : ""
+            }
+
+        `;
+
+        customerRequestList.appendChild(card);
+
+    });
+}
+
+
+// ==========================================
+// CUSTOMER DASHBOARD BUTTON
+// ==========================================
+
+if (customerDashboardBtn) {
+
+    customerDashboardBtn.addEventListener(
+        "click",
+        async function () {
+
+            const {
+                data: {
+                    user
+                }
+            } = await supabase.auth.getUser();
+
+            if (!user) {
+
+                alert("Please log in first.");
+
+                return;
+            }
+
+            customerDashboard.style.display =
+                "block";
+
+            customerDashboard.scrollIntoView({
+                behavior: "smooth"
+            });
+
+            loadCustomerRequests();
+
+        }
+    );
+
+}
     // ==========================================
     // QUICKFIX READY
     // ==========================================
