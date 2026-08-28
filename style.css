@@ -518,55 +518,245 @@ footer strong {
   color: white;
   font-size: 22px;
 }
-
-
 /* ==========================================
    MOBILE
 ========================================== */
 
 @media (max-width: 800px) {
 
+  /* NAVIGATION */
+
   nav {
-    padding: 12px 5%;
+    height: auto;
+    min-height: 70px;
+    padding: 12px 4%;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 23px;
   }
 
   .nav-links {
     display: none;
   }
 
-  .service-grid,
-  .steps,
-  .about-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .provider-card {
-    flex-direction: column;
-  }
-
-  .hero {
-    padding-top: 80px;
-  }
-
-  .hero h1 {
-    font-size: 50px;
-  }
-
-  .search-box {
-    flex-direction: column;
-  }
-
-  .search-box button {
-    width: 100%;
-  }
-
   .nav-actions {
     margin-left: auto;
+    gap: 6px;
   }
 
   .provider-btn,
   .account-btn {
-    padding: 9px 11px;
+    padding: 9px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+
+  /* HERO */
+
+  .hero {
+    min-height: auto;
+    padding: 75px 18px 60px;
+  }
+
+  .tagline,
+  .section-label {
     font-size: 12px;
   }
+
+  .hero h1 {
+    font-size: clamp(38px, 12vw, 52px);
+    line-height: 1.05;
+  }
+
+  .hero-text {
+    font-size: 16px;
+    margin-top: 20px;
+  }
+
+
+  /* SEARCH */
+
+  .search-box {
+    width: 100%;
+    flex-direction: column;
+    padding: 8px;
+    margin-top: 30px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 14px 12px;
+  }
+
+  .search-box button {
+    width: 100%;
+    padding: 14px;
+  }
+
+
+  /* SECTIONS */
+
+  .services,
+  .how,
+  .about {
+    padding: 65px 5%;
+  }
+
+  .services h2,
+  .how h2,
+  .about h2,
+  .dashboard-container h2 {
+    font-size: 30px;
+  }
+
+
+  /* SERVICES */
+
+  .service-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 30px;
+  }
+
+  .service-card {
+    padding: 25px 15px;
+  }
+
+
+  /* RESULTS */
+
+  .results {
+    padding: 55px 5%;
+  }
+
+  .provider-card {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .provider-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contact-btn,
+  .request-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+
+  /* HOW IT WORKS */
+
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .steps > div {
+    padding: 25px;
+  }
+
+
+  /* DASHBOARDS */
+
+  .dashboard-section {
+    padding: 65px 5%;
+  }
+
+  .request-card {
+    padding: 20px;
+  }
+
+  .request-card button {
+    width: 100%;
+    margin-right: 0;
+    padding: 12px;
+  }
+
+
+  /* ABOUT */
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 30px;
+  }
+
+  .about-grid > div {
+    padding: 25px;
+  }
+
+
+  /* MODALS */
+
+  .modal {
+    padding: 15px 10px;
+    align-items: flex-start;
+  }
+
+  .modal.active {
+    align-items: flex-start;
+    padding-top: 30px;
+  }
+
+  .modal-box {
+    width: 100%;
+    max-height: 90vh;
+    padding: 28px 20px;
+    border-radius: 14px;
+  }
+
+  .modal-box h2 {
+    font-size: 25px;
+  }
+
+  .close-button {
+    top: 10px;
+    right: 12px;
+  }
+
+
+  /* FOOTER */
+
+  footer {
+    padding: 40px 5%;
+  }
+
+}
+
+
+/* ==========================================
+   VERY SMALL PHONES
+========================================== */
+
+@media (max-width: 430px) {
+
+  nav {
+    padding: 10px 3%;
+  }
+
+  .logo {
+    font-size: 21px;
+  }
+
+  .nav-actions {
+    gap: 4px;
+  }
+
+  .provider-btn,
+  .account-btn {
+    padding: 8px 7px;
+    font-size: 10px;
+  }
+
+  .hero h1 {
+    font-size: 40px;
+  }
+
 }
