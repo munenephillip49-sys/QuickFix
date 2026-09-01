@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://quick-fix-kappa-pink.vercel.app/sitemap.xml
