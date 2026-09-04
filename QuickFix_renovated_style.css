@@ -1,0 +1,1032 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #0b0f14;
+  color: white;
+  line-height: 1.6;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+
+/* ==========================================
+   NAV
+========================================== */
+
+nav {
+  height: 76px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  border-bottom: 1px solid #202832;
+  background: #0b0f14;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 27px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.logo span {
+  color: #39e58c;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: #b8c0ca;
+  text-decoration: none;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.nav-links a:hover {
+  color: #39e58c;
+}
+
+.nav-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.provider-btn,
+.account-btn {
+  background: #111820;
+  color: white;
+  border: 1px solid #303842;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.provider-btn:hover,
+.account-btn:hover {
+  border-color: #39e58c;
+  color: #39e58c;
+}
+
+
+/* ==========================================
+   HERO
+========================================== */
+
+.hero {
+  min-height: 600px;
+  padding: 110px 20px 80px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tagline,
+.section-label {
+  color: #39e58c;
+  letter-spacing: 2px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin-top: 25px;
+  font-size: clamp(48px, 7vw, 82px);
+  line-height: 1.05;
+  max-width: 900px;
+}
+
+.hero h1 span {
+  color: #39e58c;
+}
+
+.hero-text {
+  margin-top: 25px;
+  color: #aeb7c3;
+  font-size: 19px;
+  max-width: 650px;
+}
+
+.search-box {
+  width: min(740px, 90%);
+  margin-top: 40px;
+  display: flex;
+  background: #111820;
+  border: 1px solid #303842;
+  border-radius: 12px;
+  padding: 9px;
+}
+
+.search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+  padding: 15px;
+  font-size: 16px;
+}
+
+.search-box button,
+.submit-button {
+  border: none;
+  background: #39e58c;
+  color: #07110b;
+  font-weight: 800;
+  padding: 14px 25px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.search-box button:hover,
+.submit-button:hover {
+  transform: translateY(-1px);
+}
+
+
+/* ==========================================
+   GENERAL SECTIONS
+========================================== */
+
+.services,
+.how,
+.about {
+  padding: 90px 7%;
+  text-align: center;
+}
+
+.services h2,
+.how h2,
+.about h2,
+.dashboard-container h2 {
+  font-size: 38px;
+  margin-bottom: 10px;
+}
+
+.services > p,
+.about > p {
+  color: #aeb7c3;
+}
+
+
+/* ==========================================
+   SERVICES
+========================================== */
+
+.service-grid {
+  max-width: 1000px;
+  margin: 45px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.service-card {
+  background: #111820;
+  border: 1px solid #29313a;
+  border-radius: 12px;
+  padding: 30px 15px;
+  font-size: 35px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.service-card h3 {
+  font-size: 17px;
+  margin-top: 10px;
+}
+
+.service-card:hover {
+  border-color: #39e58c;
+  transform: translateY(-3px);
+}
+
+
+/* ==========================================
+   RESULTS
+========================================== */
+
+.results {
+  display: none;
+  padding: 70px 7%;
+  max-width: 1100px;
+  margin: auto;
+}
+
+.provider-list {
+  margin-top: 30px;
+  display: grid;
+  gap: 18px;
+}
+
+.provider-card,
+.request-card {
+  background: #111820;
+  border: 1px solid #29313a;
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.provider-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.provider-card h3,
+.request-card h3 {
+  margin-bottom: 8px;
+}
+
+.provider-card p,
+.request-card p {
+  color: #aeb7c3;
+  margin: 5px 0;
+}
+
+.provider-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.contact-btn,
+.request-btn {
+  display: inline-block;
+  text-decoration: none;
+  background: #39e58c;
+  color: #07110b;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+
+/* ==========================================
+   HOW
+========================================== */
+
+.steps {
+  max-width: 900px;
+  margin: 45px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.steps > div {
+  padding: 30px;
+  background: #111820;
+  border: 1px solid #29313a;
+  border-radius: 12px;
+}
+
+.steps b {
+  color: #39e58c;
+  font-size: 28px;
+}
+
+.steps p {
+  color: #aeb7c3;
+}
+
+
+/* ==========================================
+   DASHBOARDS
+========================================== */
+
+.dashboard-section {
+  display: none;
+  padding: 90px 7%;
+}
+
+.dashboard-container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.request-list {
+  display: grid;
+  gap: 18px;
+  margin-top: 30px;
+}
+
+.request-card button {
+  margin-top: 15px;
+  margin-right: 8px;
+}
+
+.accept-btn {
+  background: #39e58c;
+  color: #07110b;
+}
+
+.decline-btn {
+  background: #303842;
+  color: white;
+}
+
+
+/* ==========================================
+   ABOUT
+========================================== */
+
+.about-grid {
+  max-width: 1000px;
+  margin: 45px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.about-grid > div {
+  background: #111820;
+  border: 1px solid #29313a;
+  border-radius: 12px;
+  padding: 30px;
+}
+
+.about-grid p {
+  color: #aeb7c3;
+  margin-top: 8px;
+}
+
+
+/* ==========================================
+   MODALS
+========================================== */
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 30px 15px;
+  overflow-y: auto;
+}
+
+.modal.active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-box {
+  width: min(520px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #10161d;
+  border: 1px solid #303842;
+  border-radius: 16px;
+  padding: 35px;
+  position: relative;
+}
+
+.modal-box h2 {
+  font-size: 30px;
+  margin: 8px 0;
+}
+
+.modal-box > p {
+  color: #aeb7c3;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  background: none;
+  border: none;
+  color: #aeb7c3;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.form-group {
+  margin-top: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: #0b0f14;
+  color: white;
+  border: 1px solid #303842;
+  border-radius: 8px;
+  padding: 13px;
+  outline: none;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #39e58c;
+}
+
+.submit-button {
+  width: 100%;
+  margin-top: 22px;
+}
+
+.message {
+  margin-top: 15px;
+  color: #39e58c !important;
+}
+
+.switch-button {
+  background: none;
+  border: none;
+  color: #39e58c;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.account-option,
+.logout-button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.account-option {
+  background: #111820;
+  color: white;
+  border: 1px solid #303842;
+}
+
+.logout-button {
+  background: #303842;
+  color: white;
+  border: none;
+}
+
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+footer {
+  padding: 50px 7%;
+  text-align: center;
+  border-top: 1px solid #202832;
+  color: #aeb7c3;
+}
+
+footer strong {
+  color: white;
+  font-size: 22px;
+}
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 800px) {
+
+  /* NAVIGATION */
+
+  nav {
+    height: auto;
+    min-height: 70px;
+    padding: 12px 4%;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 23px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .nav-actions {
+    margin-left: auto;
+    gap: 6px;
+  }
+
+  .provider-btn,
+  .account-btn {
+    padding: 9px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+
+
+  /* HERO */
+
+  .hero {
+    min-height: auto;
+    padding: 75px 18px 60px;
+  }
+
+  .tagline,
+  .section-label {
+    font-size: 12px;
+  }
+
+  .hero h1 {
+    font-size: clamp(38px, 12vw, 52px);
+    line-height: 1.05;
+  }
+
+  .hero-text {
+    font-size: 16px;
+    margin-top: 20px;
+  }
+
+
+  /* SEARCH */
+
+  .search-box {
+    width: 100%;
+    flex-direction: column;
+    padding: 8px;
+    margin-top: 30px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 14px 12px;
+  }
+
+  .search-box button {
+    width: 100%;
+    padding: 14px;
+  }
+
+
+  /* SECTIONS */
+
+  .services,
+  .how,
+  .about {
+    padding: 65px 5%;
+  }
+
+  .services h2,
+  .how h2,
+  .about h2,
+  .dashboard-container h2 {
+    font-size: 30px;
+  }
+
+
+  /* SERVICES */
+
+  .service-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 30px;
+  }
+
+  .service-card {
+    padding: 25px 15px;
+  }
+
+
+  /* RESULTS */
+
+  .results {
+    padding: 55px 5%;
+  }
+
+  .provider-card {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .provider-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contact-btn,
+  .request-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+
+  /* HOW IT WORKS */
+
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .steps > div {
+    padding: 25px;
+  }
+
+
+  /* DASHBOARDS */
+
+  .dashboard-section {
+    padding: 65px 5%;
+  }
+
+  .request-card {
+    padding: 20px;
+  }
+
+  .request-card button {
+    width: 100%;
+    margin-right: 0;
+    padding: 12px;
+  }
+
+
+  /* ABOUT */
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 30px;
+  }
+
+  .about-grid > div {
+    padding: 25px;
+  }
+
+
+  /* MODALS */
+
+  .modal {
+    padding: 15px 10px;
+    align-items: flex-start;
+  }
+
+  .modal.active {
+    align-items: flex-start;
+    padding-top: 30px;
+  }
+
+  .modal-box {
+    width: 100%;
+    max-height: 90vh;
+    padding: 28px 20px;
+    border-radius: 14px;
+  }
+
+  .modal-box h2 {
+    font-size: 25px;
+  }
+
+  .close-button {
+    top: 10px;
+    right: 12px;
+  }
+
+
+  /* FOOTER */
+
+  footer {
+    padding: 40px 5%;
+  }
+
+}
+
+
+/* ==========================================
+   VERY SMALL PHONES
+========================================== */
+
+@media (max-width: 430px) {
+
+  nav {
+    padding: 10px 3%;
+  }
+
+  .logo {
+    font-size: 21px;
+  }
+
+  .nav-actions {
+    gap: 4px;
+  }
+
+  .provider-btn,
+  .account-btn {
+    padding: 8px 7px;
+    font-size: 10px;
+  }
+
+  .hero h1 {
+    font-size: 40px;
+  }
+
+}
+/* ==========================================================
+   QUICKFIX 2026 RENOVATION
+   Existing QuickFix styles are preserved above.
+   ========================================================== */
+
+* { -webkit-tap-highlight-color: transparent; }
+
+body {
+  background:
+    radial-gradient(circle at 50% -10%, rgba(57,229,140,.09), transparent 34%),
+    #0b0f14;
+  min-height: 100vh;
+}
+
+button, input, select, textarea {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+button {
+  transition: transform .18s ease, border-color .18s ease,
+              background .18s ease, box-shadow .18s ease, color .18s ease;
+}
+
+button:active,
+.contact-btn:active,
+.request-btn:active { transform: scale(.98); }
+
+nav {
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  background: rgba(11,15,20,.86);
+  box-shadow: 0 8px 30px rgba(0,0,0,.16);
+}
+
+.logo { letter-spacing: -.8px; }
+.logo span { text-shadow: 0 0 22px rgba(57,229,140,.28); }
+
+.provider-btn,
+.account-btn {
+  border-radius: 999px;
+  transition: all .2s ease;
+}
+
+.provider-btn:hover,
+.account-btn:hover {
+  background: rgba(57,229,140,.08);
+  box-shadow: 0 0 0 4px rgba(57,229,140,.05);
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  left: 50%;
+  top: 30px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(57,229,140,.12), transparent 68%);
+  pointer-events: none;
+}
+
+.hero > * { position: relative; z-index: 1; }
+
+.tagline {
+  padding: 7px 13px;
+  border: 1px solid rgba(57,229,140,.18);
+  border-radius: 999px;
+  background: rgba(57,229,140,.05);
+}
+
+.hero h1 { letter-spacing: -2.5px; }
+.hero-text { line-height: 1.7; }
+
+.search-box {
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.22), 0 0 0 1px rgba(255,255,255,.015);
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.search-box:focus-within {
+  border-color: rgba(57,229,140,.55);
+  box-shadow: 0 20px 60px rgba(0,0,0,.28), 0 0 0 4px rgba(57,229,140,.06);
+}
+
+.search-box button,
+.submit-button {
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(57,229,140,.12);
+}
+
+.search-box button:hover,
+.submit-button:hover {
+  box-shadow: 0 10px 28px rgba(57,229,140,.18);
+}
+
+.service-card,
+.provider-card,
+.request-card,
+.steps > div,
+.about-grid > div {
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,.025), transparent 45%), #111820;
+  box-shadow: 0 12px 35px rgba(0,0,0,.12);
+}
+
+.service-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.service-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: #39e58c;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .25s ease;
+}
+
+.service-card:hover::after { transform: scaleX(1); }
+
+.service-card:hover {
+  box-shadow: 0 18px 45px rgba(0,0,0,.22);
+}
+
+.provider-card,
+.request-card {
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+.provider-card:hover,
+.request-card:hover {
+  border-color: rgba(57,229,140,.28);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 45px rgba(0,0,0,.2);
+}
+
+.contact-btn,
+.request-btn {
+  border-radius: 999px;
+  box-shadow: 0 7px 18px rgba(57,229,140,.1);
+}
+
+.contact-btn:hover,
+.request-btn:hover { transform: translateY(-2px); }
+
+.dashboard-section {
+  background: linear-gradient(180deg, rgba(57,229,140,.025), transparent 25%), transparent;
+}
+
+.dashboard-container h2 { letter-spacing: -1px; }
+
+.accept-btn,
+.decline-btn {
+  border-radius: 999px;
+  padding: 10px 17px;
+  border: 1px solid transparent;
+}
+
+.accept-btn:hover { box-shadow: 0 8px 22px rgba(57,229,140,.14); }
+.decline-btn:hover { border-color: #4a5562; }
+
+.modal {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-box {
+  background: linear-gradient(145deg, rgba(255,255,255,.025), transparent 40%), #10161d;
+  box-shadow: 0 30px 100px rgba(0,0,0,.5);
+}
+
+.close-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: background .2s ease, color .2s ease;
+}
+
+.close-button:hover {
+  background: rgba(255,255,255,.06);
+  color: white;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  background: #0d1319;
+  box-shadow: 0 0 0 4px rgba(57,229,140,.06);
+}
+
+.account-option { transition: all .2s ease; }
+
+.account-option:hover {
+  border-color: rgba(57,229,140,.45);
+  background: rgba(57,229,140,.05);
+  transform: translateY(-1px);
+}
+
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-track { background: #0b0f14; }
+::-webkit-scrollbar-thumb { background: #29313a; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #39e58c; }
+
+::selection {
+  background: rgba(57,229,140,.25);
+  color: white;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #39e58c;
+  outline-offset: 3px;
+}
+
+@media (max-width: 800px) {
+  body { overflow-x: hidden; }
+
+  nav {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .hero h1 { letter-spacing: -1.5px; }
+  .search-box { border-radius: 16px; }
+
+  .service-card,
+  .provider-card,
+  .request-card,
+  .steps > div,
+  .about-grid > div { border-radius: 16px; }
+
+  .modal-box { box-shadow: 0 20px 70px rgba(0,0,0,.55); }
+}
+
+@media (max-width: 430px) {
+  .hero h1 { letter-spacing: -1px; }
+  .provider-btn,
+  .account-btn { border-radius: 999px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
