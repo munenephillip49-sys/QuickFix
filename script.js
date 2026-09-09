@@ -405,10 +405,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   let authMode = "signup";
-
   let selectedProvider = null;
+  let isAuthSubmitting = false;
+  let isProviderSubmitting = false;
+  let isRequestSubmitting = false;
 
-  addLocationButton(requestLocation, "Location added to your request.");
+  if (requestLocation) {
+    addLocationButton(requestLocation, "Location added to your request.");
+  }
 
 
   // ==========================================
@@ -416,24 +420,15 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   function openModal(modal) {
-
     if (!modal) return;
-
     modal.classList.add("active");
-
     document.body.classList.add("modal-open");
-
   }
 
-
   function closeModal(modal) {
-
     if (!modal) return;
-
     modal.classList.remove("active");
-
     document.body.classList.remove("modal-open");
-
   }
 
 
@@ -442,24 +437,21 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   async function searchService() {
-
-    const search =
-      searchInput.value.trim();
+    const search = searchInput?.value.trim();
 
     if (search) {
       localStorage.setItem(QUICKFIX.lastSearchKey, search);
     }
 
     if (!search) {
-
       showToast("Enter a service to search.", "error");
-
       return;
-
     }
 
-    searchButton.disabled = true;
-    searchButton.textContent = "Searching...";
+    if (searchButton) {
+      searchButton.disabled = true;
+      searchButton.textContent = "Searching...";
+    }
 
     const { data, error } =
       await supabase
@@ -467,17 +459,15 @@ document.addEventListener("DOMContentLoaded", function () {
         .select("*")
         .ilike("service", `%${search}%`);
 
-    searchButton.disabled = false;
-    searchButton.textContent = "Search";
+    if (searchButton) {
+      searchButton.disabled = false;
+      searchButton.textContent = "Search";
+    }
 
     if (error) {
-
       console.error(error);
-
       showToast("Unable to search right now.", "error");
-
       return;
-
     }
 
     const resultsSection =
@@ -501,9 +491,8 @@ document.addEventListener("DOMContentLoaded", function () {
     resultsContainer.innerHTML = "";
 
     if (!data || data.length === 0) {
-
       if (resultsSummary)
-        resultsSummary.textContent = `No providers found for “${search}”.`;
+        resultsSummary.textContent = `No providers found for "${search}".`;
 
       resultsContainer.innerHTML = `
         <div class="empty-state">
@@ -514,22 +503,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
       resultsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
-
     }
 
     if (resultsSummary)
       resultsSummary.textContent =
-        `${data.length} provider${data.length === 1 ? "" : "s"} found for “${search}”.`;
+        `${data.length} provider${data.length === 1 ? "" : "s"} found for "${search}".`;
 
     data.forEach(provider => {
-
-      const card =
-        document.createElement("div");
-
+      const card = document.createElement("div");
       card.className = "provider-card";
 
-      const saved =
-        isProviderSaved(provider.id);
+      const saved = isProviderSaved(provider.id);
 
       card.innerHTML = `
         <div class="provider-card-main">
@@ -579,159 +563,110 @@ document.addEventListener("DOMContentLoaded", function () {
       const saveButton =
         card.querySelector("[data-save-provider]");
 
-      saveButton?.addEventListener("click", () => {
+      if (saveButton) {
+        saveButton.addEventListener("click", () => {
+          const nowSaved = toggleSavedProvider(provider);
 
-        const nowSaved =
-          toggleSavedProvider(provider);
+          saveButton.classList.toggle("saved", nowSaved);
+          saveButton.textContent = nowSaved ? "★ Saved" : "☆ Save";
 
-        saveButton.classList.toggle(
-          "saved",
-          nowSaved
-        );
-
-        saveButton.textContent =
-          nowSaved ? "★ Saved" : "☆ Save";
-
-        showToast(
-          nowSaved
-            ? "Provider saved."
-            : "Provider removed from saved."
-        );
-
-      });
-
+          showToast(
+            nowSaved
+              ? "Provider saved."
+              : "Provider removed from saved."
+          );
+        });
+      }
 
       const requestButton =
         card.querySelector(".request-provider-btn");
 
-      requestButton?.addEventListener("click", async () => {
+      if (requestButton) {
+        requestButton.addEventListener("click", async () => {
+          const user = await getCurrentUser();
 
-        const user =
-          await getCurrentUser();
+          if (!user) {
+            showToast(
+              "Please log in before requesting a service.",
+              "error"
+            );
 
-        if (!user) {
+            authMode = "login";
 
-          showToast(
-            "Please log in before requesting a service.",
-            "error"
-          );
+            if (authTitle)
+              authTitle.textContent = "Welcome back";
 
-          authMode = "login";
+            if (authIntro)
+              authIntro.textContent =
+                "Log in to request a service.";
 
-          if (authTitle)
-            authTitle.textContent = "Welcome back";
+            openModal(authModal);
+            return;
+          }
 
-          if (authIntro)
-            authIntro.textContent =
-              "Log in to request a service.";
+          selectedProvider = provider;
 
-          openModal(authModal);
+          if (requestProviderName)
+            requestProviderName.textContent =
+              provider.name || "Service Provider";
 
-          return;
+          if (requestMessage)
+            requestMessage.textContent = "";
 
-        }
+          if (requestDescription)
+            requestDescription.value = "";
 
-        selectedProvider =
-          provider;
+          if (requestLocation)
+            requestLocation.value = "";
 
-        if (requestProviderName)
-          requestProviderName.textContent =
-            provider.name || "Service Provider";
+          if (requestPhone)
+            requestPhone.value = provider.phone || "";
 
-        if (requestMessage)
-          requestMessage.textContent = "";
-
-        if (requestDescription)
-          requestDescription.value = "";
-
-        if (requestLocation)
-          requestLocation.value = "";
-
-        if (requestPhone)
-          requestPhone.value =
-            provider.phone || "";
-
-        openModal(requestModal);
-
-      });
+          openModal(requestModal);
+        });
+      }
 
       resultsContainer.appendChild(card);
-
     });
 
     resultsSection?.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
-
   }
-
 
   if (searchButton) {
-
-    searchButton.addEventListener(
-      "click",
-      searchService
-    );
-
+    searchButton.addEventListener("click", searchService);
   }
-
 
   if (searchInput) {
-
-    searchInput.addEventListener(
-      "keydown",
-      event => {
-
-        if (event.key === "Enter") {
-
-          event.preventDefault();
-
-          searchService();
-
-        }
-
+    searchInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        searchService();
       }
-    );
+    });
 
     const previousSearch =
-      localStorage.getItem(
-        QUICKFIX.lastSearchKey
-      );
+      localStorage.getItem(QUICKFIX.lastSearchKey);
 
     if (previousSearch) {
-
-      searchInput.value =
-        previousSearch;
-
+      searchInput.value = previousSearch;
     }
-
   }
 
-
   serviceCards.forEach(card => {
+    card.addEventListener("click", () => {
+      const service =
+        card.dataset.service ||
+        card.querySelector("h3")?.textContent.trim() ||
+        "";
 
-    card.addEventListener(
-      "click",
-      () => {
-
-        const service =
-          card.dataset.service ||
-          card.querySelector("h3")?.textContent.trim() ||
-          "";
-
-        if (searchInput) {
-
-          searchInput.value =
-            service;
-
-          searchService();
-
-        }
-
+      if (searchInput) {
+        searchInput.value = service;
+        searchService();
       }
-    );
-
+    });
   });
 
 
@@ -740,64 +675,44 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   function updateAuthMode() {
-
     if (authMode === "signup") {
-
       if (authTitle)
-        authTitle.textContent =
-          "Create your QuickFix account";
+        authTitle.textContent = "Create your QuickFix account";
 
       if (authIntro)
         authIntro.textContent =
           "Join QuickFix and get local help when you need it.";
 
       if (authSubmit)
-        authSubmit.textContent =
-          "Create account";
+        authSubmit.textContent = "Create account";
 
       if (switchAuthMode)
         switchAuthMode.textContent =
           "Already have an account? Log in";
 
     } else {
-
       if (authTitle)
-        authTitle.textContent =
-          "Welcome back";
+        authTitle.textContent = "Welcome back";
 
       if (authIntro)
         authIntro.textContent =
           "Log in to your QuickFix account.";
 
       if (authSubmit)
-        authSubmit.textContent =
-          "Log in";
+        authSubmit.textContent = "Log in";
 
       if (switchAuthMode)
         switchAuthMode.textContent =
           "Don't have an account? Create one";
-
     }
-
   }
 
-
   if (switchAuthMode) {
-
-    switchAuthMode.addEventListener(
-      "click",
-      () => {
-
-        authMode =
-          authMode === "signup"
-            ? "login"
-            : "signup";
-
-        updateAuthMode();
-
-      }
-    );
-
+    switchAuthMode.addEventListener("click", () => {
+      authMode =
+        authMode === "signup" ? "login" : "signup";
+      updateAuthMode();
+    });
   }
 
 
@@ -806,75 +721,46 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (accountButton) {
+    accountButton.addEventListener("click", async () => {
+      const user = await getCurrentUser();
 
-    accountButton.addEventListener(
-      "click",
-      async () => {
+      if (user) {
+        if (accountEmail)
+          accountEmail.textContent = user.email || "";
 
-        const user =
-          await getCurrentUser();
+        if (accountMessage)
+          accountMessage.textContent = "";
 
-        if (user) {
-
-          if (accountEmail)
-            accountEmail.textContent =
-              user.email || "";
-
-          if (accountMessage)
-            accountMessage.textContent = "";
-
-          openModal(accountModal);
-
-        } else {
-
-          authMode = "login";
-
-          updateAuthMode();
-
-          openModal(authModal);
-
-        }
-
+        openModal(accountModal);
+      } else {
+        authMode = "login";
+        updateAuthMode();
+        openModal(authModal);
       }
-    );
-
+    });
   }
 
-
   if (joinProvider) {
+    joinProvider.addEventListener("click", async () => {
+      const user = await getCurrentUser();
 
-    joinProvider.addEventListener(
-      "click",
-      async () => {
+      if (!user) {
+        authMode = "login";
+        updateAuthMode();
+        openModal(authModal);
 
-        const user =
-          await getCurrentUser();
-
-        if (!user) {
-
-          authMode = "login";
-
-          updateAuthMode();
-
-          openModal(authModal);
-
-          showToast(
-            "Log in first to become a provider.",
-            "error"
-          );
-
-          return;
-
-        }
-
-        if (providerMessage)
-          providerMessage.textContent = "";
-
-        openModal(providerModal);
-
+        showToast(
+          "Log in first to become a provider.",
+          "error"
+        );
+        return;
       }
-    );
 
+      if (providerMessage)
+        providerMessage.textContent = "";
+
+      openModal(providerModal);
+    });
   }
 
 
@@ -883,59 +769,45 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (authSubmit) {
+    authSubmit.addEventListener("click", async () => {
+      if (isAuthSubmitting) return;
 
-    authSubmit.addEventListener(
-      "click",
-      async () => {
+      const email = authEmail?.value.trim();
+      const password = authPassword?.value;
 
-        const email =
-          authEmail?.value.trim();
-
-        const password =
-          authPassword?.value;
-
-        if (!email || !password) {
-
-          if (authMessage)
-            authMessage.textContent =
-              "Enter your email and password.";
-
-          return;
-
-        }
-
-        setButtonLoading(
-          authSubmit,
-          true,
-          authMode === "signup"
-            ? "Creating..."
-            : "Logging in..."
-        );
-
+      if (!email || !password) {
         if (authMessage)
-          authMessage.textContent = "";
+          authMessage.textContent =
+            "Enter your email and password.";
+        return;
+      }
 
-        let result;
+      isAuthSubmitting = true;
+      setButtonLoading(
+        authSubmit,
+        true,
+        authMode === "signup" ? "Creating..." : "Logging in..."
+      );
 
+      if (authMessage)
+        authMessage.textContent = "";
+
+      let result;
+
+      try {
         if (authMode === "signup") {
-
-          result =
-            await supabase.auth.signUp({
-              email,
-              password
-            });
-
+          result = await supabase.auth.signUp({
+            email,
+            password
+          });
         } else {
-
-          result =
-            await supabase.auth.signInWithPassword({
-              email,
-         password
-            });
+          result = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
         }
 
         if (result.error) {
-
           console.error("QuickFix auth:", result.error);
 
           if (authMessage)
@@ -943,20 +815,15 @@ document.addEventListener("DOMContentLoaded", function () {
               result.error.message || "Authentication failed.";
 
           setButtonLoading(authSubmit, false);
-
+          isAuthSubmitting = false;
           return;
         }
 
         if (authMode === "signup") {
-
           if (result.data?.session) {
-
             showToast("Account created successfully.");
-
             closeModal(authModal);
-
           } else {
-
             if (authMessage)
               authMessage.textContent =
                 "Account created. Check your email to confirm your account.";
@@ -964,18 +831,11 @@ document.addEventListener("DOMContentLoaded", function () {
             showToast(
               "Check your email to confirm your account."
             );
-
           }
-
         } else {
-
           showToast("Welcome back.");
-
           closeModal(authModal);
-
         }
-
-        setButtonLoading(authSubmit, false);
 
         if (authEmail)
           authEmail.value = "";
@@ -983,8 +843,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (authPassword)
           authPassword.value = "";
 
-      });
-
+      } finally {
+        setButtonLoading(authSubmit, false);
+        isAuthSubmitting = false;
+      }
+    });
   }
 
 
@@ -993,12 +856,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (closeAuth) {
-
-    closeAuth.addEventListener(
-      "click",
-      () => closeModal(authModal)
-    );
-
+    closeAuth.addEventListener("click", () => closeModal(authModal));
   }
 
 
@@ -1007,12 +865,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (closeProvider) {
-
-    closeProvider.addEventListener(
-      "click",
-      () => closeModal(providerModal)
-    );
-
+    closeProvider.addEventListener("click", () => closeModal(providerModal));
   }
 
 
@@ -1021,18 +874,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (closeRequest) {
-
-    closeRequest.addEventListener(
-      "click",
-      () => {
-
-        selectedProvider = null;
-
-        closeModal(requestModal);
-
-      }
-    );
-
+    closeRequest.addEventListener("click", () => {
+      selectedProvider = null;
+      closeModal(requestModal);
+    });
   }
 
 
@@ -1041,12 +886,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (closeAccount) {
-
-    closeAccount.addEventListener(
-      "click",
-      () => closeModal(accountModal)
-    );
-
+    closeAccount.addEventListener("click", () => closeModal(accountModal));
   }
 
 
@@ -1060,22 +900,13 @@ document.addEventListener("DOMContentLoaded", function () {
     requestModal,
     accountModal
   ].forEach(modal => {
-
     if (!modal) return;
 
-    modal.addEventListener(
-      "click",
-      event => {
-
-        if (event.target === modal) {
-
-          closeModal(modal);
-
-        }
-
+    modal.addEventListener("click", event => {
+      if (event.target === modal) {
+        closeModal(modal);
       }
-    );
-
+    });
   });
 
 
@@ -1083,29 +914,20 @@ document.addEventListener("DOMContentLoaded", function () {
   // ESC KEY
   // ==========================================
 
-  document.addEventListener(
-    "keydown",
-    event => {
+  document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
 
-      if (event.key !== "Escape") return;
-
-      [
-        authModal,
-        providerModal,
-        requestModal,
-        accountModal
-      ].forEach(modal => {
-
-        if (modal?.classList.contains("active")) {
-
-          closeModal(modal);
-
-        }
-
-      });
-
-    }
-  );
+    [
+      authModal,
+      providerModal,
+      requestModal,
+      accountModal
+    ].forEach(modal => {
+      if (modal?.classList.contains("active")) {
+        closeModal(modal);
+      }
+    });
+  });
 
 
   // ==========================================
@@ -1113,86 +935,59 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (submitProvider) {
+    submitProvider.addEventListener("click", async () => {
+      if (isProviderSubmitting) return;
 
-    submitProvider.addEventListener(
-      "click",
-      async () => {
+      const user = await getCurrentUser();
 
-        const user =
-          await getCurrentUser();
+      if (!user) {
+        closeModal(providerModal);
+        authMode = "login";
+        updateAuthMode();
+        openModal(authModal);
 
-        if (!user) {
+        showToast("Please log in first.", "error");
+        return;
+      }
 
-          closeModal(providerModal);
+      const providerName =
+        document.querySelector("#providerName")?.value.trim();
 
-          authMode = "login";
+      const providerService =
+        document.querySelector("#providerService")?.value.trim();
 
-          updateAuthMode();
+      const providerLocation =
+        document.querySelector("#providerLocation")?.value.trim();
 
-          openModal(authModal);
+      const providerPhone =
+        document.querySelector("#providerPhone")?.value.trim();
 
-          showToast(
-            "Please log in first.",
-            "error"
-          );
-
-          return;
-
-        }
-
-
-        const providerName =
-          document.querySelector("#providerName")?.value.trim();
-
-        const providerService =
-          document.querySelector("#providerService")?.value.trim();
-
-        const providerLocation =
-          document.querySelector("#providerLocation")?.value.trim();
-
-        const providerPhone =
-          document.querySelector("#providerPhone")?.value.trim();
-
-        if (
-          !providerName ||
-          !providerService ||
-          !providerLocation
-        ) {
-
-          if (providerMessage)
-            providerMessage.textContent =
-              "Please complete all required fields.";
-
-          return;
-
-        }
-
-
-        setButtonLoading(
-          submitProvider,
-          true,
-          "Joining..."
-        );
-
+      if (
+        !providerName ||
+        !providerService ||
+        !providerLocation
+      ) {
         if (providerMessage)
-          providerMessage.textContent = "";
+          providerMessage.textContent =
+            "Please complete all required fields.";
+        return;
+      }
 
+      isProviderSubmitting = true;
+      setButtonLoading(submitProvider, true, "Joining...");
 
-        const providerData = {
+      if (providerMessage)
+        providerMessage.textContent = "";
 
-          user_id: user.id,
+      const providerData = {
+        user_id: user.id,
+        name: providerName,
+        service: providerService,
+        location: providerLocation,
+        phone: providerPhone || null
+      };
 
-          name: providerName,
-
-          service: providerService,
-
-          location: providerLocation,
-
-          phone: providerPhone || null
-
-        };
-
-
+      try {
         const { data, error } =
           await supabase
             .from("providers")
@@ -1200,9 +995,7 @@ document.addEventListener("DOMContentLoaded", function () {
             .select()
             .single();
 
-
         if (error) {
-
           console.error(
             "QuickFix provider registration:",
             error
@@ -1213,27 +1006,13 @@ document.addEventListener("DOMContentLoaded", function () {
               error.message ||
               "Unable to register as a provider.";
 
-          setButtonLoading(
-            submitProvider,
-            false
-          );
-
+          setButtonLoading(submitProvider, false);
+          isProviderSubmitting = false;
           return;
-
         }
 
-
-        showToast(
-          "You're now a QuickFix provider!"
-        );
-
+        showToast("You're now a QuickFix provider!");
         closeModal(providerModal);
-
-        setButtonLoading(
-          submitProvider,
-          false
-        );
-
 
         const providerInputs = [
           "#providerName",
@@ -1243,28 +1022,19 @@ document.addEventListener("DOMContentLoaded", function () {
         ];
 
         providerInputs.forEach(selector => {
-
-          const input =
-            document.querySelector(selector);
-
+          const input = document.querySelector(selector);
           if (input)
             input.value = "";
-
         });
 
-
         if (data) {
-
-          console.log(
-            "QuickFix provider created:",
-            data
-          );
-
+          console.log("QuickFix provider created:", data);
         }
-
+      } finally {
+        setButtonLoading(submitProvider, false);
+        isProviderSubmitting = false;
       }
-    );
-
+    });
   }
 
 
@@ -1273,100 +1043,66 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (submitRequest) {
+    submitRequest.addEventListener("click", async () => {
+      if (isRequestSubmitting) return;
 
-    submitRequest.addEventListener(
-      "click",
-      async () => {
+      const user = await getCurrentUser();
 
-        const user =
-          await getCurrentUser();
+      if (!user) {
+        closeModal(requestModal);
+        authMode = "login";
+        updateAuthMode();
+        openModal(authModal);
 
-        if (!user) {
-
-          closeModal(requestModal);
-
-          authMode = "login";
-
-          updateAuthMode();
-
-          openModal(authModal);
-
-          showToast(
-            "Please log in before requesting a service.",
-            "error"
-          );
-
-          return;
-
-        }
-
-
-        if (!selectedProvider) {
-
-          showToast(
-            "Please select a provider first.",
-            "error"
-          );
-
-          return;
-
-        }
-
-
-        const description =
-          requestDescription?.value.trim();
-
-        const location =
-          requestLocation?.value.trim();
-
-        const phone =
-          requestPhone?.value.trim();
-
-
-        if (!description || !location || !phone) {
-
-          if (requestMessage)
-            requestMessage.textContent =
-              "Please complete all required fields.";
-
-          return;
-
-        }
-
-
-        setButtonLoading(
-          submitRequest,
-          true,
-          "Sending..."
+        showToast(
+          "Please log in before requesting a service.",
+          "error"
         );
+        return;
+      }
 
+      if (!selectedProvider) {
+        showToast(
+          "Please select a provider first.",
+          "error"
+        );
+        return;
+      }
+
+      const description =
+        requestDescription?.value.trim();
+
+      const location =
+        requestLocation?.value.trim();
+
+      const phone =
+        requestPhone?.value.trim();
+
+      if (!description || !location || !phone) {
         if (requestMessage)
-          requestMessage.textContent = "";
+          requestMessage.textContent =
+            "Please complete all required fields.";
+        return;
+      }
 
+      isRequestSubmitting = true;
+      setButtonLoading(submitRequest, true, "Sending...");
 
-        const requestData = {
+      if (requestMessage)
+        requestMessage.textContent = "";
 
-          customer_id: user.id,
+      const requestData = {
+        customer_id: user.id,
+        provider_id: selectedProvider.id,
+        provider_name: selectedProvider.name || null,
+        service: selectedProvider.service || null,
+        description,
+        location,
+        phone,
+        status: "pending"
+      };
 
-          provider_id: selectedProvider.id,
-
-          provider_name:
-            selectedProvider.name || null,
-
-          service:
-            selectedProvider.service || null,
-
-          description,
-
-          location,
-
-          phone,
-
-          status: "pending"
-
-        };
-
-
+      try {
         const { data, error } =
           await supabase
             .from("service_requests")
@@ -1374,45 +1110,22 @@ document.addEventListener("DOMContentLoaded", function () {
             .select()
             .single();
 
-
         if (error) {
-
-          console.error(
-            "QuickFix request:",
-            error
-          );
+          console.error("QuickFix request:", error);
 
           if (requestMessage)
             requestMessage.textContent =
               error.message ||
               "Unable to send your request.";
 
-          setButtonLoading(
-            submitRequest,
-            false
-          );
-
+          setButtonLoading(submitRequest, false);
+          isRequestSubmitting = false;
           return;
-
         }
 
-
-        showToast(
-          "Service request sent successfully!"
-        );
-
-
+        showToast("Service request sent successfully!");
         closeModal(requestModal);
-
-
         selectedProvider = null;
-
-
-        setButtonLoading(
-          submitRequest,
-          false
-        );
-
 
         if (requestDescription)
           requestDescription.value = "";
@@ -1423,19 +1136,14 @@ document.addEventListener("DOMContentLoaded", function () {
         if (requestPhone)
           requestPhone.value = "";
 
-
         if (data) {
-
-          console.log(
-            "QuickFix request created:",
-            data
-          );
-
+          console.log("QuickFix request created:", data);
         }
-
+      } finally {
+        setButtonLoading(submitRequest, false);
+        isRequestSubmitting = false;
       }
-    );
-
+    });
   }
 
 
@@ -1444,31 +1152,23 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   async function loadCustomerRequests() {
-
     if (!customerRequestList) return;
 
-
-    const user =
-      await getCurrentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
-
       customerRequestList.innerHTML = `
         <div class="empty-state">
           <h3>Please log in</h3>
           <p>Log in to view your service requests.</p>
         </div>
       `;
-
       return;
-
     }
-
 
     if (customerDashboardMessage)
       customerDashboardMessage.textContent =
         "Loading your requests...";
-
 
     const { data, error } =
       await supabase
@@ -1479,9 +1179,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ascending: false
         });
 
-
     if (error) {
-
       console.error(
         "QuickFix customer requests:",
         error
@@ -1498,12 +1196,9 @@ document.addEventListener("DOMContentLoaded", function () {
         customerDashboardMessage.textContent = "";
 
       return;
-
     }
 
-
     if (!data || data.length === 0) {
-
       customerRequestList.innerHTML = `
         <div class="empty-state">
           <h3>No service requests yet</h3>
@@ -1515,32 +1210,19 @@ document.addEventListener("DOMContentLoaded", function () {
         customerDashboardMessage.textContent = "";
 
       return;
-
     }
-
 
     customerRequestList.innerHTML = "";
 
-
     data.forEach(request => {
+      const card = document.createElement("div");
+      card.className = "request-card";
 
-      const card =
-        document.createElement("div");
-
-      card.className =
-        "request-card";
-
-
-      const status =
-        request.status || "pending";
-
+      const status = request.status || "pending";
 
       card.innerHTML = `
-
         <div class="request-card-header">
-
           <div>
-
             <h3>
               ${escapeHtml(
                 request.service ||
@@ -1548,66 +1230,51 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Service request"
               )}
             </h3>
-
             <p class="request-meta">
               ${escapeHtml(
                 request.provider_name ||
                 "Provider"
               )}
             </p>
-
           </div>
-
           <span class="status-badge ${statusClass(status)}">
             ${escapeHtml(formatStatus(status))}
           </span>
-
         </div>
 
-
         <div class="request-card-body">
-
           <p>
             ${escapeHtml(
               request.description ||
               "No description provided."
             )}
           </p>
-
           <p class="request-meta">
             📍 ${escapeHtml(
               request.location ||
               "Location not provided"
             )}
           </p>
-
           <p class="request-meta">
             📞 ${escapeHtml(
               request.phone ||
               "No phone number"
             )}
           </p>
-
           <p class="request-meta">
             ${escapeHtml(
               formatDate(request.created_at)
             )}
           </p>
-
         </div>
-
       `;
 
-
       customerRequestList.appendChild(card);
-
     });
-
 
     if (customerDashboardMessage)
       customerDashboardMessage.textContent =
         `${data.length} request${data.length === 1 ? "" : "s"}`;
-
   }
 
 
@@ -1616,77 +1283,55 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (openCustomerDashboard) {
+    openCustomerDashboard.addEventListener("click", async () => {
+      const user = await getCurrentUser();
 
-    openCustomerDashboard.addEventListener(
-      "click",
-      async () => {
-
-        const user =
-          await getCurrentUser();
-
-        if (!user) {
-
-          closeModal(accountModal);
-
-          authMode = "login";
-
-          updateAuthMode();
-
-          openModal(authModal);
-
-          return;
-
-        }
-
+      if (!user) {
         closeModal(accountModal);
-
-        hideDashboards();
-
-        if (customerDashboard)
-          customerDashboard.style.display = "block";
-
-        await loadCustomerRequests();
-
-        customerDashboard?.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-
+        authMode = "login";
+        updateAuthMode();
+        openModal(authModal);
+        return;
       }
-    );
 
-}
+      closeModal(accountModal);
+      hideDashboards();
+
+      if (customerDashboard)
+        customerDashboard.style.display = "block";
+
+      await loadCustomerRequests();
+
+      customerDashboard?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    });
+  }
+
+
   // ==========================================
   // PROVIDER DASHBOARD
   // ==========================================
 
   async function loadProviderRequests() {
-
     if (!requestList) return;
 
-    const user =
-      await getCurrentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
-
       requestList.innerHTML = `
         <div class="empty-state">
           <h3>Please log in</h3>
           <p>Log in to view service requests.</p>
         </div>
       `;
-
       return;
-
     }
 
     if (dashboardMessage)
       dashboardMessage.textContent =
         "Loading service requests...";
-
-
-    // Find the provider profile belonging
-    // to the currently logged-in user.
 
     const {
       data: providers,
@@ -1698,9 +1343,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .eq("user_id", user.id)
         .limit(1);
 
-
     if (providerError) {
-
       console.error(
         "QuickFix provider profile:",
         providerError
@@ -1720,16 +1363,11 @@ document.addEventListener("DOMContentLoaded", function () {
         dashboardMessage.textContent = "";
 
       return;
-
     }
 
-
-    const provider =
-      providers?.[0];
-
+    const provider = providers?.[0];
 
     if (!provider) {
-
       requestList.innerHTML = `
         <div class="empty-state">
           <h3>Provider profile not found</h3>
@@ -1741,11 +1379,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dashboardMessage.textContent = "";
 
       return;
-
     }
-
-
-    // Get requests assigned to this provider.
 
     const {
       data,
@@ -1759,9 +1393,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ascending: false
         });
 
-
     if (error) {
-
       console.error(
         "QuickFix provider requests:",
         error
@@ -1781,12 +1413,9 @@ document.addEventListener("DOMContentLoaded", function () {
         dashboardMessage.textContent = "";
 
       return;
-
     }
 
-
     if (!data || data.length === 0) {
-
       requestList.innerHTML = `
         <div class="empty-state">
           <h3>No service requests yet</h3>
@@ -1795,60 +1424,40 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
 
       if (dashboardMessage)
-        dashboardMessage.textContent =
-          "No requests";
+        dashboardMessage.textContent = "No requests";
 
       return;
-
     }
-
 
     requestList.innerHTML = "";
 
-
     data.forEach(request => {
+      const card = document.createElement("div");
+      card.className = "request-card";
 
-      const card =
-        document.createElement("div");
-
-      card.className =
-        "request-card";
-
-
-      const status =
-        request.status || "pending";
-
+      const status = request.status || "pending";
 
       card.innerHTML = `
-
         <div class="request-card-header">
-
           <div>
-
             <h3>
               ${escapeHtml(
                 request.service ||
                 "Service request"
               )}
             </h3>
-
             <p class="request-meta">
               Customer request
             </p>
-
           </div>
-
           <span class="status-badge ${statusClass(status)}">
             ${escapeHtml(
               formatStatus(status)
             )}
           </span>
-
         </div>
 
-
         <div class="request-card-body">
-
           <p>
             <strong>Description:</strong>
             ${escapeHtml(
@@ -1856,32 +1465,26 @@ document.addEventListener("DOMContentLoaded", function () {
               "No description provided."
             )}
           </p>
-
           <p class="request-meta">
             📍 ${escapeHtml(
               request.location ||
               "Location not provided"
             )}
           </p>
-
           <p class="request-meta">
             📞 ${escapeHtml(
               request.phone ||
               "No phone number"
             )}
           </p>
-
           <p class="request-meta">
             🕒 ${escapeHtml(
               formatDate(request.created_at)
             )}
           </p>
-
         </div>
 
-
         <div class="provider-request-actions">
-
           ${
             status === "pending"
               ? `
@@ -1906,7 +1509,6 @@ document.addEventListener("DOMContentLoaded", function () {
               : ""
           }
 
-
           ${
             status === "accepted"
               ? `
@@ -1921,7 +1523,6 @@ document.addEventListener("DOMContentLoaded", function () {
               `
               : ""
           }
-
 
           ${
             status === "on-the-way"
@@ -1938,7 +1539,6 @@ document.addEventListener("DOMContentLoaded", function () {
               : ""
           }
 
-
           ${
             status === "arrived"
               ? `
@@ -1954,7 +1554,6 @@ document.addEventListener("DOMContentLoaded", function () {
               : ""
           }
 
-
           ${
             status === "work-started"
               ? `
@@ -1969,83 +1568,54 @@ document.addEventListener("DOMContentLoaded", function () {
               `
               : ""
           }
-
         </div>
-
       `;
-
-
-      // ----------------------------------------
-      // REQUEST STATUS BUTTONS
-      // ----------------------------------------
 
       card
         .querySelectorAll(
           "[data-request-status]"
         )
         .forEach(button => {
+          button.addEventListener("click", async () => {
+            const requestId = button.dataset.requestId;
+            const newStatus = button.dataset.requestStatus;
 
-          button.addEventListener(
-            "click",
-            async () => {
+            if (!requestId || !newStatus)
+              return;
 
-              const requestId =
-                button.dataset.requestId;
+            setButtonLoading(
+              button,
+              true,
+              "Updating..."
+            );
 
-              const newStatus =
-                button.dataset.requestStatus;
-
-
-              if (!requestId || !newStatus)
-                return;
-
-
-              setButtonLoading(
-                button,
-                true,
-                "Updating..."
+            const success =
+              await updateRequest(
+                requestId,
+                newStatus
               );
 
+            if (success) {
+              showToast(
+                `Request ${formatStatus(newStatus).toLowerCase()}.`
+              );
 
-              const success =
-                await updateRequest(
-                  requestId,
-                  newStatus
-                );
-
-
-              if (success) {
-
-                showToast(
-                  `Request ${formatStatus(newStatus).toLowerCase()}.`
-                );
-
-                await loadProviderRequests();
-
-              } else {
-
-                setButtonLoading(
-                  button,
-                  false
-                );
-
-              }
-
+              await loadProviderRequests();
+            } else {
+              setButtonLoading(
+                button,
+                false
+              );
             }
-          );
-
+          });
         });
 
-
       requestList.appendChild(card);
-
     });
-
 
     if (dashboardMessage)
       dashboardMessage.textContent =
         `${data.length} request${data.length === 1 ? "" : "s"}`;
-
   }
 
 
@@ -2057,28 +1627,15 @@ document.addEventListener("DOMContentLoaded", function () {
     requestId,
     newStatus
   ) {
-
     if (!requestId || !newStatus)
       return false;
 
-
-    const user =
-      await getCurrentUser();
+    const user = await getCurrentUser();
 
     if (!user) {
-
-      showToast(
-        "Please log in first.",
-        "error"
-      );
-
+      showToast("Please log in first.", "error");
       return false;
-
     }
-
-
-    // Confirm that the logged-in user
-    // actually owns the provider profile.
 
     const {
       data: providers,
@@ -2090,9 +1647,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .eq("user_id", user.id)
         .limit(1);
 
-
     if (providerError) {
-
       console.error(
         "QuickFix provider verification:",
         providerError
@@ -2104,28 +1659,18 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
       return false;
-
     }
 
-
-    const provider =
-      providers?.[0];
-
+    const provider = providers?.[0];
 
     if (!provider) {
-
       showToast(
         "Provider profile not found.",
         "error"
       );
 
       return false;
-
     }
-
-
-    // Only update a request belonging
-    // to this provider.
 
     const {
       data,
@@ -2141,9 +1686,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .select()
         .single();
 
-
     if (error) {
-
       console.error(
         "QuickFix request update:",
         error
@@ -2156,18 +1699,14 @@ document.addEventListener("DOMContentLoaded", function () {
       );
 
       return false;
-
     }
-
 
     console.log(
       "QuickFix request updated:",
       data
     );
 
-
     return true;
-
   }
 
 
@@ -2176,98 +1715,65 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (openProviderDashboard) {
+    openProviderDashboard.addEventListener("click", async () => {
+      const user = await getCurrentUser();
 
-    openProviderDashboard.addEventListener(
-      "click",
-      async () => {
+      if (!user) {
+        closeModal(accountModal);
+        authMode = "login";
+        updateAuthMode();
+        openModal(authModal);
+        return;
+      }
 
-        const user =
-          await getCurrentUser();
+      const {
+        data,
+        error
+      } =
+        await supabase
+          .from("providers")
+          .select("id")
+          .eq("user_id", user.id)
+          .limit(1);
 
-
-        if (!user) {
-
-          closeModal(accountModal);
-
-          authMode = "login";
-
-          updateAuthMode();
-
-          openModal(authModal);
-
-          return;
-
-        }
-
-
-        // Verify that this user is registered
-        // as a provider.
-
-        const {
-          data,
+      if (error) {
+        console.error(
+          "QuickFix provider check:",
           error
-        } =
-          await supabase
-            .from("providers")
-            .select("id")
-            .eq("user_id", user.id)
-            .limit(1);
+        );
 
+        showToast(
+          "Unable to check provider account.",
+          "error"
+        );
 
-        if (error) {
+        return;
+      }
 
-          console.error(
-            "QuickFix provider check:",
-            error
-          );
-
-          showToast(
-            "Unable to check provider account.",
-            "error"
-          );
-
-          return;
-
-        }
-
-
-        if (!data || data.length === 0) {
-
-          showToast(
-            "You are not registered as a provider yet.",
-            "error"
-          );
-
-          closeModal(accountModal);
-
-          openModal(providerModal);
-
-          return;
-
-        }
-
+      if (!data || data.length === 0) {
+        showToast(
+          "You are not registered as a provider yet.",
+          "error"
+        );
 
         closeModal(accountModal);
-
-        hideDashboards();
-
-
-        if (providerDashboard)
-          providerDashboard.style.display =
-            "block";
-
-
-        await loadProviderRequests();
-
-
-        providerDashboard?.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-
+        openModal(providerModal);
+        return;
       }
-    );
 
+      closeModal(accountModal);
+      hideDashboards();
+
+      if (providerDashboard)
+        providerDashboard.style.display = "block";
+
+      await loadProviderRequests();
+
+      providerDashboard?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    });
   }
 
 
@@ -2276,69 +1782,51 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      setButtonLoading(
+        logoutButton,
+        true,
+        "Logging out..."
+      );
 
-    logoutButton.addEventListener(
-      "click",
-      async () => {
+      const {
+        error
+      } =
+        await supabase.auth.signOut();
 
-        setButtonLoading(
-          logoutButton,
-          true,
-          "Logging out..."
-        );
-
-
-        const {
+      if (error) {
+        console.error(
+          "QuickFix logout:",
           error
-        } =
-          await supabase.auth.signOut();
-
-
-        if (error) {
-
-          console.error(
-            "QuickFix logout:",
-            error
-          );
-
-          showToast(
-            error.message ||
-            "Unable to log out.",
-            "error"
-          );
-
-          setButtonLoading(
-            logoutButton,
-            false
-          );
-
-          return;
-
-        }
-
-
-        closeModal(accountModal);
-
-        hideDashboards();
-
+        );
 
         showToast(
-          "You've been logged out."
+          error.message ||
+          "Unable to log out.",
+          "error"
         );
-
-
-        if (accountEmail)
-          accountEmail.textContent = "";
-
 
         setButtonLoading(
           logoutButton,
           false
         );
 
+        return;
       }
-    );
 
+      closeModal(accountModal);
+      hideDashboards();
+
+      showToast("You've been logged out.");
+
+      if (accountEmail)
+        accountEmail.textContent = "";
+
+      setButtonLoading(
+        logoutButton,
+        false
+      );
+    });
   }
 
 
@@ -2354,22 +1842,15 @@ document.addEventListener("DOMContentLoaded", function () {
         event
       );
 
-
       if (session?.user) {
-
         if (accountEmail)
           accountEmail.textContent =
             session.user.email || "";
-
       }
-
 
       if (event === "SIGNED_OUT") {
-
         hideDashboards();
-
       }
-
     }
   );
 
@@ -2379,32 +1860,22 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   async function initializeQuickFix() {
-
-    const user =
-      await getCurrentUser();
-
+    const user = await getCurrentUser();
 
     if (!user) {
-
       hideDashboards();
-
       return;
-
     }
-
 
     if (accountEmail)
       accountEmail.textContent =
         user.email || "";
 
-
     console.log(
       "QuickFix user session restored:",
       user.email
     );
-
   }
-
 
   initializeQuickFix();
 
@@ -2413,41 +1884,29 @@ document.addEventListener("DOMContentLoaded", function () {
   // KEYBOARD SHORTCUTS
   // ==========================================
 
-  document.addEventListener(
-    "keydown",
-    event => {
-
-      // "/" focuses search
-
-      if (
-        event.key === "/" &&
-        !["INPUT", "TEXTAREA"].includes(
-          document.activeElement?.tagName
-        )
-      ) {
-
-        event.preventDefault();
-
-        searchInput?.focus();
-
-      }
-
-
-      // Ctrl/Cmd + K focuses search
-
-      if (
-        (event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === "k"
-      ) {
-
-        event.preventDefault();
-
-        searchInput?.focus();
-
-      }
-
+  document.addEventListener("keydown", event => {
+    // "/" focuses search
+    if (
+      event.key === "/" &&
+      !["INPUT", "TEXTAREA"].includes(
+        document.activeElement?.tagName
+      )
+    ) {
+      event.preventDefault();
+      searchInput?.focus();
     }
-  );
+
+    // Ctrl/Cmd + K focuses search
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      event.key.toLowerCase() === "k"
+    ) {
+      event.preventDefault();
+      searchInput?.focus();
+    }
+  });
+
+
   // ==========================================
   // MOBILE / TOUCH EXPERIENCE
   // ==========================================
@@ -2466,15 +1925,11 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   function updateConnectionStatus() {
-
     if (navigator.onLine) {
-
       document.body.classList.remove(
         "quickfix-offline"
       );
-
     } else {
-
       document.body.classList.add(
         "quickfix-offline"
       );
@@ -2483,68 +1938,19 @@ document.addEventListener("DOMContentLoaded", function () {
         "You're offline. Some QuickFix features may not work.",
         "error"
       );
-
     }
-
   }
 
+  window.addEventListener("online", () => {
+    updateConnectionStatus();
+    showToast("You're back online.");
+  });
 
-  window.addEventListener(
-    "online",
-    () => {
-
-      updateConnectionStatus();
-
-      showToast(
-        "You're back online."
-      );
-
-    }
-  );
-
-
-  window.addEventListener(
-    "offline",
-    () => {
-
-      updateConnectionStatus();
-
-    }
-  );
-
+  window.addEventListener("offline", () => {
+    updateConnectionStatus();
+  });
 
   updateConnectionStatus();
-
-
-  // ==========================================
-  // PREVENT DOUBLE SUBMISSIONS
-  // ==========================================
-
-  [
-    authSubmit,
-    submitProvider,
-    submitRequest
-  ].forEach(button => {
-
-    if (!button) return;
-
-    button.addEventListener(
-      "click",
-      event => {
-
-        if (button.disabled) {
-
-          event.preventDefault();
-
-          event.stopPropagation();
-
-        }
-
-      },
-      true
-    );
-
-  });
 
 
   // ==========================================
@@ -2555,52 +1961,31 @@ document.addEventListener("DOMContentLoaded", function () {
     authEmail,
     authPassword
   ].forEach(input => {
-
-    input?.addEventListener(
-      "keydown",
-      event => {
-
-        if (
-          event.key === "Enter" &&
-          !authSubmit?.disabled
-        ) {
-
-          event.preventDefault();
-
-          authSubmit?.click();
-
-        }
-
+    input?.addEventListener("keydown", event => {
+      if (
+        event.key === "Enter" &&
+        !authSubmit?.disabled
+      ) {
+        event.preventDefault();
+        authSubmit?.click();
       }
-    );
-
+    });
   });
-
 
   [
     requestDescription,
     requestLocation,
     requestPhone
   ].forEach(input => {
-
-    input?.addEventListener(
-      "keydown",
-      event => {
-
-        if (
-          event.key === "Enter" &&
-          event.ctrlKey
-        ) {
-
-          event.preventDefault();
-
-          submitRequest?.click();
-
-        }
-
+    input?.addEventListener("keydown", event => {
+      if (
+        event.key === "Enter" &&
+        event.ctrlKey
+      ) {
+        event.preventDefault();
+        submitRequest?.click();
       }
-    );
-
+    });
   });
 
 
@@ -2613,16 +1998,12 @@ document.addEventListener("DOMContentLoaded", function () {
       QUICKFIX.lastSearchKey
     );
 
-
   if (
     savedSearch &&
     searchInput &&
     !searchInput.value
   ) {
-
-    searchInput.value =
-      savedSearch;
-
+    searchInput.value = savedSearch;
   }
 
 
@@ -2631,77 +2012,47 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==========================================
 
   function updateSavedProviderCount() {
-
-    const saved =
-      getSavedProviders();
-
+    const saved = getSavedProviders();
     const countElements =
       document.querySelectorAll(
         "[data-saved-provider-count]"
       );
 
-
     countElements.forEach(element => {
-
-      element.textContent =
-        String(saved.length);
-
+      element.textContent = String(saved.length);
     });
-
   }
-
 
   updateSavedProviderCount();
 
-
-  // Listen for changes made by
-  // other QuickFix tabs/windows.
-
-  window.addEventListener(
-    "storage",
-    event => {
-
-      if (
-        event.key ===
-        QUICKFIX.savedProvidersKey
-      ) {
-
-        updateSavedProviderCount();
-
-      }
-
+  window.addEventListener("storage", event => {
+    if (
+      event.key ===
+      QUICKFIX.savedProvidersKey
+    ) {
+      updateSavedProviderCount();
     }
-  );
+  });
 
 
   // ==========================================
   // CLOSE DASHBOARDS WITH BACK BUTTON
   // ==========================================
 
-  window.addEventListener(
-    "popstate",
-    () => {
-
-      hideDashboards();
-
-    }
-  );
+  window.addEventListener("popstate", () => {
+    hideDashboards();
+  });
 
 
   // ==========================================
   // CLEAN UP MODAL STATE
   // ==========================================
 
-  window.addEventListener(
-    "beforeunload",
-    () => {
-
-      document.body.classList.remove(
-        "modal-open"
-      );
-
-    }
-  );
+  window.addEventListener("beforeunload", () => {
+    document.body.classList.remove(
+      "modal-open"
+    );
+  });
 
 
   // ==========================================
@@ -2723,7 +2074,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.documentElement.dataset.quickfixReady =
     "true";
-
 
   console.log(
     "%cQuickFix 2026 is ready.",
