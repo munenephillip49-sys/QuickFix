@@ -27,7 +27,7 @@
 
   <a href="#home" class="logo" aria-label="QuickFix home">
     Quick<span>Fix</span>
-  </div>
+  </a>
 
   <div class="nav-links">
     <a href="#home">Home</a>
@@ -38,11 +38,11 @@
 
   <div class="nav-actions">
 
-    <button id="accountButton" class="account-btn">
+    <button type="button" id="accountButton" class="account-btn">
       Customer Login
     </button>
 
-    <button id="joinProvider" class="provider-btn">
+    <button type="button" id="joinProvider" class="provider-btn">
       Join as Provider
     </button>
 
@@ -93,8 +93,15 @@
 
 <!-- RESULTS -->
 
-<section id="results" class="results">
-
+<section id="results" class="results" aria-live="polite">
+  <div class="results-header">
+    <div>
+      <p class="section-label">LOCAL PROVIDERS</p>
+      <h2>Available help</h2>
+    </div>
+    <p id="searchResultsSummary" class="results-summary"></p>
+  </div>
+  <div id="searchResults" class="provider-list"></div>
 </section>
 
 
@@ -112,17 +119,17 @@
 
   <div class="service-grid">
 
-    <div class="service-card"><span class="service-icon">🔧</span><h3>Plumbing</h3><p>Leaks, pipes, taps and water problems.</p><span class="service-arrow">→</span></div>
+    <div class="service-card" data-service="Plumbing"><span class="service-icon">🔧</span><h3>Plumbing</h3><p>Leaks, pipes, taps and water problems.</p><span class="service-arrow">→</span></div>
 
-    <div class="service-card"><span class="service-icon">⚡</span><h3>Electrical</h3><p>Wiring, installations and electrical repairs.</p><span class="service-arrow">→</span></div>
+    <div class="service-card" data-service="Electrical"><span class="service-icon">⚡</span><h3>Electrical</h3><p>Wiring, installations and electrical repairs.</p><span class="service-arrow">→</span></div>
 
-    <div class="service-card"><span class="service-icon">📱</span><h3>Phone Repair</h3><p>Screens, batteries, software and phone issues.</p><span class="service-arrow">→</span></div>
+    <div class="service-card" data-service="Phone Repair"><span class="service-icon">📱</span><h3>Phone Repair</h3><p>Screens, batteries, software and phone issues.</p><span class="service-arrow">→</span></div>
 
-    <div class="service-card"><span class="service-icon">💻</span><h3>Computer Help</h3><p>Setup, troubleshooting and computer repairs.</p><span class="service-arrow">→</span></div>
+    <div class="service-card" data-service="Computer Help"><span class="service-icon">💻</span><h3>Computer Help</h3><p>Setup, troubleshooting and computer repairs.</p><span class="service-arrow">→</span></div>
 
-    <div class="service-card"><span class="service-icon">🚗</span><h3>Car Repair</h3><p>Vehicle problems, maintenance and repairs.</p><span class="service-arrow">→</span></div>
+    <div class="service-card" data-service="Car Repair"><span class="service-icon">🚗</span><h3>Car Repair</h3><p>Vehicle problems, maintenance and repairs.</p><span class="service-arrow">→</span></div>
 
-    <div class="service-card"><span class="service-icon">🏠</span><h3>Home Repairs</h3><p>Everyday home maintenance and repair jobs.</p><span class="service-arrow">→</span></div>
+    <div class="service-card" data-service="Home Repairs"><span class="service-icon">🏠</span><h3>Home Repairs</h3><p>Everyday home maintenance and repair jobs.</p><span class="service-arrow">→</span></div>
 
   </div>
 
@@ -296,7 +303,7 @@
 
   <div class="modal-box">
 
-    <button
+    <button type="button"
       id="closeAuth"
       class="close-button"
     >
@@ -343,7 +350,7 @@
 
     </div>
 
-    <button
+    <button type="button"
       id="authSubmit"
       class="submit-button"
     >
@@ -355,7 +362,7 @@
       class="message"
     ></p>
 
-    <button
+    <button type="button"
       id="switchAuthMode"
       class="switch-button"
     >
@@ -378,7 +385,7 @@
 
   <div class="modal-box">
 
-    <button
+    <button type="button"
       id="closeProvider"
       class="close-button"
     >
@@ -492,7 +499,7 @@
 
     </div>
 
-    <button
+    <button type="button"
       id="submitProvider"
       class="submit-button"
     >
@@ -520,7 +527,7 @@
 
   <div class="modal-box">
 
-    <button
+    <button type="button"
       id="closeRequest"
       class="close-button"
     >
@@ -578,7 +585,7 @@
 
     </div>
 
-    <button
+    <button type="button"
       id="submitRequest"
       class="submit-button"
     >
@@ -606,7 +613,7 @@
 
   <div class="modal-box account-box">
 
-    <button
+    <button type="button"
       id="closeAccount"
       class="close-button"
     >
@@ -625,21 +632,21 @@
       Not logged in
     </p>
 
-    <button
+    <button type="button"
       id="openCustomerDashboard"
       class="account-option"
     >
       📋 My Requests
     </button>
 
-    <button
+    <button type="button"
       id="openProviderDashboard"
       class="account-option"
     >
       🛠️ Provider Dashboard
     </button>
 
-    <button
+    <button type="button"
       id="logoutButton"
       class="logout-button"
     >
