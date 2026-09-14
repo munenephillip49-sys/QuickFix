@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Provider Dashboard | QuickFix</title>
+  <meta name="description" content="Manage your QuickFix service requests, availability, messages and earnings.">
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .provider-page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 45px 20px 80px;
+    }
+
+    .provider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin-bottom: 35px;
+    }
+
+    .provider-header .eyebrow {
+      color: #39e58c;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .provider-header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(32px, 5vw, 52px);
+    }
+
+    .provider-header p {
+      margin: 0;
+      opacity: .6;
+    }
+
+    .availability {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 15px;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 12px;
+      background: rgba(255,255,255,.025);
+      white-space: nowrap;
+    }
+
+    .availability-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #777;
+    }
+
+    .availability-dot.active {
+      background: #39e58c;
+      box-shadow: 0 0 10px rgba(57,229,140,.5);
+    }
+
+    .availability button {
+      border: 0;
+      background: transparent;
+      color: #39e58c;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .provider-layout {
+      display: grid;
+      grid-template-columns: 230px 1fr;
+      gap: 25px;
+    }
+
+    .provider-sidebar {
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+      border-radius: 20px;
+      padding: 12px;
+      height: fit-content;
+    }
+
+    .provider-sidebar a {
+      display: block;
+      padding: 13px 14px;
+      border-radius: 11px;
+      color: inherit;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      opacity: .7;
+      margin-bottom: 4px;
+    }
+
+    .provider-sidebar a:hover,
+    .provider-sidebar a.active {
+      background: rgba(57,229,140,.1);
+      color: #39e58c;
+      opacity: 1;
+    }
+
+    .provider-main {
+      min-width: 0;
+    }
+
+    .provider-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+      border-radius: 18px;
+      padding: 22px;
+    }
+
+    .stat-card span {
+      display: block;
+      font-size: 12px;
+      opacity: .5;
+      margin-bottom: 9px;
+    }
+
+    .stat-card strong {
+      font-size: 27px;
+    }
+
+    .provider-card {
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+      border-radius: 22px;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+
+    .provider-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .provider-card-header h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .provider-card-header span {
+      font-size: 12px;
+      opacity: .45;
+    }
+
+    #requestList {
+      display: grid;
+      gap: 12px;
+    }
+
+    .request-empty {
+      padding: 45px 20px;
+      text-align: center;
+      border: 1px dashed rgba(255,255,255,.1);
+      border-radius: 16px;
+    }
+
+    .request-empty h3 {
+      margin: 0 0 8px;
+    }
+
+    .request-empty p {
+      margin: 0;
+      opacity: .55;
+      line-height: 1.6;
+    }
+
+    .provider-links {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .provider-link {
+      color: inherit;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 15px;
+      padding: 20px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .provider-link strong {
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    .provider-link span {
+      font-size: 13px;
+      opacity: .55;
+    }
+
+    .provider-signout {
+      width: 100%;
+      border: 1px solid rgba(255,80,80,.2);
+      background: transparent;
+      color: #ff8d8d;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+
+    #dashboardMessage {
+      margin-bottom: 15px;
+      font-size: 14px;
+      opacity: .7;
+    }
+
+    @media (max-width: 850px) {
+      .provider-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .provider-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .provider-sidebar a {
+        margin: 0;
+      }
+
+      .provider-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .provider-stats,
+      .provider-links {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <header class="site-header">
+    <nav class="nav">
+
+```
+  <a href="index.html" class="logo">
+    Quick<span>Fix</span>
+  </a>
+
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="find.html">Find a Fix</a>
+    <a href="how-it-works.html">How It Works</a>
+    <a href="about.html">About</a>
+  </div>
+
+  <div class="nav-actions">
+    <a href="provider.html" class="active">Provider</a>
+  </div>
+
+</nav>
+```
+
+  </header>
+
+  <main class="provider-page">
+
+```
+<section class="provider-header">
+
+  <div>
+    <div class="eyebrow">PROVIDER SPACE</div>
+    <h1>Provider Dashboard</h1>
+    <p>Manage your jobs, availability and QuickFix activity.</p>
+  </div>
+
+  <div class="availability">
+    <span
+      id="availabilityDot"
+      class="availability-dot"
+    ></span>
+
+    <span id="availabilityText">
+      Checking status...
+    </span>
+
+    <button
+      id="availabilityButton"
+      type="button"
+    >
+      Change
+    </button>
+  </div>
+
+</section>
+
+<div class="provider-layout">
+
+  <aside class="provider-sidebar">
+
+    <a href="provider.html" class="active">
+      Dashboard
+    </a>
+
+    <a href="provider-messages.html">
+      Messages
+    </a>
+
+    <a href="provider-notifications.html">
+      Notifications
+    </a>
+
+    <a href="provider-earnings.html">
+      Earnings
+    </a>
+
+    <a href="provider-profile.html">
+      Profile
+    </a>
+
+    <button
+      id="providerLogout"
+      class="provider-signout"
+      type="button"
+    >
+      Sign Out
+    </button>
+
+  </aside>
+
+  <section class="provider-main">
+
+    <div
+      id="dashboardMessage"
+      aria-live="polite"
+    ></div>
+
+    <section class="provider-stats">
+
+      <div class="stat-card">
+        <span>MONTHLY EARNINGS</span>
+        <strong id="monthlyEarnings">KES 0</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>COMPLETED JOBS</span>
+        <strong id="completedJobs">0</strong>
+      </div>
+
+      <div class="stat-card">
+        <span>RATING</span>
+        <strong id="providerRating">—</strong>
+      </div>
+
+    </section>
+
+    <section class="provider-card">
+
+      <div class="provider-card-header">
+        <h2>Incoming Requests</h2>
+        <span>Latest requests</span>
+      </div>
+
+      <div id="requestList">
+
+        <div class="request-empty">
+          <h3>No requests yet</h3>
+          <p>
+            New customer service requests will appear here.
+          </p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="provider-card">
+
+      <div class="provider-card-header">
+        <h2>Quick Access</h2>
+      </div>
+
+      <div class="provider-links">
+
+        <a
+          href="provider-messages.html"
+          class="provider-link"
+        >
+          <strong>Messages</strong>
+          <span>Communicate with customers.</span>
+        </a>
+
+        <a
+          href="provider-notifications.html"
+          class="provider-link"
+        >
+          <strong>Notifications</strong>
+          <span>See new service requests and updates.</span>
+        </a>
+
+        <a
+          href="provider-earnings.html"
+          class="provider-link"
+        >
+          <strong>Earnings</strong>
+          <span>Track your monthly earnings.</span>
+        </a>
+
+      </div>
+
+    </section>
+
+  </section>
+
+</div>
+```
+
+  </main>
+
+  <!-- Keep the existing provider functionality -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="script.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+
+      const SUPABASE_URL =
+        "https://dpaqoamvgxbcztoaxxqv.supabase.co";
+
+      const SUPABASE_KEY =
+        "sb_publishable_PmI-ae0wRI4rrGg00KLHAA_Pws_TFJm";
+
+      const client =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+      const logout =
+        document.getElementById("providerLogout");
+
+      logout.addEventListener("click", async function () {
+
+        await client.auth.signOut();
+
+        window.location.href = "account.html";
+
+      });
+
+      const { data } =
+        await client.auth.getSession();
+
+      if (!data.session) {
+        window.location.href = "account.html";
+        return;
+      }
+
+      const user =
+        data.session.user;
+
+      const { data: provider } =
+        await client
+          .from("providers")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+      if (!provider) {
+
+        document.getElementById("dashboardMessage").textContent =
+          "You haven't created your provider profile yet.";
+
+        return;
+      }
+
+      document.getElementById("monthlyEarnings").textContent =
+        "KES " +
+        Number(provider.monthly_earnings || 0).toLocaleString();
+
+      document.getElementById("completedJobs").textContent =
+        provider.completed_jobs || 0;
+
+      document.getElementById("providerRating").textContent =
+        provider.rating
+          ? Number(provider.rating).toFixed(1)
+          : "—";
+
+      updateAvailability(provider.is_active);
+
+      const availabilityButton =
+        document.getElementById("availabilityButton");
+
+      availabilityButton.addEventListener(
+        "click",
+        async function () {
+
+          const newStatus =
+            !provider.is_active;
+
+          const { error } =
+            await client
+              .from("providers")
+              .update({
+                is_active: newStatus
+              })
+              .eq("id", provider.id);
+
+          if (error) {
+
+            document.getElementById(
+              "dashboardMessage"
+            ).textContent =
+              error.message;
+
+            return;
+          }
+
+          provider.is_active = newStatus;
+
+          updateAvailability(newStatus);
+
+        }
+      );
+
+      function updateAvailability(active) {
+
+        const dot =
+          document.getElementById("availabilityDot");
+
+        const text =
+          document.getElementById("availabilityText");
+
+        dot.classList.toggle("active", active);
+
+        text.textContent =
+          active
+            ? "Available"
+            : "Not Available";
+      }
+
+    });
+  </script>
+
+</body>
+</html>
