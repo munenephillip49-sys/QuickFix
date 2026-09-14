@@ -1,19 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <meta
-    name="theme-color"
-    content="#0b0f14"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <meta
     name="google-site-verification"
@@ -22,411 +12,665 @@
 
   <meta
     name="description"
-    content="QuickFix helps you find reliable local service providers for plumbing, electrical work, phone repair, computer help, car repair, home repairs and more."
+    content="QuickFix helps you find reliable local service providers for repairs, home services, technology and more."
   >
 
-  <meta
-    name="robots"
-    content="index, follow"
-  >
+  <meta name="robots" content="index, follow">
 
   <meta
     name="keywords"
-    content="QuickFix, local services, plumbers, electricians, phone repair, computer repair, car repair, home repairs, local service providers"
+    content="QuickFix, local services, repair services, plumbers, electricians, phone repair, computer repair, home repairs"
   >
 
-  <title>QuickFix | Find Reliable Local Help</title>
+  <meta name="theme-color" content="#0b0f14">
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="favicon.png"
-  >
+  <title>QuickFix | Get Help. Get It Fixed.</title>
 
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+  <link rel="icon" type="image/png" href="favicon.png">
 
-  <link
-    rel="stylesheet"
-    href="messaging.css"
-  >
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* =========================================
+       QUICKFIX 2026 HOME
+       ========================================= */
+
+    :root {
+      --qf-green: #39e58c;
+      --qf-green-dark: #22b96b;
+      --qf-bg: #070b10;
+      --qf-card: #0d131a;
+      --qf-card-2: #111922;
+      --qf-text: #f5f7fa;
+      --qf-muted: #8f9baa;
+      --qf-border: rgba(255,255,255,.09);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--qf-bg);
+      color: var(--qf-text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* NAVIGATION */
+
+    .qf-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+
+      width: 100%;
+
+      background: rgba(7, 11, 16, .88);
+      backdrop-filter: blur(18px);
+
+      border-bottom: 1px solid var(--qf-border);
+    }
+
+    .qf-nav-inner {
+      max-width: 1200px;
+      margin: auto;
+
+      min-height: 76px;
+      padding: 0 24px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+    }
+
+    .qf-logo {
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: -.8px;
+      white-space: nowrap;
+    }
+
+    .qf-logo span {
+      color: var(--qf-green);
+    }
+
+    .qf-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 25px;
+    }
+
+    .qf-nav-links a {
+      color: var(--qf-muted);
+      font-size: 14px;
+      font-weight: 600;
+
+      transition: .2s ease;
+    }
+
+    .qf-nav-links a:hover {
+      color: white;
+    }
+
+    .qf-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .qf-btn {
+      border: 0;
+      cursor: pointer;
+
+      padding: 12px 18px;
+      border-radius: 12px;
+
+      font-size: 14px;
+      font-weight: 800;
+
+      transition: .2s ease;
+    }
+
+    .qf-btn-outline {
+      background: transparent;
+      color: white;
+      border: 1px solid var(--qf-border);
+    }
+
+    .qf-btn-outline:hover {
+      border-color: rgba(57,229,140,.5);
+    }
+
+    .qf-btn-green {
+      background: var(--qf-green);
+      color: #06100b;
+    }
+
+    .qf-btn-green:hover {
+      background: #55efa0;
+      transform: translateY(-1px);
+    }
+
+    /* HERO */
+
+    .qf-hero {
+      min-height: 720px;
+
+      display: flex;
+      align-items: center;
+
+      position: relative;
+      overflow: hidden;
+    }
+
+    .qf-hero::before {
+      content: "";
+
+      position: absolute;
+      width: 650px;
+      height: 650px;
+
+      right: -200px;
+      top: 50px;
+
+      background: rgba(57,229,140,.07);
+
+      filter: blur(80px);
+      border-radius: 50%;
+    }
+
+    .qf-hero-inner {
+      position: relative;
+
+      width: 100%;
+      max-width: 1200px;
+
+      margin: auto;
+      padding: 90px 24px;
+    }
+
+    .qf-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 8px 13px;
+
+      border: 1px solid rgba(57,229,140,.25);
+      border-radius: 999px;
+
+      background: rgba(57,229,140,.07);
+
+      color: var(--qf-green);
+
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .qf-hero h1 {
+      max-width: 800px;
+
+      margin: 25px 0 20px;
+
+      font-size: clamp(48px, 8vw, 86px);
+      line-height: .98;
+      letter-spacing: -4px;
+    }
+
+    .qf-hero h1 span {
+      color: var(--qf-green);
+    }
+
+    .qf-hero p {
+      max-width: 650px;
+
+      margin: 0 0 35px;
+
+      color: var(--qf-muted);
+
+      font-size: 18px;
+      line-height: 1.7;
+    }
+
+    .qf-hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .qf-hero-actions .qf-btn {
+      padding: 15px 22px;
+    }
+
+    /* TRUST */
+
+    .qf-trust {
+      border-top: 1px solid var(--qf-border);
+      border-bottom: 1px solid var(--qf-border);
+
+      background: rgba(255,255,255,.015);
+    }
+
+    .qf-trust-inner {
+      max-width: 1200px;
+      margin: auto;
+      padding: 25px 24px;
+
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 35px;
+
+      color: var(--qf-muted);
+
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* SERVICES */
+
+    .qf-section {
+      max-width: 1200px;
+      margin: auto;
+
+      padding: 100px 24px;
+    }
+
+    .qf-section-heading {
+      margin-bottom: 45px;
+    }
+
+    .qf-section-heading small {
+      color: var(--qf-green);
+
+      font-size: 12px;
+      font-weight: 900;
+
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .qf-section-heading h2 {
+      margin: 12px 0;
+
+      font-size: clamp(34px, 5vw, 55px);
+      letter-spacing: -2px;
+    }
+
+    .qf-section-heading p {
+      max-width: 600px;
+
+      color: var(--qf-muted);
+      line-height: 1.7;
+    }
+
+    .qf-services {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+      gap: 15px;
+    }
+
+    .qf-service {
+      min-height: 180px;
+
+      padding: 25px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.045),
+          rgba(255,255,255,.015)
+        );
+
+      border: 1px solid var(--qf-border);
+      border-radius: 20px;
+
+      transition: .25s ease;
+    }
+
+    .qf-service:hover {
+      transform: translateY(-5px);
+
+      border-color: rgba(57,229,140,.35);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(57,229,140,.08),
+          rgba(255,255,255,.02)
+        );
+    }
+
+    .qf-service-icon {
+      width: 45px;
+      height: 45px;
+
+      display: grid;
+      place-items: center;
+
+      margin-bottom: 20px;
+
+      border-radius: 13px;
+
+      background: rgba(57,229,140,.1);
+
+      font-size: 21px;
+    }
+
+    .qf-service h3 {
+      margin: 0 0 8px;
+
+      font-size: 18px;
+    }
+
+    .qf-service p {
+      margin: 0;
+
+      color: var(--qf-muted);
+
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* HOW IT WORKS */
+
+    .qf-process {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+      gap: 20px;
+    }
+
+    .qf-step {
+      padding: 30px;
+
+      border: 1px solid var(--qf-border);
+      border-radius: 20px;
+
+      background: var(--qf-card);
+    }
+
+    .qf-step-number {
+      color: var(--qf-green);
+
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .qf-step h3 {
+      margin: 18px 0 10px;
+    }
+
+    .qf-step p {
+      margin: 0;
+
+      color: var(--qf-muted);
+      line-height: 1.7;
+    }
+
+    /* CTA */
+
+    .qf-cta {
+      max-width: 1150px;
+
+      margin: 0 auto 100px;
+      padding: 70px 40px;
+
+      border-radius: 30px;
+
+      background:
+        radial-gradient(
+          circle at right,
+          rgba(57,229,140,.16),
+          transparent 45%
+        ),
+        var(--qf-card);
+
+      border: 1px solid var(--qf-border);
+    }
+
+    .qf-cta h2 {
+      max-width: 650px;
+
+      margin: 0 0 15px;
+
+      font-size: clamp(35px, 5vw, 55px);
+      letter-spacing: -2px;
+    }
+
+    .qf-cta p {
+      max-width: 600px;
+
+      color: var(--qf-muted);
+
+      line-height: 1.7;
+    }
+
+    /* FOOTER */
+
+    .qf-footer {
+      border-top: 1px solid var(--qf-border);
+
+      padding: 40px 24px;
+    }
+
+    .qf-footer-inner {
+      max-width: 1200px;
+      margin: auto;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .qf-footer p {
+      margin: 0;
+
+      color: var(--qf-muted);
+      font-size: 13px;
+    }
+
+    .qf-footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .qf-footer-links a {
+      color: var(--qf-muted);
+      font-size: 13px;
+    }
+
+    .qf-footer-links a:hover {
+      color: white;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 850px) {
+
+      .qf-nav-links {
+        display: none;
+      }
+
+      .qf-nav-inner {
+        padding: 0 16px;
+      }
+
+      .qf-nav-actions .qf-btn-outline {
+        display: none;
+      }
+
+      .qf-hero {
+        min-height: 650px;
+      }
+
+      .qf-hero-inner {
+        padding: 70px 20px;
+      }
+
+      .qf-hero h1 {
+        letter-spacing: -2.5px;
+      }
+
+      .qf-services,
+      .qf-process {
+        grid-template-columns: 1fr;
+      }
+
+      .qf-section {
+        padding: 75px 20px;
+      }
+
+      .qf-cta {
+        margin: 0 15px 70px;
+        padding: 45px 25px;
+      }
+
+      .qf-footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 500px) {
+
+      .qf-logo {
+        font-size: 22px;
+      }
+
+      .qf-nav-actions .qf-btn-green {
+        padding: 10px 13px;
+        font-size: 12px;
+      }
+
+      .qf-hero h1 {
+        font-size: 50px;
+      }
+
+      .qf-hero p {
+        font-size: 16px;
+      }
+    }
+  </style>
 </head>
-
 
 <body>
 
-  <!-- ==================================================
+  <!-- =========================================
        NAVIGATION
-  ================================================== -->
+       ========================================= -->
 
-  <nav class="site-nav">
+  <header class="qf-nav">
 
-    <a
-      href="#home"
-      class="logo"
-      aria-label="QuickFix home"
-    >
-      Quick<span>Fix</span>
-    </a>
+    <div class="qf-nav-inner">
 
-
-    <div class="nav-links">
-
-      <a href="#home">
-        Home
+      <a href="index.html" class="qf-logo">
+        Quick<span>Fix</span>
       </a>
 
-      <a href="#services">
-        Find a Fix
-      </a>
+      <nav class="qf-nav-links">
 
-      <a href="#how">
-        How It Works
-      </a>
+        <a href="index.html">
+          Home
+        </a>
 
-      <a href="#about">
-        About
-      </a>
-
-    </div>
-
-
-    <div class="nav-actions">
-
-      <button
-        type="button"
-        id="accountButton"
-        class="account-btn"
-      >
-        Account
-      </button>
-
-      <button
-        type="button"
-        id="joinProvider"
-        class="provider-btn"
-      >
-        Join as Provider
-      </button>
-
-    </div>
-
-  </nav>
-
-
-
-  <!-- ==================================================
-       MAIN
-  ================================================== -->
-
-  <main>
-
-
-    <!-- ==================================================
-         HERO
-    ================================================== -->
-
-    <section
-      id="home"
-      class="hero"
-    >
-
-      <p class="tagline">
-        LOCAL HELP. MADE SIMPLE.
-      </p>
-
-
-      <h1>
-        Got a problem?
-        <br>
-        <span>Get it fixed.</span>
-      </h1>
-
-
-      <p class="hero-text">
-        Find reliable people near you who can solve
-        your everyday problems.
-      </p>
-
-
-      <!-- SEARCH -->
-
-      <div
-        class="search-box"
-        role="search"
-      >
-
-        <input
-          id="searchInput"
-          type="text"
-          autocomplete="off"
-          placeholder="What do you need help with?"
-          aria-label="Search for a service"
-        >
-
-
-        <button
-          type="button"
-          id="searchButton"
-        >
+        <a href="find.html">
           Find a Fix
-        </button>
+        </a>
 
-      </div>
+        <a href="how-it-works.html">
+          How It Works
+        </a>
 
-    </section>
+        <a href="about.html">
+          About
+        </a>
 
+      </nav>
 
-
-    <!-- ==================================================
-         SERVICES
-    ================================================== -->
-
-    <section
-      id="services"
-      class="services-section"
-    >
-
-      <div class="section-heading">
-
-        <p class="section-label">
-          WHAT DO YOU NEED?
-        </p>
-
-        <h2>
-          Find a Fix
-        </h2>
-
-      </div>
-
-
-      <div class="service-grid">
-
-        <button
-          type="button"
-          class="service-card"
-          data-service="Plumbing"
-        >
-          <span class="service-icon">🔧</span>
-          <h3>Plumbing</h3>
-          <p>Leaks, pipes, taps and more.</p>
-        </button>
-
-
-        <button
-          type="button"
-          class="service-card"
-          data-service="Electrical"
-        >
-          <span class="service-icon">⚡</span>
-          <h3>Electrical</h3>
-          <p>Electrical problems and repairs.</p>
-        </button>
-
-
-        <button
-          type="button"
-          class="service-card"
-          data-service="Phone Repair"
-        >
-          <span class="service-icon">📱</span>
-          <h3>Phone Repair</h3>
-          <p>Phone problems and repairs.</p>
-        </button>
-
-
-        <button
-          type="button"
-          class="service-card"
-          data-service="Computer Help"
-        >
-          <span class="service-icon">💻</span>
-          <h3>Computer Help</h3>
-          <p>Computer setup and troubleshooting.</p>
-        </button>
-
-
-        <button
-          type="button"
-          class="service-card"
-          data-service="Car Repair"
-        >
-          <span class="service-icon">🚗</span>
-          <h3>Car Repair</h3>
-          <p>Vehicle problems and assistance.</p>
-        </button>
-
-
-        <button
-          type="button"
-          class="service-card"
-          data-service="Home Repairs"
-        >
-          <span class="service-icon">🏠</span>
-          <h3>Home Repairs</h3>
-          <p>Everyday home maintenance.</p>
-        </button>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- ==================================================
-         SEARCH RESULTS
-    ================================================== -->
-
-    <section
-      id="results"
-      class="results"
-      aria-live="polite"
-    >
-
-      <div class="results-header">
-
-        <div>
-
-          <p class="section-label">
-            LOCAL PROVIDERS
-          </p>
-
-          <h2>
-            Available help
-          </h2>
-
-          <p
-            id="searchResultsSummary"
-            class="results-summary"
-          ></p>
-
-        </div>
-
+      <div class="qf-nav-actions">
 
         <a
-          href="#home"
-          class="link-button"
+          href="account.html"
+          class="qf-btn qf-btn-outline"
         >
-          ← Back to search
+          Account
+        </a>
+
+        <a
+          href="provider.html"
+          class="qf-btn qf-btn-green"
+        >
+          Join as Provider
         </a>
 
       </div>
 
+    </div>
 
-      <!-- IMPORTANT:
-           script.js expects #searchResults
-      -->
-
-      <div
-        id="searchResults"
-        class="provider-grid"
-      >
-      </div>
+  </header>
 
 
-      <!-- Compatibility with older code -->
+  <!-- =========================================
+       HERO
+       ========================================= -->
 
-      <div
-        id="providerList"
-        class="provider-grid"
-        style="display:none;"
-      >
-      </div>
+  <main>
 
-    </section>
+    <section class="qf-hero">
 
+      <div class="qf-hero-inner">
 
+        <div class="qf-badge">
+          ● Local help. Simplified.
+        </div>
 
-    <!-- ==================================================
-         HOW IT WORKS
-    ================================================== -->
+        <h1>
+          Get help.<br>
+          <span>Get it fixed.</span>
+        </h1>
 
-    <section
-      id="how"
-      class="info-section"
-    >
-
-      <div class="section-heading">
-
-        <p class="section-label">
-          HOW QUICKFIX WORKS
+        <p>
+          QuickFix connects people who need a job done
+          with service providers who can get it done.
+          From repairs to everyday services, find the right
+          help without the hassle.
         </p>
 
-        <h2>
-          Get help in a few steps.
-        </h2>
+        <div class="qf-hero-actions">
 
-      </div>
+          <a
+            href="find.html"
+            class="qf-btn qf-btn-green"
+          >
+            Find a Fix →
+          </a>
 
-
-      <div class="steps-grid">
-
-        <div class="step-card">
-
-          <span class="step-number">
-            01
-          </span>
-
-          <h3>
-            Search
-          </h3>
-
-          <p>
-            Tell QuickFix what service you need.
-          </p>
-
-        </div>
-
-
-        <div class="step-card">
-
-          <span class="step-number">
-            02
-          </span>
-
-          <h3>
-            Choose
-          </h3>
-
-          <p>
-            Find a provider that matches your needs.
-          </p>
-
-        </div>
-
-
-        <div class="step-card">
-
-          <span class="step-number">
-            03
-          </span>
-
-          <h3>
-            Request
-          </h3>
-
-          <p>
-            Send the provider your service request.
-          </p>
-
-        </div>
-
-
-        <div class="step-card">
-
-          <span class="step-number">
-            04
-          </span>
-
-          <h3>
-            Get it fixed
-          </h3>
-
-          <p>
-            Track the job as the provider handles it.
-          </p>
+          <a
+            href="provider.html"
+            class="qf-btn qf-btn-outline"
+          >
+            Become a Provider
+          </a>
 
         </div>
 
@@ -435,658 +679,301 @@
     </section>
 
 
+    <!-- =========================================
+         TRUST
+         ========================================= -->
 
-    <!-- ==================================================
-         ABOUT
-    ================================================== -->
+    <section class="qf-trust">
 
-    <section
-      id="about"
-      class="info-section"
-    >
+      <div class="qf-trust-inner">
 
-      <div class="section-heading">
+        <span>✓ Local service providers</span>
 
-        <p class="section-label">
-          ABOUT QUICKFIX
-        </p>
+        <span>✓ Direct communication</span>
+
+        <span>✓ Request tracking</span>
+
+        <span>✓ Built for real-world help</span>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================================
+         SERVICES
+         ========================================= -->
+
+    <section class="qf-section">
+
+      <div class="qf-section-heading">
+
+        <small>What can you fix?</small>
 
         <h2>
-          Real problems.
-          Real people.
-          Real fixes.
+          Find the help you need.
         </h2>
 
         <p>
-          QuickFix connects customers with service providers
-          who can help solve everyday problems.
+          Search for skilled people around you and
+          request the service directly through QuickFix.
         </p>
+
+      </div>
+
+
+      <div class="qf-services">
+
+        <a href="find.html?service=Plumbing" class="qf-service">
+
+          <div class="qf-service-icon">
+            🔧
+          </div>
+
+          <h3>Plumbing</h3>
+
+          <p>
+            Leaks, pipes, installations and other
+            plumbing problems.
+          </p>
+
+        </a>
+
+
+        <a href="find.html?service=Electrical" class="qf-service">
+
+          <div class="qf-service-icon">
+            ⚡
+          </div>
+
+          <h3>Electrical</h3>
+
+          <p>
+            Electrical repairs, installations and
+            troubleshooting.
+          </p>
+
+        </a>
+
+
+        <a href="find.html?service=Phone Repair" class="qf-service">
+
+          <div class="qf-service-icon">
+            📱
+          </div>
+
+          <h3>Phone Repair</h3>
+
+          <p>
+            Get help with damaged phones,
+            screens and software issues.
+          </p>
+
+        </a>
+
+
+        <a href="find.html?service=Computer Help" class="qf-service">
+
+          <div class="qf-service-icon">
+            💻
+          </div>
+
+          <h3>Computer Help</h3>
+
+          <p>
+            Computer repairs, software problems,
+            setup and technical support.
+          </p>
+
+        </a>
+
+
+        <a href="find.html?service=Car Repair" class="qf-service">
+
+          <div class="qf-service-icon">
+            🚗
+          </div>
+
+          <h3>Car Repair</h3>
+
+          <p>
+            Find people who can help with vehicle
+            problems and repairs.
+          </p>
+
+        </a>
+
+
+        <a href="find.html?service=Home Repairs" class="qf-service">
+
+          <div class="qf-service-icon">
+            🏠
+          </div>
+
+          <h3>Home Repairs</h3>
+
+          <p>
+            Find help for everyday maintenance
+            and household repairs.
+          </p>
+
+        </a>
 
       </div>
 
     </section>
 
 
+    <!-- =========================================
+         HOW IT WORKS
+         ========================================= -->
 
-    <!-- ==================================================
-         DASHBOARDS
-    ================================================== -->
+    <section class="qf-section">
 
-    <section
-      id="dashboards"
-      class="dashboards-section"
-    >
+      <div class="qf-section-heading">
 
+        <small>Simple by design</small>
 
-      <!-- ==================================================
-           CUSTOMER DASHBOARD
-      ================================================== -->
-
-      <div
-        id="customerDashboard"
-        class="dashboard"
-        style="display:none;"
-      >
-
-        <div class="dashboard-header">
-
-          <div>
-
-            <p class="section-label">
-              CUSTOMER
-            </p>
-
-            <h2>
-              Your Service Requests
-            </h2>
-
-            <p
-              id="customerDashboardMessage"
-              class="dashboard-message"
-            ></p>
-
-          </div>
-
-
-          <button
-            type="button"
-            id="newRequestBtn"
-            class="submit-button"
-          >
-            + New Request
-          </button>
-
-        </div>
-
-
-        <div
-          id="customerRequestList"
-          class="requests-list"
-        >
-        </div>
+        <h2>
+          How QuickFix works.
+        </h2>
 
       </div>
 
 
+      <div class="qf-process">
 
-      <!-- ==================================================
-           PROVIDER DASHBOARD
-      ================================================== -->
+        <div class="qf-step">
 
-      <div
-        id="providerDashboard"
-        class="dashboard"
-        style="display:none;"
-      >
-
-        <div class="dashboard-header">
-
-          <div>
-
-            <p class="section-label">
-              PROVIDER
-            </p>
-
-            <h2>
-              Your Requests
-            </h2>
-
-            <p
-              id="dashboardMessage"
-              class="dashboard-message"
-            ></p>
-
+          <div class="qf-step-number">
+            01 / FIND
           </div>
 
+          <h3>
+            Find someone who can help.
+          </h3>
 
-          <button
-            type="button"
-            id="earningsBtn"
-            class="submit-button"
-          >
-            💰 View Earnings
-          </button>
+          <p>
+            Search for the service you need and
+            discover available providers.
+          </p>
 
         </div>
 
 
-        <div
-          id="requestList"
-          class="requests-list"
-        >
+        <div class="qf-step">
+
+          <div class="qf-step-number">
+            02 / REQUEST
+          </div>
+
+          <h3>
+            Send your request.
+          </h3>
+
+          <p>
+            Tell the provider what you need,
+            where you are and how they can reach you.
+          </p>
+
+        </div>
+
+
+        <div class="qf-step">
+
+          <div class="qf-step-number">
+            03 / FIX
+          </div>
+
+          <h3>
+            Get the job done.
+          </h3>
+
+          <p>
+            Communicate, track the request and
+            get your problem fixed.
+          </p>
+
         </div>
 
       </div>
+
+    </section>
+
+
+    <!-- =========================================
+         PROVIDER CTA
+         ========================================= -->
+
+    <section class="qf-cta">
+
+      <h2>
+        Have a skill?
+        Turn it into opportunity.
+      </h2>
+
+      <p>
+        Join QuickFix as a service provider,
+        receive customer requests and build
+        your service reputation.
+      </p>
+
+      <a
+        href="provider.html"
+        class="qf-btn qf-btn-green"
+      >
+        Join as Provider →
+      </a>
 
     </section>
 
   </main>
 
 
-
-  <!-- ==================================================
-       AUTH MODAL
-  ================================================== -->
-
-  <div
-    id="authModal"
-    class="modal"
-    aria-hidden="true"
-  >
-
-    <div
-      class="modal-box"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="authTitle"
-    >
-
-      <button
-        type="button"
-        id="closeAuth"
-        class="close-button"
-        aria-label="Close"
-      >
-        ×
-      </button>
-
-
-      <div id="authContent">
-
-        <p class="section-label">
-          QUICKFIX ACCOUNT
-        </p>
-
-
-        <h2 id="authTitle">
-          Create your QuickFix account
-        </h2>
-
-
-        <p id="authIntro">
-          Join QuickFix and get local help when you need it.
-        </p>
-
-
-        <div class="form-group">
-
-          <label for="authEmail">
-            Email
-          </label>
-
-          <input
-            id="authEmail"
-            type="email"
-            autocomplete="email"
-            placeholder="you@example.com"
-          >
-
-        </div>
-
-
-        <div class="form-group">
-
-          <label for="authPassword">
-            Password
-          </label>
-
-          <input
-            id="authPassword"
-            type="password"
-            autocomplete="current-password"
-            placeholder="Your password"
-          >
-
-        </div>
-
-
-        <p
-          id="authMessage"
-          class="form-message"
-          aria-live="polite"
-        ></p>
-
-
-        <button
-          type="button"
-          id="authSubmit"
-          class="submit-button"
-        >
-          Create account
-        </button>
-
-
-        <button
-          type="button"
-          id="switchAuthMode"
-          class="text-button"
-        >
-          Already have an account? Log in
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- ==================================================
-       PROVIDER REGISTRATION MODAL
-  ================================================== -->
-
-  <div
-    id="providerModal"
-    class="modal"
-    aria-hidden="true"
-  >
-
-    <div
-      class="modal-box"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="providerModalTitle"
-    >
-
-      <button
-        type="button"
-        id="closeProvider"
-        class="close-button"
-        aria-label="Close"
-      >
-        ×
-      </button>
-
-
-      <p class="section-label">
-        PROVIDER
-      </p>
-
-
-      <h2 id="providerModalTitle">
-        Join QuickFix as a Provider
-      </h2>
-
-
-      <p>
-        Offer your skills to customers who need help.
-      </p>
-
-
-      <div class="form-group">
-
-        <label for="providerName">
-          Your name
-        </label>
-
-        <input
-          id="providerName"
-          type="text"
-          placeholder="Your full name"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="providerService">
-          Service
-        </label>
-
-        <input
-          id="providerService"
-          type="text"
-          placeholder="e.g. Plumbing"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="providerLocation">
-          Location
-        </label>
-
-        <input
-          id="providerLocation"
-          type="text"
-          placeholder="Where do you operate?"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="providerPhone">
-          Phone number
-        </label>
-
-        <input
-          id="providerPhone"
-          type="tel"
-          placeholder="Your phone number"
-        >
-
-      </div>
-
-
-      <p
-        id="providerMessage"
-        class="form-message"
-        aria-live="polite"
-      ></p>
-
-
-      <button
-        type="button"
-        id="submitProvider"
-        class="submit-button"
-      >
-        Join as Provider
-      </button>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- ==================================================
-       SERVICE REQUEST MODAL
-  ================================================== -->
-
-  <div
-    id="requestModal"
-    class="modal"
-    aria-hidden="true"
-  >
-
-    <div
-      class="modal-box"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="requestModalTitle"
-    >
-
-      <button
-        type="button"
-        id="closeRequest"
-        class="close-button"
-        aria-label="Close"
-      >
-        ×
-      </button>
-
-
-      <p class="section-label">
-        SERVICE REQUEST
-      </p>
-
-
-      <h2 id="requestModalTitle">
-        Request a Fix
-      </h2>
-
-
-      <p>
-        You're requesting help from:
-      </p>
-
-
-      <h3 id="requestProviderName">
-        Service Provider
-      </h3>
-
-
-      <div class="form-group">
-
-        <label for="requestDescription">
-          What do you need?
-        </label>
-
-        <textarea
-          id="requestDescription"
-          rows="4"
-          placeholder="Describe the problem..."
-        ></textarea>
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="requestLocation">
-          Your location
-        </label>
-
-        <input
-          id="requestLocation"
-          type="text"
-          placeholder="Where should the provider come?"
-        >
-
-      </div>
-
-
-      <div class="form-group">
-
-        <label for="requestPhone">
-          Phone number
-        </label>
-
-        <input
-          id="requestPhone"
-          type="tel"
-          placeholder="How can the provider reach you?"
-        >
-
-      </div>
-
-
-      <p
-        id="requestMessage"
-        class="form-message"
-        aria-live="polite"
-      ></p>
-
-
-      <button
-        type="button"
-        id="submitRequest"
-        class="submit-button"
-      >
-        Send Request
-      </button>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- ==================================================
-       ACCOUNT MODAL
-  ================================================== -->
-
-  <div
-    id="accountModal"
-    class="modal"
-    aria-hidden="true"
-  >
-
-    <div
-      class="modal-box"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="accountTitle"
-    >
-
-      <button
-        type="button"
-        id="closeAccount"
-        class="close-button"
-        aria-label="Close"
-      >
-        ×
-      </button>
-
-
-      <p class="section-label">
-        YOUR ACCOUNT
-      </p>
-
-
-      <h2 id="accountTitle">
-        QuickFix Account
-      </h2>
-
-
-      <p id="accountEmail">
-      </p>
-
-
-      <p
-        id="accountMessage"
-        class="form-message"
-        aria-live="polite"
-      ></p>
-
-
-      <div class="account-actions">
-
-        <button
-          type="button"
-          id="openCustomerDashboard"
-          class="submit-button"
-        >
-          Customer Dashboard
-        </button>
-
-
-        <button
-          type="button"
-          id="openProviderDashboard"
-          class="submit-button"
-        >
-          Provider Dashboard
-        </button>
-
-
-        <button
-          type="button"
-          id="logoutButton"
-          class="secondary-button"
-        >
-          Log Out
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-
-  <!-- ==================================================
-       MESSAGING ROOT
-       messaging.js can use/create its own interface here.
-  ================================================== -->
-
-  <div id="messagingRoot"></div>
-
-
-
-  <!-- ==================================================
-       PAYMENT ROOT
-  ================================================== -->
-
-  <div id="paymentRoot"></div>
-
-
-
-  <!-- ==================================================
-       TOAST
-  ================================================== -->
-
-  <div
-    id="quickfixToast"
-    class="quickfix-toast"
-    aria-live="polite"
-  ></div>
-
-
-
-  <!-- ==================================================
+  <!-- =========================================
        FOOTER
-  ================================================== -->
+       ========================================= -->
 
-  <footer class="site-footer">
+  <footer class="qf-footer">
 
-    <div class="footer-logo">
-      Quick<span>Fix</span>
+    <div class="qf-footer-inner">
+
+      <div>
+
+        <a href="index.html" class="qf-logo">
+          Quick<span>Fix</span>
+        </a>
+
+        <p>
+          © 2026 QuickFix. Built to make getting help easier.
+        </p>
+
+      </div>
+
+
+      <div class="qf-footer-links">
+
+        <a href="find.html">
+          Find a Fix
+        </a>
+
+        <a href="how-it-works.html">
+          How It Works
+        </a>
+
+        <a href="about.html">
+          About
+        </a>
+
+        <a href="account.html">
+          Account
+        </a>
+
+      </div>
+
     </div>
-
-    <p>
-      Find help. Fix problems. Keep moving.
-    </p>
 
   </footer>
 
-
-
-  <!-- ==================================================
-       EXTERNAL LIBRARIES
-  ================================================== -->
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  ></script>
-
-
-  <script
-    src="https://js.stripe.com/v3/"
-  ></script>
-
-
-
-  <!-- ==================================================
-       QUICKFIX MODULES
-  ================================================== -->
-
-  <script src="script.js"></script>
-
-  <script src="messaging.js"></script>
-
-  <script src="payments.js"></script>
-
-  <script src="reviews.js"></script>
-
-
 </body>
-
 </html>
