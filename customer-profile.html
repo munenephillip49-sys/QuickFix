@@ -1,0 +1,360 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Customer Profile | QuickFix</title>
+  <meta name="description" content="Manage your QuickFix customer account.">
+
+  <link rel="icon" href="favicon.png">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #080b0a;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #0d1210;
+      border-right: 1px solid #1d2923;
+      padding: 25px 18px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    .logo {
+      font-size: 25px;
+      font-weight: 800;
+      margin-bottom: 40px;
+      padding-left: 10px;
+    }
+
+    .logo span {
+      color: #39e58c;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #aeb8b2;
+      padding: 13px 14px;
+      border-radius: 10px;
+      display: block;
+      transition: 0.2s;
+    }
+
+    .nav a:hover,
+    .nav a.active {
+      background: #13221b;
+      color: #39e58c;
+    }
+
+    .main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      padding: 40px;
+    }
+
+    .top {
+      margin-bottom: 35px;
+    }
+
+    .top h1 {
+      font-size: 34px;
+      margin-bottom: 8px;
+    }
+
+    .top p {
+      color: #8f9b94;
+    }
+
+    .profile-card {
+      max-width: 750px;
+      background: #0d1210;
+      border: 1px solid #1d2923;
+      border-radius: 18px;
+      padding: 30px;
+    }
+
+    .avatar {
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      background: #13221b;
+      color: #39e58c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 25px;
+    }
+
+    .info {
+      display: grid;
+      gap: 18px;
+    }
+
+    .info-box {
+      background: #101714;
+      border: 1px solid #1d2923;
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .label {
+      color: #7f8b84;
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .value {
+      font-size: 16px;
+      word-break: break-word;
+    }
+
+    .status {
+      color: #39e58c;
+      font-weight: 600;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    button,
+    .button {
+      border: none;
+      text-decoration: none;
+      cursor: pointer;
+      padding: 13px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    .primary {
+      background: #39e58c;
+      color: #07100b;
+    }
+
+    .secondary {
+      background: #18211d;
+      color: #ffffff;
+      border: 1px solid #26352d;
+    }
+
+    .danger {
+      background: #321719;
+      color: #ff8f95;
+      border: 1px solid #542528;
+    }
+
+    #message {
+      margin-top: 20px;
+      color: #ff8f95;
+    }
+
+    @media (max-width: 750px) {
+      .layout {
+        display: block;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #1d2923;
+      }
+
+      .logo {
+        margin-bottom: 20px;
+      }
+
+      .nav {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 25px 18px;
+      }
+
+      .top h1 {
+        font-size: 28px;
+      }
+
+      .profile-card {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="logo">
+      Quick<span>Fix</span>
+    </div>
+
+    <nav class="nav">
+      <a href="customer.html">Dashboard</a>
+      <a href="customer-messages.html">Messages</a>
+      <a href="customer-notifications.html">Notifications</a>
+      <a href="customer-profile.html" class="active">Profile</a>
+      <a href="find.html">Find a Fix</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+
+    <div class="top">
+      <h1>Customer Profile</h1>
+      <p>Manage your QuickFix account.</p>
+    </div>
+
+    <section class="profile-card">
+
+      <div class="avatar" id="avatar">
+        ?
+      </div>
+
+      <div class="info">
+
+        <div class="info-box">
+          <div class="label">Email address</div>
+          <div class="value" id="userEmail">
+            Loading...
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="label">Account type</div>
+          <div class="value">
+            Customer
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="label">Account status</div>
+          <div class="value status">
+            Active
+          </div>
+        </div>
+
+      </div>
+
+      <div class="actions">
+        <a href="customer.html" class="button primary">
+          Back to Dashboard
+        </a>
+
+        <a href="find.html" class="button secondary">
+          Find a Fix
+        </a>
+
+        <button id="logoutButton" class="danger">
+          Sign Out
+        </button>
+      </div>
+
+      <div id="message"></div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL =
+    "https://dpaqoamvgxbcztoaxxqv.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_PmI-ae0wRI4rrG00KLHAA_Pws_TFJm";
+
+  const supabase =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  async function loadProfile() {
+
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      window.location.href = "account.html";
+      return;
+    }
+
+    const email = user.email || "No email available";
+
+    document.getElementById("userEmail").textContent = email;
+
+    const firstLetter = email.charAt(0).toUpperCase();
+
+    document.getElementById("avatar").textContent =
+      firstLetter;
+  }
+
+  document
+    .getElementById("logoutButton")
+    .addEventListener("click", async function () {
+
+      const { error } =
+        await supabase.auth.signOut();
+
+      if (error) {
+        document.getElementById("message").textContent =
+          "Could not sign out. Please try again.";
+        return;
+      }
+
+      window.location.href = "account.html";
+    });
+
+  loadProfile();
+</script>
+
+</body>
+</html>
+```
