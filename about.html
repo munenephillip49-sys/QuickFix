@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>About QuickFix | Local Help, Made Simple</title>
+  <meta name="description" content="Learn about QuickFix — a modern platform connecting people who need services with reliable local providers.">
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .about-page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 70px 20px 100px;
+    }
+
+    .about-hero {
+      max-width: 780px;
+      margin-bottom: 70px;
+    }
+
+    .about-hero .eyebrow {
+      color: #39e58c;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 13px;
+      margin-bottom: 15px;
+    }
+
+    .about-hero h1 {
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: 0.98;
+      margin: 0 0 25px;
+    }
+
+    .about-hero h1 span {
+      color: #39e58c;
+    }
+
+    .about-hero p {
+      font-size: 19px;
+      line-height: 1.7;
+      opacity: 0.75;
+      max-width: 700px;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+      margin-bottom: 70px;
+    }
+
+    .about-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 32px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .about-card .number {
+      color: #39e58c;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 22px;
+    }
+
+    .about-card h2 {
+      margin: 0 0 14px;
+      font-size: 27px;
+    }
+
+    .about-card p {
+      margin: 0;
+      line-height: 1.7;
+      opacity: 0.7;
+    }
+
+    .difference {
+      margin-bottom: 70px;
+    }
+
+    .difference h2 {
+      font-size: 38px;
+      margin-bottom: 30px;
+    }
+
+    .difference-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .difference-item {
+      padding: 25px;
+      border-left: 2px solid #39e58c;
+      background: rgba(255,255,255,0.025);
+      border-radius: 0 16px 16px 0;
+    }
+
+    .difference-item h3 {
+      margin: 0 0 10px;
+      font-size: 19px;
+    }
+
+    .difference-item p {
+      margin: 0;
+      line-height: 1.6;
+      opacity: 0.65;
+      font-size: 15px;
+    }
+
+    .about-cta {
+      border-radius: 28px;
+      padding: 55px 35px;
+      text-align: center;
+      background: linear-gradient(
+        135deg,
+        rgba(57,229,140,0.13),
+        rgba(255,255,255,0.025)
+      );
+      border: 1px solid rgba(57,229,140,0.2);
+    }
+
+    .about-cta h2 {
+      font-size: 38px;
+      margin: 0 0 15px;
+    }
+
+    .about-cta p {
+      max-width: 600px;
+      margin: 0 auto 28px;
+      line-height: 1.7;
+      opacity: 0.7;
+    }
+
+    .about-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .about-actions a {
+      display: inline-block;
+      padding: 13px 22px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .primary-action {
+      background: #39e58c;
+      color: #07110c;
+    }
+
+    .secondary-action {
+      border: 1px solid rgba(255,255,255,0.12);
+      color: inherit;
+    }
+
+    @media (max-width: 750px) {
+      .about-grid,
+      .difference-list {
+        grid-template-columns: 1fr;
+      }
+
+      .about-page {
+        padding-top: 45px;
+      }
+
+      .about-hero {
+        margin-bottom: 45px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <header class="site-header">
+    <nav class="nav">
+      <a href="index.html" class="logo">
+        Quick<span>Fix</span>
+      </a>
+
+```
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="find.html">Find a Fix</a>
+    <a href="how-it-works.html">How It Works</a>
+    <a href="about.html" class="active">About</a>
+  </div>
+
+  <div class="nav-actions">
+    <a href="account.html">Account</a>
+    <a href="provider.html" class="provider-btn">Join as Provider</a>
+  </div>
+</nav>
+```
+
+  </header>
+
+  <main class="about-page">
+
+```
+<section class="about-hero">
+  <div class="eyebrow">ABOUT QUICKFIX</div>
+
+  <h1>
+    Local problems.<br>
+    <span>Smarter fixes.</span>
+  </h1>
+
+  <p>
+    QuickFix is built to make finding help easier. Instead of wasting
+    time searching through random contacts, people can connect with
+    service providers through one modern platform.
+  </p>
+</section>
+
+<section class="about-grid">
+
+  <article class="about-card">
+    <div class="number">01 — THE IDEA</div>
+    <h2>Make getting help simple.</h2>
+    <p>
+      Whether someone needs a plumber, electrician, phone technician,
+      computer specialist, mechanic or another service provider,
+      QuickFix is designed to make the process clearer and faster.
+    </p>
+  </article>
+
+  <article class="about-card">
+    <div class="number">02 — THE COMMUNITY</div>
+    <h2>Give providers an opportunity.</h2>
+    <p>
+      QuickFix is not only for customers. Skilled people can create
+      provider profiles, receive service requests and build their
+      reputation through completed work and customer reviews.
+    </p>
+  </article>
+
+</section>
+
+<section class="difference">
+
+  <h2>What makes QuickFix different?</h2>
+
+  <div class="difference-list">
+
+    <article class="difference-item">
+      <h3>Built around real jobs</h3>
+      <p>
+        The platform focuses on connecting people with actual service
+        needs instead of simply being another directory.
+      </p>
+    </article>
+
+    <article class="difference-item">
+      <h3>Two-sided experience</h3>
+      <p>
+        Customers and providers get experiences designed around what
+        they actually need to accomplish.
+      </p>
+    </article>
+
+    <article class="difference-item">
+      <h3>Built for trust</h3>
+      <p>
+        Profiles, availability, communication, job statuses and reviews
+        help create a better service experience.
+      </p>
+    </article>
+
+  </div>
+</section>
+
+<section class="about-cta">
+
+  <h2>Need something fixed?</h2>
+
+  <p>
+    Find a service provider and start your request through QuickFix.
+    Or, if you have a skill people need, join the provider network.
+  </p>
+
+  <div class="about-actions">
+    <a href="find.html" class="primary-action">Find a Fix</a>
+    <a href="provider.html" class="secondary-action">Become a Provider</a>
+  </div>
+
+</section>
+```
+
+  </main>
+
+</body>
+</html>
