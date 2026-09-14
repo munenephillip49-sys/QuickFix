@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Provider Messages | QuickFix</title>
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="messaging.css">
+
+  <style>
+    .messages-page {
+      max-width: 1100px;
+      margin: auto;
+      padding: 45px 20px 80px;
+    }
+
+    .messages-heading {
+      margin-bottom: 30px;
+    }
+
+    .messages-heading .eyebrow {
+      color: #39e58c;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .messages-heading h1 {
+      margin: 0 0 8px;
+      font-size: clamp(34px, 5vw, 52px);
+    }
+
+    .messages-heading p {
+      margin: 0;
+      opacity: .6;
+    }
+
+    .messages-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 22px;
+    }
+
+    .messages-sidebar {
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 12px;
+      background: rgba(255,255,255,.025);
+      height: fit-content;
+    }
+
+    .messages-sidebar a {
+      display: block;
+      padding: 13px;
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      opacity: .7;
+    }
+
+    .messages-sidebar a.active,
+    .messages-sidebar a:hover {
+      background: rgba(57,229,140,.1);
+      color: #39e58c;
+      opacity: 1;
+    }
+
+    .messages-main {
+      min-height: 500px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 22px;
+      background: rgba(255,255,255,.025);
+      padding: 25px;
+    }
+
+    .messages-empty {
+      min-height: 430px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      opacity: .6;
+    }
+
+    .messages-empty h2 {
+      margin-bottom: 8px;
+    }
+
+    .messages-empty p {
+      max-width: 430px;
+      line-height: 1.6;
+      margin: auto;
+    }
+
+    @media (max-width: 750px) {
+      .messages-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .messages-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+<header class="site-header">
+  <nav class="nav">
+    <a href="index.html" class="logo">
+      Quick<span>Fix</span>
+    </a>
+
+```
+<div class="nav-links">
+  <a href="index.html">Home</a>
+  <a href="find.html">Find a Fix</a>
+  <a href="how-it-works.html">How It Works</a>
+  <a href="about.html">About</a>
+</div>
+
+<div class="nav-actions">
+  <a href="provider.html">Provider</a>
+</div>
+```
+
+  </nav>
+</header>
+
+<main class="messages-page">
+
+  <section class="messages-heading">
+    <div class="eyebrow">PROVIDER MESSAGES</div>
+    <h1>Messages</h1>
+    <p>Communicate with customers whose requests you've accepted.</p>
+  </section>
+
+  <div class="messages-layout">
+
+```
+<aside class="messages-sidebar">
+  <a href="provider.html">Dashboard</a>
+  <a href="provider-messages.html" class="active">Messages</a>
+  <a href="provider-notifications.html">Notifications</a>
+  <a href="provider-earnings.html">Earnings</a>
+  <a href="provider-profile.html">Profile</a>
+</aside>
+
+<section class="messages-main">
+
+  <div id="messagingRoot">
+
+    <div class="messages-empty">
+      <div>
+        <h2>Your conversations</h2>
+        <p>
+          Conversations with customers will appear here after
+          you accept a service request.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+```
+
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="script.js"></script>
+
+<script src="messaging.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async function () {
+
+  const SUPABASE_URL =
+    "https://dpaqoamvgxbcztoaxxqv.supabase.co";
+
+  const SUPABASE_KEY =
+    "sb_publishable_PmI-ae0wRI4rrGg00KLHAA_Pws_TFJm";
+
+  const client =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+  const { data } =
+    await client.auth.getSession();
+
+  if (!data.session) {
+    window.location.href = "account.html";
+  }
+
+});
+</script>
+
+</body>
+</html>
