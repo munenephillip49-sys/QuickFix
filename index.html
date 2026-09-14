@@ -1,174 +1,1091 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0b0f14">
-  <meta name="google-site-verification" content="BwR0IyMEc2oVNiFrgFB8BcfLp-lsrvcifv5HWmoqAB8" />
-  <meta name="description" content="QuickFix helps you find reliable local service providers for plumbing, electrical work, phone repair, computer help, car repair, home repairs and more. Find local help near you.">
-  <meta name="robots" content="index, follow">
-  <meta name="keywords" content="QuickFix, local services, find a plumber, electrical services, phone repair, computer repair, car repair, home repairs, local service providers">
 
-  <title>QuickFix | Find Reliable Local Service Providers</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="style.css">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#0b0f14"
+  >
+
+  <meta
+    name="google-site-verification"
+    content="BwR0IyMEc2oVNiFrgFB8BcfLp-lsrvcifv5HWmoqAB8"
+  >
+
+  <meta
+    name="description"
+    content="QuickFix helps you find reliable local service providers for plumbing, electrical work, phone repair, computer help, car repair, home repairs and more."
+  >
+
+  <meta
+    name="robots"
+    content="index, follow"
+  >
+
+  <meta
+    name="keywords"
+    content="QuickFix, local services, plumbers, electricians, phone repair, computer repair, car repair, home repairs, local service providers"
+  >
+
+  <title>QuickFix | Find Reliable Local Help</title>
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="favicon.png"
+  >
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="messaging.css"
+  >
 </head>
+
 
 <body>
 
-<!-- ==========================================
-     NAVIGATION
-========================================== -->
+  <!-- ==================================================
+       NAVIGATION
+  ================================================== -->
 
-<nav class="site-nav">
+  <nav class="site-nav">
 
-  <a href="#home" class="logo" aria-label="QuickFix home">
-    Quick<span>Fix</span>
-  </a>
-
-  <div class="nav-links">
-    <a href="#home">Home</a>
-    <a href="#services">Find a Fix</a>
-    <a href="#how">How It Works</a>
-    <a href="#about">About</a>
-  </div>
-
-  <div class="nav-actions">
-
-    <button type="button" id="accountButton" class="account-btn">
-      Customer Login
-    </button>
-
-    <button type="button" id="joinProvider" class="provider-btn">
-      Join as Provider
-    </button>
-
-  </div>
-
-</nav>
+    <a
+      href="#home"
+      class="logo"
+      aria-label="QuickFix home"
+    >
+      Quick<span>Fix</span>
+    </a>
 
 
-<!-- ==========================================
-     MAIN
-========================================== -->
+    <div class="nav-links">
 
-<main>
+      <a href="#home">
+        Home
+      </a>
 
-<!-- HERO -->
+      <a href="#services">
+        Find a Fix
+      </a>
 
-<section id="home" class="hero">
+      <a href="#how">
+        How It Works
+      </a>
 
-  <p class="tagline">
-    LOCAL HELP, MADE SIMPLE
-  </p>
+      <a href="#about">
+        About
+      </a>
 
-  <h1>
-    Got a problem?<br>
-    <span>Get it fixed.</span>
-  </h1>
+    </div>
 
-  <p class="hero-text">
-    Find reliable people near you who can solve your everyday problems.
-  </p>
 
-  <div class="search-box" role="search">
+    <div class="nav-actions">
 
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="What do you need help with?"
+      <button
+        type="button"
+        id="accountButton"
+        class="account-btn"
+      >
+        Account
+      </button>
+
+      <button
+        type="button"
+        id="joinProvider"
+        class="provider-btn"
+      >
+        Join as Provider
+      </button>
+
+    </div>
+
+  </nav>
+
+
+
+  <!-- ==================================================
+       MAIN
+  ================================================== -->
+
+  <main>
+
+
+    <!-- ==================================================
+         HERO
+    ================================================== -->
+
+    <section
+      id="home"
+      class="hero"
     >
 
-    <button id="searchButton">
-      Find a Fix
-    </button>
-
-  </div>
-
-</section>
+      <p class="tagline">
+        LOCAL HELP. MADE SIMPLE.
+      </p>
 
 
-<!-- RESULTS -->
-
-<section id="results" class="results" aria-live="polite">
-  <div class="results-header">
-    <div>
-      <p class="section-label">LOCAL PROVIDERS</p>
-      <h2>Available help</h2>
-    </div>
-    <a href="#home" class="link-button">← Back to search</a>
-  </div>
-  <div id="providerList" class="provider-grid">
-    <!-- Providers loaded here -->
-  </div>
-</section>
+      <h1>
+        Got a problem?
+        <br>
+        <span>Get it fixed.</span>
+      </h1>
 
 
-<!-- DASHBOARDS -->
+      <p class="hero-text">
+        Find reliable people near you who can solve
+        your everyday problems.
+      </p>
 
-<section id="dashboards">
 
-  <!-- CUSTOMER DASHBOARD -->
-  <div id="customerDashboard" class="dashboard">
-    <div class="dashboard-header">
-      <h2>Your Service Requests</h2>
-      <button type="button" id="newRequestBtn" class="submit-button">
-        + New Request
+      <!-- SEARCH -->
+
+      <div
+        class="search-box"
+        role="search"
+      >
+
+        <input
+          id="searchInput"
+          type="text"
+          autocomplete="off"
+          placeholder="What do you need help with?"
+          aria-label="Search for a service"
+        >
+
+
+        <button
+          type="button"
+          id="searchButton"
+        >
+          Find a Fix
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         SERVICES
+    ================================================== -->
+
+    <section
+      id="services"
+      class="services-section"
+    >
+
+      <div class="section-heading">
+
+        <p class="section-label">
+          WHAT DO YOU NEED?
+        </p>
+
+        <h2>
+          Find a Fix
+        </h2>
+
+      </div>
+
+
+      <div class="service-grid">
+
+        <button
+          type="button"
+          class="service-card"
+          data-service="Plumbing"
+        >
+          <span class="service-icon">🔧</span>
+          <h3>Plumbing</h3>
+          <p>Leaks, pipes, taps and more.</p>
+        </button>
+
+
+        <button
+          type="button"
+          class="service-card"
+          data-service="Electrical"
+        >
+          <span class="service-icon">⚡</span>
+          <h3>Electrical</h3>
+          <p>Electrical problems and repairs.</p>
+        </button>
+
+
+        <button
+          type="button"
+          class="service-card"
+          data-service="Phone Repair"
+        >
+          <span class="service-icon">📱</span>
+          <h3>Phone Repair</h3>
+          <p>Phone problems and repairs.</p>
+        </button>
+
+
+        <button
+          type="button"
+          class="service-card"
+          data-service="Computer Help"
+        >
+          <span class="service-icon">💻</span>
+          <h3>Computer Help</h3>
+          <p>Computer setup and troubleshooting.</p>
+        </button>
+
+
+        <button
+          type="button"
+          class="service-card"
+          data-service="Car Repair"
+        >
+          <span class="service-icon">🚗</span>
+          <h3>Car Repair</h3>
+          <p>Vehicle problems and assistance.</p>
+        </button>
+
+
+        <button
+          type="button"
+          class="service-card"
+          data-service="Home Repairs"
+        >
+          <span class="service-icon">🏠</span>
+          <h3>Home Repairs</h3>
+          <p>Everyday home maintenance.</p>
+        </button>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         SEARCH RESULTS
+    ================================================== -->
+
+    <section
+      id="results"
+      class="results"
+      aria-live="polite"
+    >
+
+      <div class="results-header">
+
+        <div>
+
+          <p class="section-label">
+            LOCAL PROVIDERS
+          </p>
+
+          <h2>
+            Available help
+          </h2>
+
+          <p
+            id="searchResultsSummary"
+            class="results-summary"
+          ></p>
+
+        </div>
+
+
+        <a
+          href="#home"
+          class="link-button"
+        >
+          ← Back to search
+        </a>
+
+      </div>
+
+
+      <!-- IMPORTANT:
+           script.js expects #searchResults
+      -->
+
+      <div
+        id="searchResults"
+        class="provider-grid"
+      >
+      </div>
+
+
+      <!-- Compatibility with older code -->
+
+      <div
+        id="providerList"
+        class="provider-grid"
+        style="display:none;"
+      >
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         HOW IT WORKS
+    ================================================== -->
+
+    <section
+      id="how"
+      class="info-section"
+    >
+
+      <div class="section-heading">
+
+        <p class="section-label">
+          HOW QUICKFIX WORKS
+        </p>
+
+        <h2>
+          Get help in a few steps.
+        </h2>
+
+      </div>
+
+
+      <div class="steps-grid">
+
+        <div class="step-card">
+
+          <span class="step-number">
+            01
+          </span>
+
+          <h3>
+            Search
+          </h3>
+
+          <p>
+            Tell QuickFix what service you need.
+          </p>
+
+        </div>
+
+
+        <div class="step-card">
+
+          <span class="step-number">
+            02
+          </span>
+
+          <h3>
+            Choose
+          </h3>
+
+          <p>
+            Find a provider that matches your needs.
+          </p>
+
+        </div>
+
+
+        <div class="step-card">
+
+          <span class="step-number">
+            03
+          </span>
+
+          <h3>
+            Request
+          </h3>
+
+          <p>
+            Send the provider your service request.
+          </p>
+
+        </div>
+
+
+        <div class="step-card">
+
+          <span class="step-number">
+            04
+          </span>
+
+          <h3>
+            Get it fixed
+          </h3>
+
+          <p>
+            Track the job as the provider handles it.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         ABOUT
+    ================================================== -->
+
+    <section
+      id="about"
+      class="info-section"
+    >
+
+      <div class="section-heading">
+
+        <p class="section-label">
+          ABOUT QUICKFIX
+        </p>
+
+        <h2>
+          Real problems.
+          Real people.
+          Real fixes.
+        </h2>
+
+        <p>
+          QuickFix connects customers with service providers
+          who can help solve everyday problems.
+        </p>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================================================
+         DASHBOARDS
+    ================================================== -->
+
+    <section
+      id="dashboards"
+      class="dashboards-section"
+    >
+
+
+      <!-- ==================================================
+           CUSTOMER DASHBOARD
+      ================================================== -->
+
+      <div
+        id="customerDashboard"
+        class="dashboard"
+        style="display:none;"
+      >
+
+        <div class="dashboard-header">
+
+          <div>
+
+            <p class="section-label">
+              CUSTOMER
+            </p>
+
+            <h2>
+              Your Service Requests
+            </h2>
+
+            <p
+              id="customerDashboardMessage"
+              class="dashboard-message"
+            ></p>
+
+          </div>
+
+
+          <button
+            type="button"
+            id="newRequestBtn"
+            class="submit-button"
+          >
+            + New Request
+          </button>
+
+        </div>
+
+
+        <div
+          id="customerRequestList"
+          class="requests-list"
+        >
+        </div>
+
+      </div>
+
+
+
+      <!-- ==================================================
+           PROVIDER DASHBOARD
+      ================================================== -->
+
+      <div
+        id="providerDashboard"
+        class="dashboard"
+        style="display:none;"
+      >
+
+        <div class="dashboard-header">
+
+          <div>
+
+            <p class="section-label">
+              PROVIDER
+            </p>
+
+            <h2>
+              Your Requests
+            </h2>
+
+            <p
+              id="dashboardMessage"
+              class="dashboard-message"
+            ></p>
+
+          </div>
+
+
+          <button
+            type="button"
+            id="earningsBtn"
+            class="submit-button"
+          >
+            💰 View Earnings
+          </button>
+
+        </div>
+
+
+        <div
+          id="requestList"
+          class="requests-list"
+        >
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+
+  <!-- ==================================================
+       AUTH MODAL
+  ================================================== -->
+
+  <div
+    id="authModal"
+    class="modal"
+    aria-hidden="true"
+  >
+
+    <div
+      class="modal-box"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="authTitle"
+    >
+
+      <button
+        type="button"
+        id="closeAuth"
+        class="close-button"
+        aria-label="Close"
+      >
+        ×
       </button>
+
+
+      <div id="authContent">
+
+        <p class="section-label">
+          QUICKFIX ACCOUNT
+        </p>
+
+
+        <h2 id="authTitle">
+          Create your QuickFix account
+        </h2>
+
+
+        <p id="authIntro">
+          Join QuickFix and get local help when you need it.
+        </p>
+
+
+        <div class="form-group">
+
+          <label for="authEmail">
+            Email
+          </label>
+
+          <input
+            id="authEmail"
+            type="email"
+            autocomplete="email"
+            placeholder="you@example.com"
+          >
+
+        </div>
+
+
+        <div class="form-group">
+
+          <label for="authPassword">
+            Password
+          </label>
+
+          <input
+            id="authPassword"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Your password"
+          >
+
+        </div>
+
+
+        <p
+          id="authMessage"
+          class="form-message"
+          aria-live="polite"
+        ></p>
+
+
+        <button
+          type="button"
+          id="authSubmit"
+          class="submit-button"
+        >
+          Create account
+        </button>
+
+
+        <button
+          type="button"
+          id="switchAuthMode"
+          class="text-button"
+        >
+          Already have an account? Log in
+        </button>
+
+      </div>
+
     </div>
-    <div id="customerRequestList" class="requests-list">
-      <!-- Requests loaded here -->
-    </div>
+
   </div>
 
-  <!-- PROVIDER DASHBOARD -->
-  <div id="providerDashboard" class="dashboard">
-    <div class="dashboard-header">
-      <h2>Your Requests</h2>
-      <button type="button" id="earningsBtn" class="submit-button">
-        💰 View Earnings
+
+
+  <!-- ==================================================
+       PROVIDER REGISTRATION MODAL
+  ================================================== -->
+
+  <div
+    id="providerModal"
+    class="modal"
+    aria-hidden="true"
+  >
+
+    <div
+      class="modal-box"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="providerModalTitle"
+    >
+
+      <button
+        type="button"
+        id="closeProvider"
+        class="close-button"
+        aria-label="Close"
+      >
+        ×
       </button>
+
+
+      <p class="section-label">
+        PROVIDER
+      </p>
+
+
+      <h2 id="providerModalTitle">
+        Join QuickFix as a Provider
+      </h2>
+
+
+      <p>
+        Offer your skills to customers who need help.
+      </p>
+
+
+      <div class="form-group">
+
+        <label for="providerName">
+          Your name
+        </label>
+
+        <input
+          id="providerName"
+          type="text"
+          placeholder="Your full name"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="providerService">
+          Service
+        </label>
+
+        <input
+          id="providerService"
+          type="text"
+          placeholder="e.g. Plumbing"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="providerLocation">
+          Location
+        </label>
+
+        <input
+          id="providerLocation"
+          type="text"
+          placeholder="Where do you operate?"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="providerPhone">
+          Phone number
+        </label>
+
+        <input
+          id="providerPhone"
+          type="tel"
+          placeholder="Your phone number"
+        >
+
+      </div>
+
+
+      <p
+        id="providerMessage"
+        class="form-message"
+        aria-live="polite"
+      ></p>
+
+
+      <button
+        type="button"
+        id="submitProvider"
+        class="submit-button"
+      >
+        Join as Provider
+      </button>
+
     </div>
-    <div id="requestList" class="requests-list">
-      <!-- Requests loaded here -->
-    </div>
+
   </div>
 
-</section>
 
 
-<!-- AUTHENTICATION MODALS -->
+  <!-- ==================================================
+       SERVICE REQUEST MODAL
+  ================================================== -->
 
-<div id="authModal" class="modal">
-  <div class="modal-box">
-    <button type="button" class="close-button">×</button>
-    <div id="authContent">
-      <!-- Auth forms loaded here -->
+  <div
+    id="requestModal"
+    class="modal"
+    aria-hidden="true"
+  >
+
+    <div
+      class="modal-box"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="requestModalTitle"
+    >
+
+      <button
+        type="button"
+        id="closeRequest"
+        class="close-button"
+        aria-label="Close"
+      >
+        ×
+      </button>
+
+
+      <p class="section-label">
+        SERVICE REQUEST
+      </p>
+
+
+      <h2 id="requestModalTitle">
+        Request a Fix
+      </h2>
+
+
+      <p>
+        You're requesting help from:
+      </p>
+
+
+      <h3 id="requestProviderName">
+        Service Provider
+      </h3>
+
+
+      <div class="form-group">
+
+        <label for="requestDescription">
+          What do you need?
+        </label>
+
+        <textarea
+          id="requestDescription"
+          rows="4"
+          placeholder="Describe the problem..."
+        ></textarea>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="requestLocation">
+          Your location
+        </label>
+
+        <input
+          id="requestLocation"
+          type="text"
+          placeholder="Where should the provider come?"
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="requestPhone">
+          Phone number
+        </label>
+
+        <input
+          id="requestPhone"
+          type="tel"
+          placeholder="How can the provider reach you?"
+        >
+
+      </div>
+
+
+      <p
+        id="requestMessage"
+        class="form-message"
+        aria-live="polite"
+      ></p>
+
+
+      <button
+        type="button"
+        id="submitRequest"
+        class="submit-button"
+      >
+        Send Request
+      </button>
+
     </div>
+
   </div>
-</div>
 
-</main>
 
-<!-- ==========================================
-     SCRIPTS
-========================================== -->
 
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- ==================================================
+       ACCOUNT MODAL
+  ================================================== -->
 
-<!-- Stripe -->
-<script src="https://js.stripe.com/v3/"></script>
+  <div
+    id="accountModal"
+    class="modal"
+    aria-hidden="true"
+  >
 
-<!-- Core Application -->
-<script src="script.js"></script>
+    <div
+      class="modal-box"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="accountTitle"
+    >
 
-<!-- Messaging Module -->
-<script src="messaging.js"></script>
+      <button
+        type="button"
+        id="closeAccount"
+        class="close-button"
+        aria-label="Close"
+      >
+        ×
+      </button>
 
-<!-- Payments Module -->
-<script src="payments.js"></script>
+
+      <p class="section-label">
+        YOUR ACCOUNT
+      </p>
+
+
+      <h2 id="accountTitle">
+        QuickFix Account
+      </h2>
+
+
+      <p id="accountEmail">
+      </p>
+
+
+      <p
+        id="accountMessage"
+        class="form-message"
+        aria-live="polite"
+      ></p>
+
+
+      <div class="account-actions">
+
+        <button
+          type="button"
+          id="openCustomerDashboard"
+          class="submit-button"
+        >
+          Customer Dashboard
+        </button>
+
+
+        <button
+          type="button"
+          id="openProviderDashboard"
+          class="submit-button"
+        >
+          Provider Dashboard
+        </button>
+
+
+        <button
+          type="button"
+          id="logoutButton"
+          class="secondary-button"
+        >
+          Log Out
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ==================================================
+       MESSAGING ROOT
+       messaging.js can use/create its own interface here.
+  ================================================== -->
+
+  <div id="messagingRoot"></div>
+
+
+
+  <!-- ==================================================
+       PAYMENT ROOT
+  ================================================== -->
+
+  <div id="paymentRoot"></div>
+
+
+
+  <!-- ==================================================
+       TOAST
+  ================================================== -->
+
+  <div
+    id="quickfixToast"
+    class="quickfix-toast"
+    aria-live="polite"
+  ></div>
+
+
+
+  <!-- ==================================================
+       FOOTER
+  ================================================== -->
+
+  <footer class="site-footer">
+
+    <div class="footer-logo">
+      Quick<span>Fix</span>
+    </div>
+
+    <p>
+      Find help. Fix problems. Keep moving.
+    </p>
+
+  </footer>
+
+
+
+  <!-- ==================================================
+       EXTERNAL LIBRARIES
+  ================================================== -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+
+  <script
+    src="https://js.stripe.com/v3/"
+  ></script>
+
+
+
+  <!-- ==================================================
+       QUICKFIX MODULES
+  ================================================== -->
+
+  <script src="script.js"></script>
+
+  <script src="messaging.js"></script>
+
+  <script src="payments.js"></script>
+
+  <script src="reviews.js"></script>
+
 
 </body>
 
