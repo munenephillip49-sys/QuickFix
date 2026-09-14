@@ -386,10 +386,10 @@ document.addEventListener("DOMContentLoaded", function () {
   // DASHBOARDS
 
   const customerDashboard =
-    document.querySelector("#customer-dashboard");
+  document.querySelector("#customerDashboard, #customer-dashboard");
 
-  const providerDashboard =
-    document.querySelector("#provider-dashboard");
+const providerDashboard =
+  document.querySelector("#providerDashboard, #provider-dashboard");
 
   const customerRequestList =
     document.querySelector("#customerRequestList");
