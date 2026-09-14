@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Account | QuickFix</title>
+  <meta name="description" content="Sign in or create your QuickFix account.">
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .account-page {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 50px 20px;
+    }
+
+    .account-wrap {
+      width: 100%;
+      max-width: 470px;
+    }
+
+    .account-heading {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .account-heading .eyebrow {
+      color: #39e58c;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    .account-heading h1 {
+      font-size: 42px;
+      margin: 0 0 12px;
+    }
+
+    .account-heading p {
+      margin: 0;
+      opacity: .65;
+      line-height: 1.6;
+    }
+
+    .account-card {
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.025);
+      border-radius: 24px;
+      padding: 30px;
+    }
+
+    .account-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 5px;
+      background: rgba(255,255,255,.05);
+      border-radius: 13px;
+      margin-bottom: 25px;
+    }
+
+    .account-tabs button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .account-tabs button.active {
+      background: #39e58c;
+      color: #07110c;
+    }
+
+    .account-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 700;
+      opacity: .8;
+    }
+
+    .field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(0,0,0,.2);
+      color: inherit;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #39e58c;
+    }
+
+    .account-submit {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 15px;
+      background: #39e58c;
+      color: #07110c;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+      margin-top: 4px;
+    }
+
+    .account-message {
+      min-height: 20px;
+      font-size: 13px;
+      text-align: center;
+      opacity: .8;
+    }
+
+    .account-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 25px 0;
+      opacity: .3;
+      font-size: 12px;
+    }
+
+    .account-divider::before,
+    .account-divider::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: currentColor;
+    }
+
+    .provider-entry {
+      text-align: center;
+      padding-top: 4px;
+    }
+
+    .provider-entry p {
+      margin: 0 0 12px;
+      font-size: 13px;
+      opacity: .6;
+    }
+
+    .provider-entry a {
+      color: #39e58c;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .account-footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 13px;
+      opacity: .55;
+    }
+
+    @media (max-width: 600px) {
+      .account-page {
+        padding: 30px 16px;
+      }
+
+      .account-card {
+        padding: 22px;
+      }
+
+      .account-heading h1 {
+        font-size: 36px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <header class="site-header">
+    <nav class="nav">
+
+```
+  <a href="index.html" class="logo">
+    Quick<span>Fix</span>
+  </a>
+
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="find.html">Find a Fix</a>
+    <a href="how-it-works.html">How It Works</a>
+    <a href="about.html">About</a>
+  </div>
+
+  <div class="nav-actions">
+    <a href="account.html" class="active">Account</a>
+    <a href="provider.html" class="provider-btn">Join as Provider</a>
+  </div>
+
+</nav>
+```
+
+  </header>
+
+  <main class="account-page">
+
+```
+<div class="account-wrap">
+
+  <div class="account-heading">
+    <div class="eyebrow">QUICKFIX ACCOUNT</div>
+    <h1 id="accountHeading">Welcome back.</h1>
+    <p id="accountIntro">
+      Sign in to manage your requests, messages and profile.
+    </p>
+  </div>
+
+  <section class="account-card">
+
+    <div class="account-tabs">
+      <button id="loginTab" class="active" type="button">
+        Sign In
+      </button>
+
+      <button id="signupTab" type="button">
+        Create Account
+      </button>
+    </div>
+
+    <form id="accountForm" class="account-form">
+
+      <div class="field">
+        <label for="accountEmail">Email</label>
+        <input
+          id="accountEmail"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label for="accountPassword">Password</label>
+        <input
+          id="accountPassword"
+          type="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        >
+      </div>
+
+      <div
+        id="accountMessage"
+        class="account-message"
+        aria-live="polite"
+      ></div>
+
+      <button
+        id="accountSubmit"
+        class="account-submit"
+        type="submit"
+      >
+        Sign In
+      </button>
+
+    </form>
+
+    <div class="account-divider">
+      OR
+    </div>
+
+    <div class="provider-entry">
+      <p>Want to offer your services?</p>
+      <a href="provider.html">Join QuickFix as a Provider →</a>
+    </div>
+
+  </section>
+
+  <div class="account-footer">
+    QuickFix — Find help. Get it fixed.
+  </div>
+
+</div>
+```
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const SUPABASE_URL =
+        "https://dpaqoamvgxbcztoaxxqv.supabase.co";
+
+      const SUPABASE_KEY =
+        "sb_publishable_PmI-ae0wRI4rrGg00KLHAA_Pws_TFJm";
+
+      const supabaseClient =
+        window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+      const loginTab =
+        document.getElementById("loginTab");
+
+      const signupTab =
+        document.getElementById("signupTab");
+
+      const form =
+        document.getElementById("accountForm");
+
+      const email =
+        document.getElementById("accountEmail");
+
+      const password =
+        document.getElementById("accountPassword");
+
+      const submit =
+        document.getElementById("accountSubmit");
+
+      const message =
+        document.getElementById("accountMessage");
+
+      const heading =
+        document.getElementById("accountHeading");
+
+      const intro =
+        document.getElementById("accountIntro");
+
+      let mode = "login";
+
+      function setMode(newMode) {
+
+        mode = newMode;
+
+        const signup = mode === "signup";
+
+        loginTab.classList.toggle("active", !signup);
+        signupTab.classList.toggle("active", signup);
+
+        submit.textContent =
+          signup ? "Create Account" : "Sign In";
+
+        heading.textContent =
+          signup ? "Create your account." : "Welcome back.";
+
+        intro.textContent =
+          signup
+            ? "Create your QuickFix account and get started."
+            : "Sign in to manage your requests, messages and profile.";
+
+        password.autocomplete =
+          signup ? "new-password" : "current-password";
+
+        message.textContent = "";
+      }
+
+      loginTab.addEventListener("click", function () {
+        setMode("login");
+      });
+
+      signupTab.addEventListener("click", function () {
+        setMode("signup");
+      });
+
+      form.addEventListener("submit", async function (event) {
+
+        event.preventDefault();
+
+        const userEmail =
+          email.value.trim();
+
+        const userPassword =
+          password.value;
+
+        if (!userEmail || !userPassword) {
+          message.textContent =
+            "Enter your email and password.";
+
+          return;
+        }
+
+        submit.disabled = true;
+        submit.textContent =
+          mode === "signup"
+            ? "Creating..."
+            : "Signing in...";
+
+        message.textContent = "";
+
+        try {
+
+          let result;
+
+          if (mode === "signup") {
+
+            result =
+              await supabaseClient.auth.signUp({
+                email: userEmail,
+                password: userPassword
+              });
+
+          } else {
+
+            result =
+              await supabaseClient.auth.signInWithPassword({
+                email: userEmail,
+                password: userPassword
+              });
+
+          }
+
+          if (result.error) {
+            throw result.error;
+          }
+
+          if (mode === "signup") {
+
+            message.textContent =
+              "Account created. Check your email if verification is required.";
+
+            form.reset();
+
+          } else {
+
+            message.textContent =
+              "Signed in. Redirecting...";
+
+            setTimeout(function () {
+              window.location.href = "customer.html";
+            }, 700);
+
+          }
+
+        } catch (error) {
+
+          message.textContent =
+            error.message ||
+            "Something went wrong. Please try again.";
+
+        } finally {
+
+          submit.disabled = false;
+
+          submit.textContent =
+            mode === "signup"
+              ? "Create Account"
+              : "Sign In";
+        }
+
+      });
+
+      supabaseClient.auth.getSession()
+        .then(function ({ data }) {
+
+          if (data && data.session) {
+            window.location.href = "customer.html";
+          }
+
+        });
+
+    });
+  </script>
+
+</body>
+</html>
