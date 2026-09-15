@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -187,299 +187,453 @@
       }
     }
   </style>
-
 </head>
 
 <body>
 
-  <header class="site-header">
-    <nav class="nav">
+<header class="site-header">
+  <nav class="nav">
 
-```
-  <a href="index.html" class="logo">
-    Quick<span>Fix</span>
-  </a>
+    <a href="index.html" class="logo">
+      Quick<span>Fix</span>
+    </a>
 
-  <div class="nav-links">
-    <a href="index.html">Home</a>
-    <a href="find.html">Find a Fix</a>
-    <a href="how-it-works.html">How It Works</a>
-    <a href="about.html">About</a>
-  </div>
-
-  <div class="nav-actions">
-    <a href="account.html" class="active">Account</a>
-    <a href="provider.html" class="provider-btn">Join as Provider</a>
-  </div>
-
-</nav>
-```
-
-  </header>
-
-  <main class="account-page">
-
-```
-<div class="account-wrap">
-
-  <div class="account-heading">
-    <div class="eyebrow">QUICKFIX ACCOUNT</div>
-    <h1 id="accountHeading">Welcome back.</h1>
-    <p id="accountIntro">
-      Sign in to manage your requests, messages and profile.
-    </p>
-  </div>
-
-  <section class="account-card">
-
-    <div class="account-tabs">
-      <button id="loginTab" class="active" type="button">
-        Sign In
-      </button>
-
-      <button id="signupTab" type="button">
-        Create Account
-      </button>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="find.html">Find a Fix</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="about.html">About</a>
     </div>
 
-    <form id="accountForm" class="account-form">
+    <div class="nav-actions">
+      <a href="account.html" class="active">Account</a>
+      <a href="account.html?role=provider" class="provider-btn">
+        Join as Provider
+      </a>
+    </div>
 
-      <div class="field">
-        <label for="accountEmail">Email</label>
-        <input
-          id="accountEmail"
-          type="email"
-          placeholder="you@example.com"
-          autocomplete="email"
-          required
-        >
+  </nav>
+</header>
+
+
+<main class="account-page">
+
+  <div class="account-wrap">
+
+    <div class="account-heading">
+
+      <div class="eyebrow" id="accountEyebrow">
+        QUICKFIX ACCOUNT
       </div>
 
-      <div class="field">
-        <label for="accountPassword">Password</label>
-        <input
-          id="accountPassword"
-          type="password"
-          placeholder="Enter your password"
-          autocomplete="current-password"
-          required
+      <h1 id="accountHeading">
+        Welcome back.
+      </h1>
+
+      <p id="accountIntro">
+        Sign in to manage your requests, messages and profile.
+      </p>
+
+    </div>
+
+
+    <section class="account-card">
+
+      <div class="account-tabs">
+
+        <button
+          id="loginTab"
+          class="active"
+          type="button"
         >
+          Sign In
+        </button>
+
+        <button
+          id="signupTab"
+          type="button"
+        >
+          Create Account
+        </button>
+
       </div>
 
-      <div
-        id="accountMessage"
-        class="account-message"
-        aria-live="polite"
-      ></div>
 
-      <button
-        id="accountSubmit"
-        class="account-submit"
-        type="submit"
+      <form
+        id="accountForm"
+        class="account-form"
       >
-        Sign In
-      </button>
 
-    </form>
+        <div class="field">
 
-    <div class="account-divider">
-      OR
+          <label for="accountEmail">
+            Email
+          </label>
+
+          <input
+            id="accountEmail"
+            type="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label for="accountPassword">
+            Password
+          </label>
+
+          <input
+            id="accountPassword"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          >
+
+        </div>
+
+
+        <div
+          id="accountMessage"
+          class="account-message"
+          aria-live="polite"
+        ></div>
+
+
+        <button
+          id="accountSubmit"
+          class="account-submit"
+          type="submit"
+        >
+          Sign In
+        </button>
+
+      </form>
+
+
+      <div class="account-divider">
+        OR
+      </div>
+
+
+      <div class="provider-entry">
+
+        <p>
+          Want to offer your services?
+        </p>
+
+        <a href="account.html?role=provider">
+          Sign in as a Provider →
+        </a>
+
+      </div>
+
+    </section>
+
+
+    <div class="account-footer">
+      QuickFix — Find help. Get it fixed.
     </div>
 
-    <div class="provider-entry">
-      <p>Want to offer your services?</p>
-      <a href="provider.html">Join QuickFix as a Provider →</a>
-    </div>
-
-  </section>
-
-  <div class="account-footer">
-    QuickFix — Find help. Get it fixed.
   </div>
 
-</div>
-```
+</main>
 
-  </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
+<script>
 
-      const SUPABASE_URL =
-        "https://dpaqoamvgxbcztoaxxqv.supabase.co";
+document.addEventListener("DOMContentLoaded", function () {
 
-      const SUPABASE_KEY =
-        "sb_publishable_PmI-ae0wRI4rrGg00KLHAA_Pws_TFJm";
+  const SUPABASE_URL =
+    "https://dpaqoamvgxbcztoaxxqv.supabase.co";
 
-      const supabaseClient =
-        window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_KEY
-        );
+  const SUPABASE_KEY =
+    "sb_publishable_PmI-ae0wRI4rrG00KLHAA_Pws_TFJm";
 
-      const loginTab =
-        document.getElementById("loginTab");
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
 
-      const signupTab =
-        document.getElementById("signupTab");
 
-      const form =
-        document.getElementById("accountForm");
+  const providerMode =
+    new URLSearchParams(
+      window.location.search
+    ).get("role") === "provider";
 
-      const email =
-        document.getElementById("accountEmail");
 
-      const password =
-        document.getElementById("accountPassword");
+  const loginTab =
+    document.getElementById("loginTab");
 
-      const submit =
-        document.getElementById("accountSubmit");
+  const signupTab =
+    document.getElementById("signupTab");
 
-      const message =
-        document.getElementById("accountMessage");
+  const form =
+    document.getElementById("accountForm");
 
-      const heading =
-        document.getElementById("accountHeading");
+  const email =
+    document.getElementById("accountEmail");
 
-      const intro =
-        document.getElementById("accountIntro");
+  const password =
+    document.getElementById("accountPassword");
 
-      let mode = "login";
+  const submit =
+    document.getElementById("accountSubmit");
 
-      function setMode(newMode) {
+  const message =
+    document.getElementById("accountMessage");
 
-        mode = newMode;
+  const heading =
+    document.getElementById("accountHeading");
 
-        const signup = mode === "signup";
+  const intro =
+    document.getElementById("accountIntro");
 
-        loginTab.classList.toggle("active", !signup);
-        signupTab.classList.toggle("active", signup);
+  const eyebrow =
+    document.getElementById("accountEyebrow");
 
-        submit.textContent =
-          signup ? "Create Account" : "Sign In";
 
-        heading.textContent =
-          signup ? "Create your account." : "Welcome back.";
+  let mode = "login";
 
-        intro.textContent =
-          signup
-            ? "Create your QuickFix account and get started."
-            : "Sign in to manage your requests, messages and profile.";
 
-        password.autocomplete =
-          signup ? "new-password" : "current-password";
+  function setMode(newMode) {
 
-        message.textContent = "";
+    mode = newMode;
+
+    const signup =
+      mode === "signup";
+
+
+    loginTab.classList.toggle(
+      "active",
+      !signup
+    );
+
+    signupTab.classList.toggle(
+      "active",
+      signup
+    );
+
+
+    submit.textContent =
+      signup
+        ? "Create Account"
+        : "Sign In";
+
+
+    if (providerMode) {
+
+      eyebrow.textContent =
+        "QUICKFIX PROVIDER";
+
+      heading.textContent =
+        signup
+          ? "Create your provider account."
+          : "Provider sign in.";
+
+      intro.textContent =
+        signup
+          ? "Create your QuickFix account, then set up your provider profile."
+          : "Sign in to manage your services, requests and earnings.";
+
+    } else {
+
+      eyebrow.textContent =
+        "QUICKFIX ACCOUNT";
+
+      heading.textContent =
+        signup
+          ? "Create your account."
+          : "Welcome back.";
+
+      intro.textContent =
+        signup
+          ? "Create your QuickFix account and get started."
+          : "Sign in to manage your requests, messages and profile.";
+
+    }
+
+
+    password.autocomplete =
+      signup
+        ? "new-password"
+        : "current-password";
+
+
+    message.textContent = "";
+
+  }
+
+
+  loginTab.addEventListener(
+    "click",
+    function () {
+      setMode("login");
+    }
+  );
+
+
+  signupTab.addEventListener(
+    "click",
+    function () {
+      setMode("signup");
+    }
+  );
+
+
+  form.addEventListener(
+    "submit",
+    async function (event) {
+
+      event.preventDefault();
+
+
+      const userEmail =
+        email.value.trim();
+
+      const userPassword =
+        password.value;
+
+
+      if (!userEmail || !userPassword) {
+
+        message.textContent =
+          "Enter your email and password.";
+
+        return;
+
       }
 
-      loginTab.addEventListener("click", function () {
-        setMode("login");
-      });
 
-      signupTab.addEventListener("click", function () {
-        setMode("signup");
-      });
+      submit.disabled = true;
 
-      form.addEventListener("submit", async function (event) {
+      submit.textContent =
+        mode === "signup"
+          ? "Creating..."
+          : "Signing in...";
 
-        event.preventDefault();
+      message.textContent = "";
 
-        const userEmail =
-          email.value.trim();
 
-        const userPassword =
-          password.value;
+      try {
 
-        if (!userEmail || !userPassword) {
-          message.textContent =
-            "Enter your email and password.";
+        let result;
 
-          return;
+
+        if (mode === "signup") {
+
+          result =
+            await supabaseClient.auth.signUp({
+              email: userEmail,
+              password: userPassword
+            });
+
+        } else {
+
+          result =
+            await supabaseClient.auth.signInWithPassword({
+              email: userEmail,
+              password: userPassword
+            });
+
         }
 
-        submit.disabled = true;
+
+        if (result.error) {
+          throw result.error;
+        }
+
+
+        if (mode === "signup") {
+
+          message.textContent =
+            "Account created. Check your email if verification is required.";
+
+          if (!providerMode) {
+            form.reset();
+          }
+
+        } else {
+
+          message.textContent =
+            "Signed in. Redirecting...";
+
+
+          setTimeout(function () {
+
+            if (providerMode) {
+
+              window.location.href =
+                "provider.html";
+
+            } else {
+
+              window.location.href =
+                "customer.html";
+
+            }
+
+          }, 400);
+
+        }
+
+
+      } catch (error) {
+
+        message.textContent =
+          error.message ||
+          "Something went wrong. Please try again.";
+
+      } finally {
+
+        submit.disabled = false;
+
         submit.textContent =
           mode === "signup"
-            ? "Creating..."
-            : "Signing in...";
+            ? "Create Account"
+            : "Sign In";
 
-        message.textContent = "";
+      }
 
-        try {
+    }
+  );
 
-          let result;
 
-          if (mode === "signup") {
+  setMode("login");
 
-            result =
-              await supabaseClient.auth.signUp({
-                email: userEmail,
-                password: userPassword
-              });
 
-          } else {
+  supabaseClient.auth.getSession()
+    .then(function ({ data }) {
 
-            result =
-              await supabaseClient.auth.signInWithPassword({
-                email: userEmail,
-                password: userPassword
-              });
+      if (data && data.session) {
 
-          }
+        if (providerMode) {
 
-          if (result.error) {
-            throw result.error;
-          }
+          window.location.href =
+            "provider.html";
 
-          if (mode === "signup") {
+        } else {
 
-            message.textContent =
-              "Account created. Check your email if verification is required.";
+          window.location.href =
+            "customer.html";
 
-            form.reset();
-
-          } else {
-
-            message.textContent =
-              "Signed in. Redirecting...";
-
-            setTimeout(function () {
-              window.location.href = "customer.html";
-            }, 700);
-
-          }
-
-        } catch (error) {
-
-          message.textContent =
-            error.message ||
-            "Something went wrong. Please try again.";
-
-        } finally {
-
-          submit.disabled = false;
-
-          submit.textContent =
-            mode === "signup"
-              ? "Create Account"
-              : "Sign In";
         }
 
-      });
-
-      supabaseClient.auth.getSession()
-        .then(function ({ data }) {
-
-          if (data && data.session) {
-            window.location.href = "customer.html";
-          }
-
-        });
+      }
 
     });
-  </script>
+
+});
+
+</script>
 
 </body>
 </html>
