@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "https://dpaqoamvgxbcztoaxxqv.supabase.co";
 
   const SUPABASE_KEY =
-    "sb_publishable_PmI-ae0wRI4rrGg00KLHAA_Pws_TFJm";
+  "sb_publishable_6KCoCn8dmj4NMQTpXu5G2Q_KuGxY4l7";
 
   const supabase =
     window.supabase.createClient(
