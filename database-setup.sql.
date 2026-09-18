@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS public.disputes (
     REFERENCES public.service_requests(id)
     ON DELETE CASCADE,
 
-  reported_by UUID
+  opened_by UUID
     REFERENCES auth.users(id)
     ON DELETE CASCADE,
 
@@ -680,7 +680,7 @@ CREATE POLICY "Users can open disputes"
 ON public.disputes
 FOR INSERT
 WITH CHECK (
-  auth.uid() = reported_by
+  auth.uid() = opened_by
 );
 
 
