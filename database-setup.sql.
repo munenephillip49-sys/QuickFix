@@ -1,0 +1,798 @@
+-- ============================================================
+-- QUICKFIX DATABASE FOUNDATION — 2026
+-- SAFE UPDATE
+-- Does NOT drop tables or delete existing data
+-- ============================================================
+
+
+-- ============================================================
+-- 1. SERVICE REQUESTS
+-- ============================================================
+
+-- The current QuickFix JavaScript expects every request to store
+-- the service that was requested.
+ALTER TABLE public.service_requests
+ADD COLUMN IF NOT EXISTS service TEXT;
+
+
+-- ============================================================
+-- 2. REVIEWS
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_id UUID REFERENCES public.service_requests(id) ON DELETE CASCADE,
+  customer_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  provider_id UUID REFERENCES public.providers(id) ON DELETE CASCADE,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  review_text TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+-- Make sure provider rating fields used by QuickFix exist.
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS rating NUMERIC DEFAULT 0;
+
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS total_reviews INTEGER DEFAULT 0;
+
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS total_jobs INTEGER DEFAULT 0;
+
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS completed_jobs INTEGER DEFAULT 0;
+
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS monthly_earnings NUMERIC DEFAULT 0;
+
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS monthly_commission NUMERIC DEFAULT 0;
+
+
+-- ============================================================
+-- 3. MESSAGES
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_id UUID REFERENCES public.service_requests(id) ON DELETE CASCADE,
+  sender_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  receiver_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  message_text TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+-- ============================================================
+-- 4. NOTIFICATIONS
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.notifications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  type VARCHAR(50),
+  title VARCHAR(255),
+  message TEXT,
+  related_request_id UUID
+    REFERENCES public.service_requests(id)
+    ON DELETE CASCADE,
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+-- ============================================================
+-- 5. TRANSACTIONS
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.transactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_id UUID
+    REFERENCES public.service_requests(id)
+    ON DELETE CASCADE,
+  customer_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  provider_id UUID
+    REFERENCES public.providers(id)
+    ON DELETE CASCADE,
+
+  amount NUMERIC(10,2) NOT NULL,
+
+  -- QUICKFIX COMMISSION = 2%
+  commission_percentage NUMERIC(5,2) DEFAULT 2,
+
+  commission_amount NUMERIC(10,2),
+  provider_earnings NUMERIC(10,2),
+
+  status VARCHAR(50) DEFAULT 'pending',
+
+  stripe_payment_id VARCHAR(255),
+  stripe_charge_id VARCHAR(255),
+  payment_method VARCHAR(50),
+
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+-- Existing transactions must also use the QuickFix 2% rate
+-- when their commission percentage has not been customized.
+ALTER TABLE public.transactions
+ALTER COLUMN commission_percentage SET DEFAULT 2;
+
+
+-- ============================================================
+-- 6. PROVIDER PAYOUTS
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.provider_payouts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  provider_id UUID
+    REFERENCES public.providers(id)
+    ON DELETE CASCADE,
+
+  amount NUMERIC(10,2) NOT NULL,
+
+  status VARCHAR(50) DEFAULT 'pending',
+
+  stripe_payout_id VARCHAR(255),
+
+  requested_at TIMESTAMPTZ DEFAULT NOW(),
+  paid_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+-- ============================================================
+-- 7. PROVIDER LOCATION
+-- ============================================================
+
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
+
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
+
+ALTER TABLE public.providers
+ADD COLUMN IF NOT EXISTS service_radius_miles INTEGER DEFAULT 10;
+
+
+-- ============================================================
+-- 8. PROVIDER AVAILABILITY
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.provider_availability (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  provider_id UUID
+    REFERENCES public.providers(id)
+    ON DELETE CASCADE,
+
+  day_of_week VARCHAR(10),
+  start_time TIME,
+  end_time TIME,
+  is_available BOOLEAN DEFAULT TRUE,
+
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+-- ============================================================
+-- 9. DISPUTES
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.disputes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  request_id UUID
+    REFERENCES public.service_requests(id)
+    ON DELETE CASCADE,
+
+  reported_by UUID
+    REFERENCES auth.users(id)
+    ON DELETE CASCADE,
+
+  reason TEXT,
+  description TEXT,
+
+  status VARCHAR(50) DEFAULT 'open',
+
+  resolution TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  resolved_at TIMESTAMPTZ
+);
+
+
+-- ============================================================
+-- 10. INDEXES
+-- ============================================================
+
+CREATE INDEX IF NOT EXISTS idx_reviews_provider_id
+ON public.reviews(provider_id);
+
+CREATE INDEX IF NOT EXISTS idx_reviews_customer_id
+ON public.reviews(customer_id);
+
+CREATE INDEX IF NOT EXISTS idx_reviews_request_id
+ON public.reviews(request_id);
+
+CREATE INDEX IF NOT EXISTS idx_messages_request_id
+ON public.messages(request_id);
+
+CREATE INDEX IF NOT EXISTS idx_messages_sender_id
+ON public.messages(sender_id);
+
+CREATE INDEX IF NOT EXISTS idx_messages_receiver_id
+ON public.messages(receiver_id);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id
+ON public.notifications(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_request_id
+ON public.notifications(related_request_id);
+
+CREATE INDEX IF NOT EXISTS idx_transactions_request_id
+ON public.transactions(request_id);
+
+CREATE INDEX IF NOT EXISTS idx_transactions_provider_id
+ON public.transactions(provider_id);
+
+CREATE INDEX IF NOT EXISTS idx_provider_location
+ON public.providers(latitude, longitude);
+
+
+-- ============================================================
+-- 11. ENABLE RLS
+-- ============================================================
+
+ALTER TABLE public.providers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.provider_payouts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.provider_availability ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.disputes ENABLE ROW LEVEL SECURITY;
+
+
+-- ============================================================
+-- 12. REMOVE OLD POLICIES
+-- ============================================================
+
+-- Providers
+DROP POLICY IF EXISTS "Providers are publicly viewable"
+ON public.providers;
+
+DROP POLICY IF EXISTS "Users can create their provider profile"
+ON public.providers;
+
+DROP POLICY IF EXISTS "Users can update their provider profile"
+ON public.providers;
+
+DROP POLICY IF EXISTS "Users can delete their provider profile"
+ON public.providers;
+
+
+-- Service requests
+DROP POLICY IF EXISTS "Customers can create requests"
+ON public.service_requests;
+
+DROP POLICY IF EXISTS "Customers can update their requests"
+ON public.service_requests;
+
+DROP POLICY IF EXISTS "Customers can view their requests"
+ON public.service_requests;
+
+DROP POLICY IF EXISTS "Providers can update their requests"
+ON public.service_requests;
+
+DROP POLICY IF EXISTS "Providers can view their requests"
+ON public.service_requests;
+
+
+-- Reviews
+DROP POLICY IF EXISTS "Customers can create reviews"
+ON public.reviews;
+
+DROP POLICY IF EXISTS "Customers can update their reviews"
+ON public.reviews;
+
+DROP POLICY IF EXISTS "Reviews are publicly viewable"
+ON public.reviews;
+
+DROP POLICY IF EXISTS "Customers can view reviews for providers they rated"
+ON public.reviews;
+
+
+-- Messages
+DROP POLICY IF EXISTS "Users can send messages"
+ON public.messages;
+
+DROP POLICY IF EXISTS "Users can view their messages"
+ON public.messages;
+
+DROP POLICY IF EXISTS "Users can view their messages"
+ON public.messages;
+
+DROP POLICY IF EXISTS "Users can mark received messages as read"
+ON public.messages;
+
+
+-- Notifications
+DROP POLICY IF EXISTS "Users can view their notifications"
+ON public.notifications;
+
+DROP POLICY IF EXISTS "Users can update their notifications"
+ON public.notifications;
+
+DROP POLICY IF EXISTS "Users can create notifications"
+ON public.notifications;
+
+
+-- Transactions
+DROP POLICY IF EXISTS "Users can view their transactions"
+ON public.transactions;
+
+DROP POLICY IF EXISTS "Transactions are created by system only"
+ON public.transactions;
+
+
+-- Provider payouts
+DROP POLICY IF EXISTS "Providers can view their payouts"
+ON public.provider_payouts;
+
+DROP POLICY IF EXISTS "Providers can request payouts"
+ON public.provider_payouts;
+
+
+-- Availability
+DROP POLICY IF EXISTS "Availability is publicly viewable"
+ON public.provider_availability;
+
+DROP POLICY IF EXISTS "Providers can create availability"
+ON public.provider_availability;
+
+DROP POLICY IF EXISTS "Providers can update availability"
+ON public.provider_availability;
+
+DROP POLICY IF EXISTS "Providers can delete availability"
+ON public.provider_availability;
+
+
+-- Disputes
+DROP POLICY IF EXISTS "Users can open disputes"
+ON public.disputes;
+
+DROP POLICY IF EXISTS "Users can view disputes for their requests"
+ON public.disputes;
+
+
+-- ============================================================
+-- 13. PROVIDER POLICIES
+-- ============================================================
+
+CREATE POLICY "Providers are publicly viewable"
+ON public.providers
+FOR SELECT
+USING (true);
+
+
+CREATE POLICY "Users can create their provider profile"
+ON public.providers
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+
+CREATE POLICY "Users can update their provider profile"
+ON public.providers
+FOR UPDATE
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+
+CREATE POLICY "Users can delete their provider profile"
+ON public.providers
+FOR DELETE
+USING (auth.uid() = user_id);
+
+
+-- ============================================================
+-- 14. SERVICE REQUEST POLICIES
+-- ============================================================
+
+CREATE POLICY "Customers can create requests"
+ON public.service_requests
+FOR INSERT
+WITH CHECK (
+  auth.uid() = customer_id
+);
+
+
+CREATE POLICY "Customers can view their requests"
+ON public.service_requests
+FOR SELECT
+USING (
+  auth.uid() = customer_id
+);
+
+
+CREATE POLICY "Providers can view their requests"
+ON public.service_requests
+FOR SELECT
+USING (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+);
+
+
+CREATE POLICY "Customers can update their requests"
+ON public.service_requests
+FOR UPDATE
+USING (
+  auth.uid() = customer_id
+)
+WITH CHECK (
+  auth.uid() = customer_id
+);
+
+
+CREATE POLICY "Providers can update their requests"
+ON public.service_requests
+FOR UPDATE
+USING (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+)
+WITH CHECK (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+);
+
+
+-- ============================================================
+-- 15. MESSAGE POLICIES
+-- ============================================================
+
+CREATE POLICY "Users can view their messages"
+ON public.messages
+FOR SELECT
+USING (
+  auth.uid() = sender_id
+  OR auth.uid() = receiver_id
+);
+
+
+CREATE POLICY "Users can send messages"
+ON public.messages
+FOR INSERT
+WITH CHECK (
+  auth.uid() = sender_id
+);
+
+
+CREATE POLICY "Users can mark received messages as read"
+ON public.messages
+FOR UPDATE
+USING (
+  auth.uid() = receiver_id
+)
+WITH CHECK (
+  auth.uid() = receiver_id
+);
+
+
+-- ============================================================
+-- 16. NOTIFICATION POLICIES
+-- ============================================================
+
+CREATE POLICY "Users can view their notifications"
+ON public.notifications
+FOR SELECT
+USING (
+  auth.uid() = user_id
+);
+
+
+CREATE POLICY "Users can update their notifications"
+ON public.notifications
+FOR UPDATE
+USING (
+  auth.uid() = user_id
+)
+WITH CHECK (
+  auth.uid() = user_id
+);
+
+
+-- Notification creation is restricted to authenticated users.
+-- The notification must belong to the authenticated user.
+CREATE POLICY "Users can create notifications"
+ON public.notifications
+FOR INSERT
+WITH CHECK (
+  auth.uid() = user_id
+);
+
+
+-- ============================================================
+-- 17. REVIEW POLICIES
+-- ============================================================
+
+CREATE POLICY "Reviews are publicly viewable"
+ON public.reviews
+FOR SELECT
+USING (true);
+
+
+CREATE POLICY "Customers can create reviews"
+ON public.reviews
+FOR INSERT
+WITH CHECK (
+  auth.uid() = customer_id
+  AND EXISTS (
+    SELECT 1
+    FROM public.service_requests sr
+    WHERE sr.id = request_id
+      AND sr.customer_id = auth.uid()
+      AND sr.provider_id = reviews.provider_id
+      AND sr.status = 'completed'
+  )
+);
+
+
+CREATE POLICY "Customers can update their reviews"
+ON public.reviews
+FOR UPDATE
+USING (
+  auth.uid() = customer_id
+)
+WITH CHECK (
+  auth.uid() = customer_id
+);
+
+
+-- ============================================================
+-- 18. TRANSACTION POLICIES
+-- ============================================================
+
+CREATE POLICY "Users can view their transactions"
+ON public.transactions
+FOR SELECT
+USING (
+  auth.uid() = customer_id
+  OR provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+);
+
+
+-- Client users cannot directly create fake transactions.
+-- Real payment creation will be handled securely later.
+CREATE POLICY "Transactions are created by system only"
+ON public.transactions
+FOR INSERT
+WITH CHECK (false);
+
+
+-- ============================================================
+-- 19. PROVIDER PAYOUT POLICIES
+-- ============================================================
+
+CREATE POLICY "Providers can view their payouts"
+ON public.provider_payouts
+FOR SELECT
+USING (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+);
+
+
+-- Providers may request a payout for themselves.
+CREATE POLICY "Providers can request payouts"
+ON public.provider_payouts
+FOR INSERT
+WITH CHECK (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+);
+
+
+-- ============================================================
+-- 20. PROVIDER AVAILABILITY POLICIES
+-- ============================================================
+
+CREATE POLICY "Availability is publicly viewable"
+ON public.provider_availability
+FOR SELECT
+USING (true);
+
+
+CREATE POLICY "Providers can create availability"
+ON public.provider_availability
+FOR INSERT
+WITH CHECK (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+);
+
+
+CREATE POLICY "Providers can update availability"
+ON public.provider_availability
+FOR UPDATE
+USING (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+)
+WITH CHECK (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+);
+
+
+CREATE POLICY "Providers can delete availability"
+ON public.provider_availability
+FOR DELETE
+USING (
+  provider_id IN (
+    SELECT id
+    FROM public.providers
+    WHERE user_id = auth.uid()
+  )
+);
+
+
+-- ============================================================
+-- 21. DISPUTE POLICIES
+-- ============================================================
+
+CREATE POLICY "Users can open disputes"
+ON public.disputes
+FOR INSERT
+WITH CHECK (
+  auth.uid() = reported_by
+);
+
+
+CREATE POLICY "Users can view disputes for their requests"
+ON public.disputes
+FOR SELECT
+USING (
+  auth.uid() = reported_by
+  OR request_id IN (
+    SELECT sr.id
+    FROM public.service_requests sr
+    WHERE
+      sr.customer_id = auth.uid()
+      OR sr.provider_id IN (
+        SELECT p.id
+        FROM public.providers p
+        WHERE p.user_id = auth.uid()
+      )
+  )
+);
+
+
+-- ============================================================
+-- 22. PROVIDER RATING FUNCTION
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.update_provider_rating()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+
+  UPDATE public.providers
+  SET
+    total_reviews = (
+      SELECT COUNT(*)
+      FROM public.reviews
+      WHERE provider_id = NEW.provider_id
+    ),
+
+    rating = (
+      SELECT COALESCE(AVG(rating), 0)
+      FROM public.reviews
+      WHERE provider_id = NEW.provider_id
+    ),
+
+    updated_at = NOW()
+
+  WHERE id = NEW.provider_id;
+
+  RETURN NEW;
+END;
+$$;
+
+
+DROP TRIGGER IF EXISTS trigger_update_provider_rating
+ON public.reviews;
+
+
+CREATE TRIGGER trigger_update_provider_rating
+AFTER INSERT OR UPDATE ON public.reviews
+FOR EACH ROW
+EXECUTE FUNCTION public.update_provider_rating();
+
+
+-- ============================================================
+-- 23. COMMISSION CALCULATION
+-- QUICKFIX COMMISSION = 2%
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.calculate_commission(
+  p_amount NUMERIC
+)
+RETURNS TABLE (
+  commission NUMERIC,
+  provider_earnings NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+
+  RETURN QUERY
+  SELECT
+    ROUND((p_amount * 0.02), 2),
+    ROUND((p_amount * 0.98), 2);
+
+END;
+$$;
+
+
+-- ============================================================
+-- 24. PERFORMANCE INDEXES
+-- ============================================================
+
+CREATE INDEX IF NOT EXISTS idx_service_requests_customer_id
+ON public.service_requests(customer_id);
+
+CREATE INDEX IF NOT EXISTS idx_service_requests_provider_id
+ON public.service_requests(provider_id);
+
+CREATE INDEX IF NOT EXISTS idx_service_requests_status
+ON public.service_requests(status);
+
+CREATE INDEX IF NOT EXISTS idx_providers_user_id
+ON public.providers(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_providers_service
+ON public.providers(service);
+
+
+-- ============================================================
+-- DATABASE FOUNDATION COMPLETE
+-- ============================================================
