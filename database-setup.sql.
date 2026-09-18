@@ -1,6 +1,6 @@
 -- ============================================================
 -- QUICKFIX DATABASE FOUNDATION — 2026
--- SAFE UPDATE
+-- SAFE DATABASE UPDATE
 -- Does NOT drop tables or delete existing data
 -- ============================================================
 
@@ -9,8 +9,6 @@
 -- 1. SERVICE REQUESTS
 -- ============================================================
 
--- The current QuickFix JavaScript expects every request to store
--- the service that was requested.
 ALTER TABLE public.service_requests
 ADD COLUMN IF NOT EXISTS service TEXT;
 
@@ -30,8 +28,6 @@ CREATE TABLE IF NOT EXISTS public.reviews (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-
--- Make sure provider rating fields used by QuickFix exist.
 ALTER TABLE public.providers
 ADD COLUMN IF NOT EXISTS rating NUMERIC DEFAULT 0;
 
@@ -87,39 +83,45 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 
 -- ============================================================
 -- 5. TRANSACTIONS
+-- QUICKFIX COMMISSION = 2%
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS public.transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
   request_id UUID
     REFERENCES public.service_requests(id)
     ON DELETE CASCADE,
-  customer_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+
+  customer_id UUID
+    REFERENCES auth.users(id)
+    ON DELETE CASCADE,
+
   provider_id UUID
     REFERENCES public.providers(id)
     ON DELETE CASCADE,
 
   amount NUMERIC(10,2) NOT NULL,
 
-  -- QUICKFIX COMMISSION = 2%
   commission_percentage NUMERIC(5,2) DEFAULT 2,
 
   commission_amount NUMERIC(10,2),
+
   provider_earnings NUMERIC(10,2),
 
   status VARCHAR(50) DEFAULT 'pending',
 
   stripe_payment_id VARCHAR(255),
+
   stripe_charge_id VARCHAR(255),
+
   payment_method VARCHAR(50),
 
   created_at TIMESTAMPTZ DEFAULT NOW(),
+
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-
--- Existing transactions must also use the QuickFix 2% rate
--- when their commission percentage has not been customized.
 ALTER TABLE public.transactions
 ALTER COLUMN commission_percentage SET DEFAULT 2;
 
@@ -142,7 +144,9 @@ CREATE TABLE IF NOT EXISTS public.provider_payouts (
   stripe_payout_id VARCHAR(255),
 
   requested_at TIMESTAMPTZ DEFAULT NOW(),
+
   paid_at TIMESTAMPTZ,
+
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -173,8 +177,11 @@ CREATE TABLE IF NOT EXISTS public.provider_availability (
     ON DELETE CASCADE,
 
   day_of_week VARCHAR(10),
+
   start_time TIME,
+
   end_time TIME,
+
   is_available BOOLEAN DEFAULT TRUE,
 
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -183,6 +190,8 @@ CREATE TABLE IF NOT EXISTS public.provider_availability (
 
 -- ============================================================
 -- 9. DISPUTES
+-- IMPORTANT:
+-- Live database uses opened_by, NOT reported_by.
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS public.disputes (
@@ -197,12 +206,15 @@ CREATE TABLE IF NOT EXISTS public.disputes (
     ON DELETE CASCADE,
 
   reason TEXT,
+
   description TEXT,
 
   status VARCHAR(50) DEFAULT 'open',
 
   resolution TEXT,
+
   created_at TIMESTAMPTZ DEFAULT NOW(),
+
   resolved_at TIMESTAMPTZ
 );
 
@@ -244,27 +256,49 @@ ON public.transactions(provider_id);
 CREATE INDEX IF NOT EXISTS idx_provider_location
 ON public.providers(latitude, longitude);
 
+CREATE INDEX IF NOT EXISTS idx_service_requests_customer_id
+ON public.service_requests(customer_id);
+
+CREATE INDEX IF NOT EXISTS idx_service_requests_provider_id
+ON public.service_requests(provider_id);
+
+CREATE INDEX IF NOT EXISTS idx_service_requests_status
+ON public.service_requests(status);
+
+CREATE INDEX IF NOT EXISTS idx_providers_user_id
+ON public.providers(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_providers_service
+ON public.providers(service);
+
 
 -- ============================================================
 -- 11. ENABLE RLS
 -- ============================================================
 
 ALTER TABLE public.providers ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.provider_payouts ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.provider_availability ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE public.disputes ENABLE ROW LEVEL SECURITY;
 
 
 -- ============================================================
--- 12. REMOVE OLD POLICIES
+-- 12. REMOVE EXISTING POLICIES
 -- ============================================================
 
--- Providers
 DROP POLICY IF EXISTS "Providers are publicly viewable"
 ON public.providers;
 
@@ -278,7 +312,6 @@ DROP POLICY IF EXISTS "Users can delete their provider profile"
 ON public.providers;
 
 
--- Service requests
 DROP POLICY IF EXISTS "Customers can create requests"
 ON public.service_requests;
 
@@ -295,7 +328,6 @@ DROP POLICY IF EXISTS "Providers can view their requests"
 ON public.service_requests;
 
 
--- Reviews
 DROP POLICY IF EXISTS "Customers can create reviews"
 ON public.reviews;
 
@@ -309,11 +341,7 @@ DROP POLICY IF EXISTS "Customers can view reviews for providers they rated"
 ON public.reviews;
 
 
--- Messages
 DROP POLICY IF EXISTS "Users can send messages"
-ON public.messages;
-
-DROP POLICY IF EXISTS "Users can view their messages"
 ON public.messages;
 
 DROP POLICY IF EXISTS "Users can view their messages"
@@ -323,7 +351,6 @@ DROP POLICY IF EXISTS "Users can mark received messages as read"
 ON public.messages;
 
 
--- Notifications
 DROP POLICY IF EXISTS "Users can view their notifications"
 ON public.notifications;
 
@@ -334,7 +361,6 @@ DROP POLICY IF EXISTS "Users can create notifications"
 ON public.notifications;
 
 
--- Transactions
 DROP POLICY IF EXISTS "Users can view their transactions"
 ON public.transactions;
 
@@ -342,7 +368,6 @@ DROP POLICY IF EXISTS "Transactions are created by system only"
 ON public.transactions;
 
 
--- Provider payouts
 DROP POLICY IF EXISTS "Providers can view their payouts"
 ON public.provider_payouts;
 
@@ -350,7 +375,6 @@ DROP POLICY IF EXISTS "Providers can request payouts"
 ON public.provider_payouts;
 
 
--- Availability
 DROP POLICY IF EXISTS "Availability is publicly viewable"
 ON public.provider_availability;
 
@@ -364,7 +388,6 @@ DROP POLICY IF EXISTS "Providers can delete availability"
 ON public.provider_availability;
 
 
--- Disputes
 DROP POLICY IF EXISTS "Users can open disputes"
 ON public.disputes;
 
@@ -385,20 +408,28 @@ USING (true);
 CREATE POLICY "Users can create their provider profile"
 ON public.providers
 FOR INSERT
-WITH CHECK (auth.uid() = user_id);
+WITH CHECK (
+  auth.uid() = user_id
+);
 
 
 CREATE POLICY "Users can update their provider profile"
 ON public.providers
 FOR UPDATE
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id);
+USING (
+  auth.uid() = user_id
+)
+WITH CHECK (
+  auth.uid() = user_id
+);
 
 
 CREATE POLICY "Users can delete their provider profile"
 ON public.providers
 FOR DELETE
-USING (auth.uid() = user_id);
+USING (
+  auth.uid() = user_id
+);
 
 
 -- ============================================================
@@ -518,8 +549,6 @@ WITH CHECK (
 );
 
 
--- Notification creation is restricted to authenticated users.
--- The notification must belong to the authenticated user.
 CREATE POLICY "Users can create notifications"
 ON public.notifications
 FOR INSERT
@@ -548,7 +577,7 @@ WITH CHECK (
     FROM public.service_requests sr
     WHERE sr.id = request_id
       AND sr.customer_id = auth.uid()
-      AND sr.provider_id = reviews.provider_id
+      AND sr.provider_id = public.reviews.provider_id
       AND sr.status = 'completed'
   )
 );
@@ -582,8 +611,7 @@ USING (
 );
 
 
--- Client users cannot directly create fake transactions.
--- Real payment creation will be handled securely later.
+-- Transactions must NOT be manually fabricated by users.
 CREATE POLICY "Transactions are created by system only"
 ON public.transactions
 FOR INSERT
@@ -606,7 +634,6 @@ USING (
 );
 
 
--- Providers may request a payout for themselves.
 CREATE POLICY "Providers can request payouts"
 ON public.provider_payouts
 FOR INSERT
@@ -688,7 +715,7 @@ CREATE POLICY "Users can view disputes for their requests"
 ON public.disputes
 FOR SELECT
 USING (
-  auth.uid() = reported_by
+  auth.uid() = opened_by
   OR request_id IN (
     SELECT sr.id
     FROM public.service_requests sr
@@ -704,7 +731,7 @@ USING (
 
 
 -- ============================================================
--- 22. PROVIDER RATING FUNCTION
+-- 22. PROVIDER RATING
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.update_provider_rating()
@@ -734,6 +761,7 @@ BEGIN
   WHERE id = NEW.provider_id;
 
   RETURN NEW;
+
 END;
 $$;
 
@@ -743,14 +771,15 @@ ON public.reviews;
 
 
 CREATE TRIGGER trigger_update_provider_rating
-AFTER INSERT OR UPDATE ON public.reviews
+AFTER INSERT OR UPDATE
+ON public.reviews
 FOR EACH ROW
 EXECUTE FUNCTION public.update_provider_rating();
 
 
 -- ============================================================
--- 23. COMMISSION CALCULATION
--- QUICKFIX COMMISSION = 2%
+-- 23. QUICKFIX COMMISSION
+-- EXACTLY 2%
 -- ============================================================
 
 CREATE OR REPLACE FUNCTION public.calculate_commission(
@@ -766,33 +795,15 @@ BEGIN
 
   RETURN QUERY
   SELECT
-    ROUND((p_amount * 0.02), 2),
-    ROUND((p_amount * 0.98), 2);
+    ROUND(p_amount * 0.02, 2),
+    ROUND(p_amount * 0.98, 2);
 
 END;
 $$;
 
 
 -- ============================================================
--- 24. PERFORMANCE INDEXES
+-- 24. FINISHED
 -- ============================================================
 
-CREATE INDEX IF NOT EXISTS idx_service_requests_customer_id
-ON public.service_requests(customer_id);
-
-CREATE INDEX IF NOT EXISTS idx_service_requests_provider_id
-ON public.service_requests(provider_id);
-
-CREATE INDEX IF NOT EXISTS idx_service_requests_status
-ON public.service_requests(status);
-
-CREATE INDEX IF NOT EXISTS idx_providers_user_id
-ON public.providers(user_id);
-
-CREATE INDEX IF NOT EXISTS idx_providers_service
-ON public.providers(service);
-
-
--- ============================================================
--- DATABASE FOUNDATION COMPLETE
--- ============================================================
+-- QuickFix database foundation is ready.
