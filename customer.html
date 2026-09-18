@@ -3,16 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QuickFix Customer</title>
-
-  <meta http-equiv="refresh" content="0;url=Customer.html">
-
-  <script>
-    window.location.replace("Customer.html");
-  </script>
+  <title>Customer Dashboard | QuickFix</title>
+  <meta name="description" content="QuickFix customer dashboard. Manage service requests and find local help.">
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <p>Opening QuickFix Customer...</p>
+
+  <header class="qf-header">
+    <a href="index.html" class="qf-logo">Quick<span>Fix</span></a>
+
+    <nav class="qf-nav">
+      <a href="customer.html" class="active">Dashboard</a>
+      <a href="find.html">Find a Fix</a>
+      <a href="customer-messages.html">Messages</a>
+      <a href="customer-notifications.html">Notifications</a>
+      <a href="customer-profile.html">Profile</a>
+      <button id="customerLogout" type="button">Sign Out</button>
+    </nav>
+  </header>
+
+  <main class="qf-page">
+
+    <section class="qf-hero">
+      <div>
+        <p class="qf-eyebrow">CUSTOMER DASHBOARD</p>
+
+        <h1>Get the help you need.</h1>
+
+        <p>
+          Find a provider, send a request, and keep track
+          of your jobs from one place.
+        </p>
+      </div>
+
+      <a href="find.html" class="qf-button qf-button-primary">
+        Find a Fix
+      </a>
+    </section>
+
+    <section class="qf-grid qf-stats">
+
+      <article class="qf-card">
+        <span class="qf-label">Total requests</span>
+        <strong id="totalRequests">0</strong>
+      </article>
+
+      <article class="qf-card">
+        <span class="qf-label">Pending</span>
+        <strong id="pendingRequests">0</strong>
+      </article>
+
+      <article class="qf-card">
+        <span class="qf-label">Accepted</span>
+        <strong id="acceptedRequests">0</strong>
+      </article>
+
+      <article class="qf-card">
+        <span class="qf-label">Completed</span>
+        <strong id="completedRequests">0</strong>
+      </article>
+
+    </section>
+
+    <section class="qf-section">
+
+      <div class="qf-section-head">
+
+        <div>
+          <p class="qf-eyebrow">YOUR ACTIVITY</p>
+          <h2>Service requests</h2>
+        </div>
+
+        <a href="find.html" class="qf-button qf-button-secondary">
+          New request
+        </a>
+
+      </div>
+
+      <div
+        id="customerDashboardMessage"
+        class="qf-message"
+        aria-live="polite">
+      </div>
+
+      <div id="customerRequests" class="qf-list">
+
+        <div class="qf-card qf-empty">
+          Loading your requests...
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
+
 </body>
 </html>
