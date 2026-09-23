@@ -1,593 +1,948 @@
 // ==========================================
-// QUICKFIX MESSAGING MODULE
-// Add this to your script.js file or import as separate module
+// QUICKFIX 2026 — MESSAGING SYSTEM
+// Step 5A
+// Works with the current Supabase messages table:
+// id, request_id, sender_id, receiver_id,
+// message, is_read, created_at
 // ==========================================
 
-// ==========================================
-// MESSAGING - HELPER FUNCTIONS
-// ==========================================
+(function () {
+  "use strict";
 
-async function sendMessage(requestId, messageText) {
-  if (!messageText || !messageText.trim()) {
-    showToast("Message cannot be empty.", "error");
-    return false;
+  const QF = window.QuickFix;
+
+  if (!QF || !QF.db) {
+    console.error("QuickFix core was not loaded before messaging.js.");
+    return;
   }
 
-  const user = await getCurrentUser();
-  if (!user) {
-    showToast("Please log in to send messages.", "error");
-    return false;
+  const supabase = QF.db;
+
+  // ------------------------------------------
+  // HELPERS
+  // ------------------------------------------
+
+  function escape(value) {
+    if (typeof QF.escapeHtml === "function") {
+      return QF.escapeHtml(String(value ?? ""));
+    }
+
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
   }
 
-  const { data: request, error: requestError } = 
-    await supabase
+  function formatMessageTime(date) {
+    if (!date) return "";
+
+    const d = new Date(date);
+
+    if (Number.isNaN(d.getTime())) return "";
+
+    return d.toLocaleString([], {
+      dateStyle: "short",
+      timeStyle: "short"
+    });
+  }
+
+  function toast(message, type = "success") {
+    if (typeof QF.showToast === "function") {
+      QF.showToast(message, type);
+    } else {
+      alert(message);
+    }
+  }
+
+  // ------------------------------------------
+  // CURRENT USER
+  // ------------------------------------------
+
+  async function getUser() {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data?.user) {
+      return null;
+    }
+
+    return data.user;
+  }
+
+  // ------------------------------------------
+  // GET PROVIDER USER ID
+  // ------------------------------------------
+
+  async function getProviderUserId(providerId) {
+    if (!providerId) return null;
+
+    const { data, error } = await supabase
+      .from("providers")
+      .select("user_id")
+      .eq("id", providerId)
+      .single();
+
+    if (error) {
+      console.error("QuickFix provider lookup error:", error);
+      return null;
+    }
+
+    return data?.user_id || null;
+  }
+
+  // ------------------------------------------
+  // GET REQUEST
+  // ------------------------------------------
+
+  async function getRequest(requestId) {
+    if (!requestId) return null;
+
+    const { data, error } = await supabase
       .from("service_requests")
-      .select("*")
+      .select(`
+        id,
+        customer_id,
+        provider_id,
+        service,
+        description,
+        location,
+        status,
+        created_at
+      `)
       .eq("id", requestId)
       .single();
 
-  if (requestError || !request) {
-    showToast("Request not found.", "error");
-    return false;
+    if (error) {
+      console.error("QuickFix request lookup error:", error);
+      return null;
+    }
+
+    return data;
   }
 
-  // Determine receiver based on user role
-  let receiverId = null;
-  if (user.id === request.customer_id) {
-    receiverId = (
-      await supabase
-        .from("providers")
-        .select("user_id")
-        .eq("id", request.provider_id)
-        .single()
-    ).data?.user_id;
-  } else if (user.id === (await supabase
-    .from("providers")
-    .select("user_id")
-    .eq("id", request.provider_id)
-    .single()).data?.user_id) {
-    receiverId = request.customer_id;
+  // ------------------------------------------
+  // CHECK USER IS PART OF REQUEST
+  // ------------------------------------------
+
+  async function canAccessRequest(requestId, userId) {
+    const request = await getRequest(requestId);
+
+    if (!request || !userId) {
+      return {
+        allowed: false,
+        request: null,
+        receiverId: null
+      };
+    }
+
+    if (request.customer_id === userId) {
+      const providerUserId = await getProviderUserId(
+        request.provider_id
+      );
+
+      return {
+        allowed: !!providerUserId,
+        request,
+        receiverId: providerUserId
+      };
+    }
+
+    const providerUserId = await getProviderUserId(
+      request.provider_id
+    );
+
+    if (providerUserId === userId) {
+      return {
+        allowed: true,
+        request,
+        receiverId: request.customer_id
+      };
+    }
+
+    return {
+      allowed: false,
+      request,
+      receiverId: null
+    };
   }
 
-  if (!receiverId) {
-    showToast("Unable to identify message recipient.", "error");
-    return false;
-  }
+  // ------------------------------------------
+  // SEND MESSAGE
+  // ------------------------------------------
 
-  const { data, error } = 
-    await supabase
+  async function sendMessage(requestId, text) {
+    const message = String(text || "").trim();
+
+    if (!message) {
+      toast("Message cannot be empty.", "error");
+      return false;
+    }
+
+    if (message.length > 1000) {
+      toast("Message is too long.", "error");
+      return false;
+    }
+
+    const user = await getUser();
+
+    if (!user) {
+      toast("Please log in first.", "error");
+      return false;
+    }
+
+    const access = await canAccessRequest(
+      requestId,
+      user.id
+    );
+
+    if (!access.allowed) {
+      toast(
+        "You are not allowed to message this user.",
+        "error"
+      );
+      return false;
+    }
+
+    if (!access.receiverId) {
+      toast(
+        "The other user could not be found.",
+        "error"
+      );
+      return false;
+    }
+
+    // Messaging is only available after acceptance.
+    if (
+      access.request.status !== "accepted" &&
+      access.request.status !== "completed"
+    ) {
+      toast(
+        "Messaging becomes available after the request is accepted.",
+        "error"
+      );
+      return false;
+    }
+
+    const { error } = await supabase
       .from("messages")
-      .insert([{
+      .insert({
         request_id: requestId,
         sender_id: user.id,
-        receiver_id: receiverId,
-        message_text: messageText.trim()
-      }])
-      .select()
-      .single();
+        receiver_id: access.receiverId,
+        message: message
+      });
 
-  if (error) {
-    console.error("QuickFix message error:", error);
-    showToast("Unable to send message.", "error");
-    return false;
+    if (error) {
+      console.error("QuickFix send message error:", error);
+      toast("Unable to send message.", "error");
+      return false;
+    }
+
+    // Notification
+    await supabase
+      .from("notifications")
+      .insert({
+        user_id: access.receiverId,
+        type: "message",
+        title: "New Message",
+        message: "You received a new QuickFix message.",
+        related_request_id: requestId
+      });
+
+    return true;
   }
 
-  // Create notification for receiver
-  await createNotification(
-    receiverId,
-    "message",
-    "New Message",
-    `You have a new message about a service request.`,
-    requestId
-  );
+  // ------------------------------------------
+  // LOAD MESSAGES
+  // ------------------------------------------
 
-  showToast("Message sent! ✓");
-  return true;
-}
+  async function getMessages(requestId) {
+    if (!requestId) return [];
 
-async function getMessages(requestId, limit = 50) {
-  if (!requestId) return [];
+    const user = await getUser();
 
-  const { data, error } = 
-    await supabase
+    if (!user) return [];
+
+    const access = await canAccessRequest(
+      requestId,
+      user.id
+    );
+
+    if (!access.allowed) {
+      return [];
+    }
+
+    const { data, error } = await supabase
       .from("messages")
-      .select("*")
+      .select(`
+        id,
+        request_id,
+        sender_id,
+        receiver_id,
+        message,
+        is_read,
+        created_at
+      `)
       .eq("request_id", requestId)
-      .order("created_at", { ascending: true })
-      .limit(limit);
+      .order("created_at", {
+        ascending: true
+      });
 
-  if (error) {
-    console.error("QuickFix messages error:", error);
-    return [];
+    if (error) {
+      console.error(
+        "QuickFix load messages error:",
+        error
+      );
+      return [];
+    }
+
+    return data || [];
   }
 
-  return data || [];
-}
+  // ------------------------------------------
+  // MARK MESSAGES AS READ
+  // ------------------------------------------
 
-async function markMessagesAsRead(requestId) {
-  const user = await getCurrentUser();
-  if (!user) return false;
+  async function markMessagesAsRead(requestId) {
+    const user = await getUser();
 
-  const { error } = 
-    await supabase
+    if (!user || !requestId) return false;
+
+    const { error } = await supabase
       .from("messages")
-      .update({ is_read: true })
+      .update({
+        is_read: true
+      })
       .eq("request_id", requestId)
       .eq("receiver_id", user.id);
 
-  if (error) {
-    console.error("QuickFix mark read error:", error);
-    return false;
+    if (error) {
+      console.error(
+        "QuickFix mark messages read error:",
+        error
+      );
+      return false;
+    }
+
+    return true;
   }
 
-  return true;
-}
+  // ------------------------------------------
+  // UNREAD COUNT
+  // ------------------------------------------
 
-async function getUnreadMessageCount(userId) {
-  if (!userId) return 0;
+  async function getUnreadMessageCount() {
+    const user = await getUser();
 
-  const { count, error } = 
-    await supabase
+    if (!user) return 0;
+
+    const { count, error } = await supabase
       .from("messages")
-      .select("*", { count: "exact", head: true })
-      .eq("receiver_id", userId)
+      .select("id", {
+        count: "exact",
+        head: true
+      })
+      .eq("receiver_id", user.id)
       .eq("is_read", false);
 
-  if (error) {
-    console.error("QuickFix unread count error:", error);
-    return 0;
+    if (error) {
+      console.error(
+        "QuickFix unread count error:",
+        error
+      );
+      return 0;
+    }
+
+    return count || 0;
   }
 
-  return count || 0;
-}
+  // ------------------------------------------
+  // GET CUSTOMER REQUESTS WITH CONVERSATIONS
+  // ------------------------------------------
 
-async function createNotification(userId, type, title, message, requestId = null) {
-  if (!userId) return false;
+  async function getCustomerConversations(userId) {
+    const { data, error } = await supabase
+      .from("service_requests")
+      .select(`
+        id,
+        customer_id,
+        provider_id,
+        service,
+        description,
+        status,
+        created_at,
+        providers (
+          id,
+          name,
+          service,
+          location
+        )
+      `)
+      .eq("customer_id", userId)
+      .not("provider_id", "is", null)
+      .in("status", ["accepted", "completed"])
+      .order("created_at", {
+        ascending: false
+      });
 
-  const { error } = 
-    await supabase
-      .from("notifications")
-      .insert([{
-        user_id: userId,
-        type,
-        title,
-        message,
-        related_request_id: requestId
-      }]);
+    if (error) {
+      console.error(
+        "QuickFix customer conversations error:",
+        error
+      );
+      return [];
+    }
 
-  if (error) {
-    console.error("QuickFix notification error:", error);
-    return false;
+    return data || [];
   }
 
-  return true;
-}
+  // ------------------------------------------
+  // GET PROVIDER REQUESTS WITH CONVERSATIONS
+  // ------------------------------------------
 
-async function getNotifications(userId, limit = 20) {
-  if (!userId) return [];
+  async function getProviderConversations(userId) {
+    const { data: provider, error: providerError } =
+      await supabase
+        .from("providers")
+        .select("id, name")
+        .eq("user_id", userId)
+        .single();
 
-  const { data, error } = 
-    await supabase
-      .from("notifications")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("is_read", false)
-      .order("created_at", { ascending: false })
-      .limit(limit);
+    if (providerError || !provider) {
+      console.error(
+        "QuickFix provider profile error:",
+        providerError
+      );
+      return [];
+    }
 
-  if (error) {
-    console.error("QuickFix notifications error:", error);
-    return [];
+    const { data, error } = await supabase
+      .from("service_requests")
+      .select(`
+        id,
+        customer_id,
+        provider_id,
+        service,
+        description,
+        status,
+        created_at
+      `)
+      .eq("provider_id", provider.id)
+      .in("status", ["accepted", "completed"])
+      .order("created_at", {
+        ascending: false
+      });
+
+    if (error) {
+      console.error(
+        "QuickFix provider conversations error:",
+        error
+      );
+      return [];
+    }
+
+    return data || [];
   }
 
-  return data || [];
-}
+  // ------------------------------------------
+  // GET OTHER USER NAME
+  // ------------------------------------------
 
-// ==========================================
-// MESSAGE THREAD UI
-// ==========================================
+  async function getOtherUserName(
+    request,
+    currentUserId
+  ) {
+    if (request.customer_id === currentUserId) {
+      const providerUser = await supabase
+        .from("providers")
+        .select("name")
+        .eq("id", request.provider_id)
+        .single();
 
-async function showMessageThread(requestId, providerName = "Provider") {
-  const user = await getCurrentUser();
-  if (!user) {
-    showToast("Please log in to view messages.", "error");
-    return;
+      return providerUser.data?.name || "Provider";
+    }
+
+    return "Customer";
   }
 
-  // Check if modal already exists
-  if (document.querySelector("#messageThreadModal")) {
-    document.querySelector("#messageThreadModal").remove();
-  }
+  // ------------------------------------------
+  // RENDER CONVERSATION LIST
+  // ------------------------------------------
 
-  const modal = document.createElement("section");
-  modal.id = "messageThreadModal";
-  modal.className = "modal";
+  async function renderConversationList(root, user) {
+    if (!root || !user) return;
 
-  modal.innerHTML = `
-    <div class="modal-box message-modal">
-      <button type="button" class="close-button">×</button>
+    const isCustomer =
+      root.dataset.role === "customer";
 
-      <p class="section-label">QUICKFIX MESSAGES</p>
+    let requests = [];
 
-      <h2>${escapeHtml(providerName)}</h2>
+    if (isCustomer) {
+      requests =
+        await getCustomerConversations(user.id);
+    } else {
+      requests =
+        await getProviderConversations(user.id);
+    }
 
-      <div class="messages-container">
-        <div class="messages-list" id="messagesList">
-          <p class="loading">Loading messages...</p>
+    if (!requests.length) {
+      root.innerHTML = `
+        <div class="qf-message-empty">
+          <div>
+            <div class="qf-message-icon">💬</div>
+            <h2>No conversations yet</h2>
+            <p>
+              ${
+                isCustomer
+                  ? "Once a provider accepts your request, your conversation will appear here."
+                  : "Once you accept a customer's request, your conversation will appear here."
+              }
+            </p>
+          </div>
         </div>
-      </div>
+      `;
 
-      <div class="message-input-section">
-        <textarea
-          id="messageInput"
-          placeholder="Type your message here..."
-          maxlength="500"
-        ></textarea>
-        <button type="button" id="sendMessageBtn" class="submit-button">
-          Send Message
+      return;
+    }
+
+    const cards = [];
+
+    for (const request of requests) {
+      const name =
+        await getOtherUserName(
+          request,
+          user.id
+        );
+
+      const messages =
+        await getMessages(request.id);
+
+      const lastMessage =
+        messages.length
+          ? messages[messages.length - 1]
+          : null;
+
+      const unread =
+        messages.filter(
+          msg =>
+            msg.receiver_id === user.id &&
+            !msg.is_read
+        ).length;
+
+      cards.push(`
+        <button
+          type="button"
+          class="qf-conversation-card"
+          data-request-id="${escape(request.id)}"
+        >
+          <div class="qf-conversation-main">
+
+            <div class="qf-conversation-top">
+              <strong>
+                ${escape(name)}
+              </strong>
+
+              ${
+                unread
+                  ? `<span class="qf-unread">${unread}</span>`
+                  : ""
+              }
+            </div>
+
+            <div class="qf-conversation-service">
+              ${escape(
+                request.service ||
+                "Service request"
+              )}
+            </div>
+
+            <div class="qf-conversation-preview">
+              ${
+                lastMessage
+                  ? escape(lastMessage.message)
+                  : "No messages yet — start the conversation."
+              }
+            </div>
+
+          </div>
+
+          <span class="qf-conversation-arrow">
+            →
+          </span>
         </button>
-      </div>
-
-      <p id="messageError" class="message" style="color: #ff5050;"></p>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  const messagesList = modal.querySelector("#messagesList");
-  const messageInput = modal.querySelector("#messageInput");
-  const sendBtn = modal.querySelector("#sendMessageBtn");
-  const closeBtn = modal.querySelector(".close-button");
-  const messageError = modal.querySelector("#messageError");
-
-  // Load initial messages
-  await loadAndDisplayMessages(requestId, messagesList);
-
-  // Mark messages as read
-  await markMessagesAsRead(requestId);
-
-  // Send message handler
-  sendBtn.addEventListener("click", async () => {
-    const text = messageInput.value.trim();
-    if (!text) {
-      messageError.textContent = "Message cannot be empty.";
-      return;
+      `);
     }
 
-    setButtonLoading(sendBtn, true, "Sending...");
-    messageError.textContent = "";
-
-    const success = await sendMessage(requestId, text);
-
-    if (success) {
-      messageInput.value = "";
-      await loadAndDisplayMessages(requestId, messagesList);
-    }
-
-    setButtonLoading(sendBtn, false);
-  });
-
-  // Enter to send (Ctrl+Enter for multi-line)
-  messageInput.addEventListener("keydown", event => {
-    if (event.key === "Enter" && event.ctrlKey) {
-      event.preventDefault();
-      sendBtn.click();
-    }
-  });
-
-  closeBtn.addEventListener("click", () => modal.remove());
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.remove();
-  });
-
-  // Auto-refresh messages every 3 seconds
-  const refreshInterval = setInterval(async () => {
-    if (!document.querySelector("#messageThreadModal")) {
-      clearInterval(refreshInterval);
-      return;
-    }
-    await loadAndDisplayMessages(requestId, messagesList);
-  }, 3000);
-
-  openModal(modal);
-}
-
-async function loadAndDisplayMessages(requestId, container) {
-  if (!container) return;
-
-  const messages = await getMessages(requestId);
-  const user = await getCurrentUser();
-
-  if (!messages || messages.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <p>No messages yet. Start the conversation!</p>
+    root.innerHTML = `
+      <div class="qf-conversation-list">
+        ${cards.join("")}
       </div>
     `;
-    return;
+
+    root
+      .querySelectorAll(
+        ".qf-conversation-card"
+      )
+      .forEach(card => {
+        card.addEventListener(
+          "click",
+          () => {
+            const requestId =
+              card.dataset.requestId;
+
+            openMessageWindow(
+              requestId,
+              root.dataset.role
+            );
+          }
+        );
+      });
   }
 
-  let html = "";
+  // ------------------------------------------
+  // MESSAGE WINDOW
+  // ------------------------------------------
 
-  messages.forEach(msg => {
-    const isSent = msg.sender_id === user.id;
-    const timeStr = formatDate(msg.created_at);
+  async function openMessageWindow(
+    requestId,
+    role
+  ) {
+    const user = await getUser();
 
-    html += `
-      <div class="message ${isSent ? "sent" : "received"}">
-        <div class="message-content">
-          <p class="message-text">${escapeHtml(msg.message_text)}</p>
-          <span class="message-time">${timeStr}</span>
+    if (!user) {
+      toast(
+        "Please log in first.",
+        "error"
+      );
+      return;
+    }
+
+    const access =
+      await canAccessRequest(
+        requestId,
+        user.id
+      );
+
+    if (!access.allowed) {
+      toast(
+        "You cannot access this conversation.",
+        "error"
+      );
+      return;
+    }
+
+    const otherName =
+      await getOtherUserName(
+        access.request,
+        user.id
+      );
+
+    const existing =
+      document.getElementById(
+        "qfMessageModal"
+      );
+
+    if (existing) {
+      existing.remove();
+    }
+
+    const modal =
+      document.createElement("div");
+
+    modal.id = "qfMessageModal";
+    modal.className =
+      "qf-message-modal";
+
+    modal.innerHTML = `
+      <div class="qf-message-dialog">
+
+        <div class="qf-message-header">
+
+          <div>
+            <div class="qf-message-label">
+              QUICKFIX MESSAGE
+            </div>
+
+            <h2>
+              ${escape(otherName)}
+            </h2>
+
+            <span>
+              ${escape(
+                access.request.service ||
+                "Service request"
+              )}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            class="qf-message-close"
+            aria-label="Close messages"
+          >
+            ×
+          </button>
+
         </div>
+
+        <div
+          class="qf-message-body"
+          id="qfMessageBody"
+        >
+          <div class="qf-message-loading">
+            Loading messages...
+          </div>
+        </div>
+
+        <form
+          class="qf-message-form"
+          id="qfMessageForm"
+        >
+
+          <textarea
+            id="qfMessageInput"
+            maxlength="1000"
+            placeholder="Type your message..."
+            required
+          ></textarea>
+
+          <button
+            type="submit"
+            id="qfSendMessage"
+          >
+            Send
+          </button>
+
+        </form>
+
       </div>
     `;
-  });
 
-  container.innerHTML = html;
+    document.body.appendChild(modal);
 
-  // Scroll to bottom
-  container.parentElement.scrollTop = container.parentElement.scrollHeight;
-}
+    const body =
+      modal.querySelector(
+        "#qfMessageBody"
+      );
 
-// ==========================================
-// ADD MESSAGE BUTTON TO REQUEST CARDS
-// ==========================================
+    const form =
+      modal.querySelector(
+        "#qfMessageForm"
+      );
 
-function addMessageButtons() {
-  // For customer dashboard
-  const customerRequestCards = document.querySelectorAll("#customerRequestList .request-card");
-  customerRequestCards.forEach(card => {
-    if (card.querySelector(".message-btn")) return;
+    const input =
+      modal.querySelector(
+        "#qfMessageInput"
+      );
 
-    const header = card.querySelector(".request-card-header");
-    const providerName = card.querySelector(".request-meta")?.textContent || "Provider";
-    const requestId = card.dataset.requestId;
+    const close =
+      modal.querySelector(
+        ".qf-message-close"
+      );
 
-    if (!header || !requestId) return;
+    await renderMessages(
+      requestId,
+      user.id,
+      body
+    );
 
-    const messageBtn = document.createElement("button");
-    messageBtn.type = "button";
-    messageBtn.className = "message-btn";
-    messageBtn.textContent = "💬 Message";
+    await markMessagesAsRead(
+      requestId
+    );
 
-    messageBtn.addEventListener("click", () => {
-      showMessageThread(requestId, providerName);
-    });
+    close.addEventListener(
+      "click",
+      () => modal.remove()
+    );
 
-    header.appendChild(messageBtn);
-  });
+    modal.addEventListener(
+      "click",
+      event => {
+        if (
+          event.target === modal
+        ) {
+          modal.remove();
+        }
+      }
+    );
 
-  // For provider dashboard
-  const providerRequestCards = document.querySelectorAll("#requestList .request-card");
-  providerRequestCards.forEach(card => {
-    if (card.querySelector(".message-btn")) return;
+    form.addEventListener(
+      "submit",
+      async event => {
+        event.preventDefault();
 
-    const header = card.querySelector(".request-card-header");
-    const requestId = card.dataset.requestId;
+        const text =
+          input.value.trim();
 
-    if (!header || !requestId) return;
+        if (!text) return;
 
-    const messageBtn = document.createElement("button");
-    messageBtn.type = "button";
-    messageBtn.className = "message-btn";
-    messageBtn.textContent = "💬 Message Customer";
+        const sendButton =
+          form.querySelector(
+            "#qfSendMessage"
+          );
 
-    messageBtn.addEventListener("click", () => {
-      showMessageThread(requestId, "Customer");
-    });
+        sendButton.disabled = true;
+        sendButton.textContent =
+          "Sending...";
 
-    header.appendChild(messageBtn);
-  });
-}
+        const success =
+          await sendMessage(
+            requestId,
+            text
+          );
 
-// ==========================================
-// NOTIFICATION BADGE
-// ==========================================
+        if (success) {
+          input.value = "";
 
-async function updateNotificationBadge() {
-  const user = await getCurrentUser();
-  if (!user) return;
+          await renderMessages(
+            requestId,
+            user.id,
+            body
+          );
 
-  const count = await getUnreadMessageCount(user.id);
+          await markMessagesAsRead(
+            requestId
+          );
+        }
 
-  let badge = document.querySelector("#notificationBadge");
+        sendButton.disabled = false;
+        sendButton.textContent =
+          "Send";
+      }
+    );
 
-  if (count > 0) {
-    if (!badge) {
-      badge = document.createElement("div");
-      badge.id = "notificationBadge";
-      badge.className = "notification-badge";
-      document.body.appendChild(badge);
-    }
-    badge.textContent = count > 9 ? "9+" : count;
-    badge.style.display = "block";
-  } else if (badge) {
-    badge.style.display = "none";
+    input.focus();
   }
-}
 
-// ==========================================
-// CSS STYLES FOR MESSAGING
-// ==========================================
+  // ------------------------------------------
+  // RENDER MESSAGES
+  // ------------------------------------------
 
-function injectMessagingStyles() {
-  if (document.querySelector("#quickfix-messaging-styles")) return;
+  async function renderMessages(
+    requestId,
+    currentUserId,
+    container
+  ) {
+    const messages =
+      await getMessages(requestId);
 
-  const style = document.createElement("style");
-  style.id = "quickfix-messaging-styles";
-  style.textContent = `
-    .message-modal {
-      display: flex;
-      flex-direction: column;
-      max-height: 80vh;
-      width: 100%;
-      max-width: 500px;
+    if (!messages.length) {
+      container.innerHTML = `
+        <div class="qf-no-messages">
+          <div>💬</div>
+          <p>
+            No messages yet.
+          </p>
+          <span>
+            Start the conversation below.
+          </span>
+        </div>
+      `;
+
+      return;
     }
 
-    .messages-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 12px;
-      margin: 16px 0;
-      min-height: 300px;
-      max-height: 400px;
+    container.innerHTML =
+      messages
+        .map(msg => {
+          const own =
+            msg.sender_id ===
+            currentUserId;
+
+          return `
+            <div
+              class="qf-chat-row ${
+                own
+                  ? "qf-chat-own"
+                  : "qf-chat-other"
+              }"
+            >
+              <div class="qf-chat-bubble">
+
+                <div class="qf-chat-text">
+                  ${escape(msg.message)}
+                </div>
+
+                <div class="qf-chat-time">
+                  ${escape(
+                    formatMessageTime(
+                      msg.created_at
+                    )
+                  )}
+                </div>
+
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+    container.scrollTop =
+      container.scrollHeight;
+  }
+
+  // ------------------------------------------
+  // INITIALIZE MESSAGE PAGE
+  // ------------------------------------------
+
+  async function initializeMessagePage() {
+    const root =
+      document.getElementById(
+        "messagingRoot"
+      );
+
+    if (!root) return;
+
+    const user =
+      await getUser();
+
+    if (!user) {
+      window.location.href =
+        "account.html";
+      return;
     }
 
-    .messages-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    const isCustomerPage =
+      window.location.pathname
+        .toLowerCase()
+        .includes(
+          "customer-messages"
+        );
+
+    root.dataset.role =
+      isCustomerPage
+        ? "customer"
+        : "provider";
+
+    await renderConversationList(
+      root,
+      user
+    );
+  }
+
+  // ------------------------------------------
+  // PUBLIC API
+  // ------------------------------------------
+
+  window.QuickFixMessaging = {
+    sendMessage,
+    getMessages,
+    markMessagesAsRead,
+    getUnreadMessageCount,
+    openMessageWindow,
+    initializeMessagePage
+  };
+
+  // ------------------------------------------
+  // START
+  // ------------------------------------------
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+      initializeMessagePage();
     }
+  );
 
-    .message {
-      display: flex;
-      margin-bottom: 12px;
-    }
-
-    .message.sent {
-      justify-content: flex-end;
-    }
-
-    .message.received {
-      justify-content: flex-start;
-    }
-
-    .message-content {
-      max-width: 70%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      word-wrap: break-word;
-    }
-
-    .message.sent .message-content {
-      background: #2ecc71;
-      color: #fff;
-    }
-
-    .message.received .message-content {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-    }
-
-    .message-text {
-      margin: 0;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-
-    .message-time {
-      display: block;
-      font-size: 0.75rem;
-      opacity: 0.7;
-      margin-top: 6px;
-    }
-
-    .message.sent .message-time {
-      text-align: right;
-    }
-
-    .message-input-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    #messageInput {
-      width: 100%;
-      min-height: 80px;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      color: #fff;
-      font-family: inherit;
-      font-size: 0.95rem;
-      resize: vertical;
-    }
-
-    #messageInput:focus {
-      outline: none;
-      border-color: rgba(46, 204, 113, 0.5);
-    }
-
-    .message-btn {
-      background: rgba(46, 204, 113, 0.12);
-      border: 1px solid rgba(46, 204, 113, 0.35);
-      color: inherit;
-      padding: 9px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      white-space: nowrap;
-    }
-
-    .message-btn:hover {
-      background: rgba(46, 204, 113, 0.2);
-    }
-
-    .notification-badge {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 32px;
-      height: 32px;
-      background: #ff5050;
-      color: #fff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 0.85rem;
-      z-index: 10000;
-      box-shadow: 0 4px 12px rgba(255, 80, 80, 0.4);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    .loading {
-      text-align: center;
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    @media (max-width: 600px) {
-      .message-modal {
-        max-width: 90vw;
-      }
-
-      .message-content {
-        max-width: 85% !important;
-      }
-    }
-  `;
-
-  document.head.appendChild(style);
-}
-
-// ==========================================
-// INITIALIZE MESSAGING MODULE
-// ==========================================
-
-injectMessagingStyles();
-
-// Update notification badge on load and periodically
-updateNotificationBadge();
-setInterval(updateNotificationBadge, 5000);
-
-// Add message buttons when dashboards load
-const observer = new MutationObserver(() => {
-  addMessageButtons();
-});
-
-observer.observe(document.body, {
-  childList: true,
-  subtree: true
-});
-
-console.log("✅ QuickFix Messaging module loaded");
+})();
