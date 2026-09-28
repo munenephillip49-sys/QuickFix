@@ -11,7 +11,7 @@
      ======================================================= */
 
   const SUPABASE_URL =
-    "https://dpaqoamvgxbcztoaxxqv.supabase.co";
+    "https://cnusykexaahftbsohsgc.supabase.co";
 
   const SUPABASE_KEY =
     "sb_publishable_6KCoCn8dmj4NMQTpXu5G2Q_KuGxY4l7";
