@@ -1182,3 +1182,367 @@ textarea:focus-visible {
     flex-direction: column;
   }
 }
+/* ==========================================================
+   QUICKFIX PROVIDER DASHBOARD UI
+   ========================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo,
+.logo:visited {
+  color: #f5f7fa;
+  text-decoration: none;
+}
+
+.qf-page {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 54px 0 90px;
+}
+
+.qf-hero {
+  display: grid;
+  grid-template-columns: 1fr 290px;
+  gap: 28px;
+  align-items: end;
+  padding: 34px 0 38px;
+}
+
+.qf-eyebrow {
+  margin: 0 0 10px;
+  color: #39e58c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2.2px;
+}
+
+.qf-hero h1 {
+  margin: 0;
+  color: #f7faf8;
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 1.04;
+  letter-spacing: -2px;
+}
+
+.qf-hero > div:first-child > p:last-child {
+  margin: 16px 0 0;
+  color: #8f9aa7;
+  font-size: 16px;
+  max-width: 620px;
+}
+
+.qf-card {
+  position: relative;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.035),
+      rgba(255,255,255,.008) 55%
+    ),
+    #111820;
+  border: 1px solid #25303a;
+  border-radius: 18px;
+  box-shadow: 0 16px 45px rgba(0,0,0,.18);
+}
+
+.qf-hero .qf-card {
+  min-width: 0 !important;
+  padding: 20px;
+}
+
+#availabilityText {
+  color: #e9eef2;
+  font-size: 14px;
+}
+
+#availabilityDot {
+  width: 9px !important;
+  height: 9px !important;
+  box-shadow: 0 0 0 5px rgba(57,229,140,.08);
+}
+
+.qf-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 17px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: #39e58c;
+  color: #07110b;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    background .2s ease,
+    border-color .2s ease,
+    color .2s ease;
+}
+
+.qf-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(57,229,140,.15);
+}
+
+.qf-button-secondary {
+  background: rgba(255,255,255,.035);
+  border-color: #303b46;
+  color: #dbe2e8;
+}
+
+.qf-button-secondary:hover {
+  background: rgba(57,229,140,.07);
+  border-color: rgba(57,229,140,.45);
+  color: #fff;
+  box-shadow: none;
+}
+
+
+/* ==========================================================
+   STATISTICS
+   ========================================================== */
+
+.qf-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 52px;
+}
+
+.qf-stats .qf-card {
+  min-height: 126px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.qf-stats .qf-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 18px;
+  width: 3px;
+  border-radius: 99px;
+  background: #39e58c;
+  opacity: .8;
+}
+
+.qf-label {
+  color: #7f8b98;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+
+.qf-stats strong {
+  color: #f5f7f8;
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+
+/* ==========================================================
+   SECTIONS
+   ========================================================== */
+
+.qf-section {
+  margin-top: 42px;
+}
+
+.qf-section-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.qf-section-head h2 {
+  margin: 0;
+  color: #f5f7f8;
+  font-size: 28px;
+  letter-spacing: -.8px;
+}
+
+.qf-section-head .qf-eyebrow {
+  margin-bottom: 6px;
+}
+
+.qf-message {
+  color: #aeb8c2;
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+
+.qf-list {
+  display: grid;
+  gap: 14px;
+}
+
+.qf-empty {
+  min-height: 190px;
+  display: grid;
+  place-items: center;
+  padding: 30px;
+  color: #8d99a6;
+  text-align: center;
+}
+
+
+/* ==========================================================
+   PROVIDER TOOLS
+   ========================================================== */
+
+.qf-grid:not(.qf-stats) {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.qf-grid:not(.qf-stats) > a.qf-card {
+  display: block;
+  min-height: 170px;
+  padding: 22px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    background .2s ease;
+}
+
+.qf-grid:not(.qf-stats) > a.qf-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(57,229,140,.35);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(57,229,140,.055),
+      rgba(255,255,255,.01) 55%
+    ),
+    #111820;
+}
+
+.qf-grid:not(.qf-stats) h3 {
+  margin: 0 0 10px;
+  color: #f3f6f8;
+  font-size: 17px;
+}
+
+.qf-grid:not(.qf-stats) p {
+  margin: 0;
+  color: #84909d;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+
+/* ==========================================================
+   SIGN OUT
+   ========================================================== */
+
+.qf-section:last-child {
+  padding-top: 4px;
+}
+
+#providerLogout {
+  border-radius: 11px !important;
+  padding: 11px 18px !important;
+}
+
+#providerLogout:hover {
+  border-color: rgba(255,100,100,.5) !important;
+  background: rgba(255,80,80,.06) !important;
+}
+
+
+/* ==========================================================
+   TABLET
+   ========================================================== */
+
+@media (max-width: 900px) {
+
+  .qf-page {
+    width: min(100% - 32px, 760px);
+    padding-top: 34px;
+  }
+
+  .qf-hero {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .qf-hero .qf-card {
+    width: 100%;
+  }
+
+  .qf-grid:not(.qf-stats) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* ==========================================================
+   MOBILE
+   ========================================================== */
+
+@media (max-width: 600px) {
+
+  .qf-page {
+    width: calc(100% - 24px);
+    padding: 28px 0 60px;
+  }
+
+  .qf-hero {
+    padding: 20px 0 28px;
+    gap: 20px;
+  }
+
+  .qf-hero h1 {
+    font-size: 38px;
+    letter-spacing: -1.4px;
+  }
+
+  .qf-stats {
+    grid-template-columns: 1fr;
+    margin-bottom: 38px;
+  }
+
+  .qf-stats .qf-card {
+    min-height: 105px;
+  }
+
+  .qf-section {
+    margin-top: 34px;
+  }
+
+  .qf-section-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .qf-section-head .qf-button {
+    width: 100%;
+  }
+
+  .qf-grid:not(.qf-stats) {
+    grid-template-columns: 1fr;
+  }
+
+  .qf-grid:not(.qf-stats) > a.qf-card {
+    min-height: 135px;
+  }
+}
