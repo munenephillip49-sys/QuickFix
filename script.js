@@ -848,7 +848,7 @@
 
   async function loadCustomerRequests() {
     const list =
-      $("#customerRequestList");
+    $("#customerRequests")
 
     if (!list) return;
 
@@ -1676,7 +1676,7 @@
 
   async function initializeCustomerDashboard() {
     const list =
-      $("#customerRequestList");
+      $("#customerRequests")
 
     if (!list) return;
 
