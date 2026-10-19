@@ -1546,3 +1546,32 @@ textarea:focus-visible {
     min-height: 135px;
   }
 }
+
+.password-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrap input {
+  padding-right: 55px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #39e58c;
+  cursor: pointer;
+  font-size: 20px;
+  padding: 8px;
+  line-height: 1;
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid #39e58c;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
