@@ -389,6 +389,22 @@ document.addEventListener("DOMContentLoaded", function () {
   const password =
     document.getElementById("accountPassword");
 
+const togglePassword =
+  document.getElementById("togglePassword");
+
+togglePassword.addEventListener("click", function () {
+  const isHidden = password.type === "password";
+
+  password.type = isHidden ? "text" : "password";
+
+  togglePassword.textContent = isHidden ? "🙈" : "👁";
+  togglePassword.setAttribute(
+    "aria-label",
+    isHidden ? "Hide password" : "Show password"
+  );
+  togglePassword.setAttribute("aria-pressed", String(isHidden));
+});
+
   const submit =
     document.getElementById("accountSubmit");
 
