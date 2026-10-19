@@ -281,21 +281,25 @@
         </div>
 
 
-        <div class="field">
+       
 
-          <label for="accountPassword">
-            Password
-          </label>
+<div class="password-wrap">
+  <input
+    id="accountPassword"
+    type="password"
+    placeholder="Enter your password"
+    autocomplete="current-password"
+    required
+  >
 
-          <input
-            id="accountPassword"
-            type="password"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            required
-          >
-
-        </div>
+  <button
+    type="button"
+    id="togglePassword"
+    class="password-toggle"
+    aria-label="Show password"
+    aria-pressed="false"
+  >👁</button>
+</div>
 
 
         <div
