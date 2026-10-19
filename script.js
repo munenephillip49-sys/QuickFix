@@ -1,2039 +1,888 @@
-/* =========================================================
-   QUICKFIX — CORE SCRIPT
-   Version: 2026
-   ========================================================= */
 
-(() => {
-  "use strict";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  /* =======================================================
-     SUPABASE
-     ======================================================= */
+  <title>Account | QuickFix</title>
+  <meta name="description" content="Sign in or create your QuickFix account.">
 
-  const SUPABASE_URL =
-    "https://cnusykexaahftbsohsgc.supabase.co";
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
 
-  const SUPABASE_KEY =
-    "sb_publishable_6KCoCn8dmj4NMQTpXu5G2Q_KuGxY4l7";
-
-  if (!window.supabase) {
-    console.error("QuickFix: Supabase library is missing.");
-    return;
-  }
-
-  const db = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-  window.QuickFix = {
-    db
-  };
-
-
-  /* =======================================================
-     CONSTANTS
-     ======================================================= */
-
-  const STORAGE = {
-    savedProviders: "quickfix_saved_providers",
-    lastSearch: "quickfix_last_search"
-  };
-
-
-  /* =======================================================
-     GENERAL HELPERS
-     ======================================================= */
-
-  const $ = (selector, parent = document) =>
-    parent.querySelector(selector);
-
-  const $$ = (selector, parent = document) =>
-    [...parent.querySelectorAll(selector)];
-
-
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-
-  function formatDate(value) {
-    if (!value) return "Recently";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return "Recently";
+  <style>
+    .account-page {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 50px 20px;
     }
 
-    return date.toLocaleString([], {
-      dateStyle: "medium",
-      timeStyle: "short"
-    });
-  }
-
-
-  function formatStatus(status) {
-    const labels = {
-      pending: "Pending",
-      accepted: "Accepted",
-      declined: "Declined",
-      cancelled: "Cancelled",
-      "on-the-way": "On the way",
-      arrived: "Arrived",
-      "work-started": "Work started",
-      completed: "Completed",
-      paid: "Paid"
-    };
-
-    if (labels[status]) {
-      return labels[status];
+    .account-wrap {
+      width: 100%;
+      max-width: 470px;
     }
 
-    return String(status || "Unknown")
-      .replace(/[-_]/g, " ")
-      .replace(/\b\w/g, letter => letter.toUpperCase());
-  }
-
-
-  function statusClass(status) {
-    return `status-${String(status || "unknown")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")}`;
-  }
-
-
-  function showToast(message, type = "success") {
-    let toast = $("#quickfix-toast");
-
-    if (!toast) {
-      toast = document.createElement("div");
-      toast.id = "quickfix-toast";
-
-      Object.assign(toast.style, {
-        position: "fixed",
-        left: "50%",
-        bottom: "24px",
-        transform: "translateX(-50%)",
-        zIndex: "99999",
-        maxWidth: "90%",
-        padding: "13px 18px",
-        borderRadius: "12px",
-        background: "#101820",
-        color: "#fff",
-        border: "1px solid rgba(255,255,255,.12)",
-        boxShadow: "0 15px 40px rgba(0,0,0,.35)",
-        fontWeight: "700",
-        textAlign: "center"
-      });
-
-      document.body.appendChild(toast);
+    .account-heading {
+      text-align: center;
+      margin-bottom: 28px;
     }
 
-    toast.textContent = message;
-
-    toast.style.borderColor =
-      type === "error"
-        ? "rgba(255,80,80,.5)"
-        : "rgba(57,229,140,.35)";
-
-    clearTimeout(window.__quickfixToastTimer);
-
-    window.__quickfixToastTimer = setTimeout(() => {
-      toast.remove();
-    }, 3000);
-  }
-
-
-  function setLoading(button, loading, text = "Please wait...") {
-    if (!button) return;
-
-    if (loading) {
-      button.dataset.originalText = button.textContent;
-      button.disabled = true;
-      button.textContent = text;
-    } else {
-      button.disabled = false;
-      button.textContent =
-        button.dataset.originalText ||
-        button.textContent;
+    .account-heading .eyebrow {
+      color: #39e58c;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
     }
-  }
 
+    .account-heading h1 {
+      font-size: 42px;
+      margin: 0 0 12px;
+    }
 
-  /* =======================================================
-     AUTH
-     ======================================================= */
+    .account-heading p {
+      margin: 0;
+      opacity: .65;
+      line-height: 1.6;
+    }
 
-  async function getCurrentUser() {
-    try {
-      const {
-        data,
-        error
-      } = await db.auth.getUser();
+    .account-card {
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.025);
+      border-radius: 24px;
+      padding: 30px;
+    }
 
-      if (error) {
-        console.error("QuickFix auth:", error);
-        return null;
+    .account-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 5px;
+      background: rgba(255,255,255,.05);
+      border-radius: 13px;
+      margin-bottom: 25px;
+    }
+
+    .account-tabs button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .account-tabs button.active {
+      background: #39e58c;
+      color: #07110c;
+    }
+
+    .account-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 700;
+      opacity: .8;
+    }
+
+    .field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(0,0,0,.2);
+      color: inherit;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #39e58c;
+    }
+
+    .account-submit {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 15px;
+      background: #39e58c;
+      color: #07110c;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+      margin-top: 4px;
+    }
+
+    .account-message {
+      min-height: 20px;
+      font-size: 13px;
+      text-align: center;
+      opacity: .8;
+    }
+
+    .account-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 25px 0;
+      opacity: .3;
+      font-size: 12px;
+    }
+
+    .account-divider::before,
+    .account-divider::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: currentColor;
+    }
+
+    .provider-entry {
+      text-align: center;
+      padding-top: 4px;
+    }
+
+    .provider-entry p {
+      margin: 0 0 12px;
+      font-size: 13px;
+      opacity: .6;
+    }
+
+    .provider-entry a {
+      color: #39e58c;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .account-footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 13px;
+      opacity: .55;
+    }
+
+    @media (max-width: 600px) {
+      .account-page {
+        padding: 30px 16px;
       }
 
-      return data?.user || null;
-
-    } catch (error) {
-      console.error("QuickFix auth exception:", error);
-      return null;
-    }
-  }
-
-
-  async function requireUser() {
-    const user = await getCurrentUser();
-
-    if (!user) {
-      window.location.href = "account.html";
-      return null;
-    }
-
-    return user;
-  }
-
-
-  async function logout() {
-    const { error } = await db.auth.signOut();
-
-    if (error) {
-      console.error(error);
-      showToast(
-        error.message || "Unable to sign out.",
-        "error"
-      );
-      return false;
-    }
-
-    window.location.href = "account.html";
-    return true;
-  }
-
-
-  /* =======================================================
-     SAVED PROVIDERS
-     ======================================================= */
-
-  function getSavedProviders() {
-    try {
-      return JSON.parse(
-        localStorage.getItem(
-          STORAGE.savedProviders
-        ) || "[]"
-      );
-    } catch {
-      return [];
-    }
-  }
-
-
-  function isProviderSaved(providerId) {
-    return getSavedProviders().some(
-      provider =>
-        String(provider.id) === String(providerId)
-    );
-  }
-
-
-  function toggleSavedProvider(provider) {
-    const saved = getSavedProviders();
-
-    const index = saved.findIndex(
-      item =>
-        String(item.id) === String(provider.id)
-    );
-
-    if (index >= 0) {
-      saved.splice(index, 1);
-
-      localStorage.setItem(
-        STORAGE.savedProviders,
-        JSON.stringify(saved)
-      );
-
-      return false;
-    }
-
-    saved.push({
-      id: provider.id,
-      name: provider.name || "",
-      service: provider.service || "",
-      location: provider.location || "",
-      phone: provider.phone || ""
-    });
-
-    localStorage.setItem(
-      STORAGE.savedProviders,
-      JSON.stringify(saved)
-    );
-
-    return true;
-  }
-
-
-  /* =======================================================
-     MODALS
-     ======================================================= */
-
-  function openModal(modal) {
-    if (!modal) return;
-
-    modal.style.display = "flex";
-    modal.classList.add("active");
-
-    document.body.classList.add("modal-open");
-  }
-
-
-  function closeModal(modal) {
-    if (!modal) return;
-
-    modal.classList.remove("active");
-
-    if (
-      modal.classList.contains("modal") ||
-      modal.id
-    ) {
-      modal.style.display = "none";
-    }
-
-    document.body.classList.remove("modal-open");
-  }
-
-
-  /* =======================================================
-     LOCATION
-     ======================================================= */
-
-  function attachLocationButton(input) {
-    if (!input) return;
-
-    if (
-      input.parentElement?.querySelector(
-        ".quickfix-location-button"
-      )
-    ) {
-      return;
-    }
-
-    const button = document.createElement("button");
-
-    button.type = "button";
-    button.className = "quickfix-location-button";
-    button.textContent = "📍 Use my location";
-
-    Object.assign(button.style, {
-      marginTop: "8px",
-      padding: "9px 12px",
-      borderRadius: "9px",
-      border: "1px solid rgba(57,229,140,.35)",
-      background: "rgba(57,229,140,.08)",
-      color: "inherit",
-      cursor: "pointer"
-    });
-
-    button.addEventListener("click", () => {
-      if (!navigator.geolocation) {
-        showToast(
-          "Location is not supported on this device.",
-          "error"
-        );
-        return;
+      .account-card {
+        padding: 22px;
       }
 
-      button.disabled = true;
-      button.textContent = "📍 Getting location...";
-
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const {
-            latitude,
-            longitude
-          } = position.coords;
-
-          input.value =
-            `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-
-          button.disabled = false;
-          button.textContent = "📍 Use my location";
-
-          showToast("Location added.");
-        },
-
-        error => {
-          console.error(error);
-
-          button.disabled = false;
-          button.textContent = "📍 Use my location";
-
-          showToast(
-            "Location permission was not granted.",
-            "error"
-          );
-        },
-
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000
-        }
-      );
-    });
-
-    input.parentElement?.appendChild(button);
-  }
-
-
-  /* =======================================================
-     SEARCH
-     ======================================================= */
-
-  async function searchProviders() {
-    const input = $("#searchInput");
-    const button = $("#searchButton");
-
-    if (!input) return;
-
-    const search = input.value.trim();
-
-    if (!search) {
-      showToast(
-        "Enter a service to search.",
-        "error"
-      );
-      return;
-    }
-
-    localStorage.setItem(
-      STORAGE.lastSearch,
-      search
-    );
-
-    setLoading(
-      button,
-      true,
-      "Searching..."
-    );
-
-    const {
-      data,
-      error
-    } = await db
-      .from("providers")
-      .select("*")
-      .ilike(
-        "service",
-        `%${search}%`
-      );
-
-    setLoading(
-      button,
-      false
-    );
-
-    if (error) {
-      console.error(
-        "QuickFix provider search:",
-        error
-      );
-
-      showToast(
-        error.message ||
-        "Unable to search right now.",
-        "error"
-      );
-
-      return;
-    }
-
-    renderSearchResults(
-      data || [],
-      search
-    );
-  }
-
-
-  function renderSearchResults(
-    providers,
-    search
-  ) {
-    const results = $("#results");
-    const container = $("#searchResults");
-    const summary = $("#searchResultsSummary");
-
-    if (!container) {
-      console.error(
-        "QuickFix: #searchResults not found."
-      );
-      return;
-    }
-
-    if (results) {
-      results.style.display = "block";
-    }
-
-    container.innerHTML = "";
-
-    if (providers.length === 0) {
-      if (summary) {
-        summary.textContent =
-          `No providers found for "${search}".`;
+      .account-heading h1 {
+        font-size: 36px;
       }
-
-      container.innerHTML = `
-        <div class="empty-state">
-          <h3>No providers found</h3>
-          <p>
-            Try another service such as plumbing,
-            electrical, phone repair or computer help.
-          </p>
-        </div>
-      `;
-
-      results?.scrollIntoView({
-        behavior: "smooth"
-      });
-
-      return;
     }
+  </style>
+</head>
 
-    if (summary) {
-      summary.textContent =
-        `${providers.length} provider${
-          providers.length === 1 ? "" : "s"
-        } found for "${search}".`;
-    }
+<body>
 
-    providers.forEach(provider => {
-      container.appendChild(
-        createProviderCard(provider)
-      );
-    });
+<header class="site-header">
+  <nav class="nav">
 
-    results?.scrollIntoView({
-      behavior: "smooth"
-    });
-  }
+    <a href="index.html" class="logo">
+      Quick<span>Fix</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="find.html">Find a Fix</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="about.html">About</a>
+    </div>
+
+    <div class="nav-actions">
+      <a href="account.html" class="active">Customer</a>
+      <a href="account.html?role=provider" class="provider-btn">
+        Join as Provider
+      </a>
+    </div>
+
+  </nav>
+</header>
 
 
-  function createProviderCard(provider) {
-    const card =
-      document.createElement("div");
+<main class="account-page">
 
-    card.className = "provider-card";
+  <div class="account-wrap">
 
-    const saved =
-      isProviderSaved(provider.id);
+    <div class="account-heading">
 
-    const firstLetter =
-      (provider.name || "P")
-        .charAt(0)
-        .toUpperCase();
-
-    card.innerHTML = `
-      <div class="provider-card-main">
-
-        <div class="provider-avatar">
-          ${escapeHtml(firstLetter)}
-        </div>
-
-        <div class="provider-info">
-
-          <h3>
-            ${escapeHtml(
-              provider.name ||
-              "Service Provider"
-            )}
-          </h3>
-
-          <p class="provider-service">
-            ${escapeHtml(
-              provider.service ||
-              "Service"
-            )}
-          </p>
-
-          <p class="provider-location">
-            📍 ${escapeHtml(
-              provider.location ||
-              "Location not provided"
-            )}
-          </p>
-
-          ${
-            provider.phone
-              ? `
-                <p class="provider-phone">
-                  📞 ${escapeHtml(
-                    provider.phone
-                  )}
-                </p>
-              `
-              : ""
-          }
-
-        </div>
-
+      <div class="eyebrow" id="accountEyebrow">
+        QUICKFIX ACCOUNT
       </div>
 
-      <div class="provider-actions">
+      <h1 id="accountHeading">
+        Welcome back.
+      </h1>
+
+      <p id="accountIntro">
+        Sign in to manage your requests, messages and profile.
+      </p>
+
+    </div>
+
+
+    <section class="account-card">
+
+      <div class="account-tabs">
 
         <button
+          id="loginTab"
+          class="active"
           type="button"
-          class="save-provider-btn ${
-            saved ? "saved" : ""
-          }"
         >
-          ${saved ? "★ Saved" : "☆ Save"}
+          Sign In
         </button>
 
         <button
+          id="signupTab"
           type="button"
-          class="request-provider-btn"
         >
-          Request service
+          Create Account
         </button>
 
       </div>
-    `;
 
 
-    const saveButton =
-      $(".save-provider-btn", card);
+      <form
+        id="accountForm"
+        class="account-form"
+      >
 
-    saveButton?.addEventListener(
-      "click",
-      () => {
-        const nowSaved =
-          toggleSavedProvider(provider);
+        <div class="field">
 
-        saveButton.classList.toggle(
-          "saved",
-          nowSaved
-        );
+          <label for="accountEmail">
+            Email
+          </label>
 
-        saveButton.textContent =
-          nowSaved
-            ? "★ Saved"
-            : "☆ Save";
-
-        showToast(
-          nowSaved
-            ? "Provider saved."
-            : "Provider removed from saved."
-        );
-      }
-    );
-
-
-    const requestButton =
-      $(".request-provider-btn", card);
-
-    requestButton?.addEventListener(
-      "click",
-      async () => {
-        const user =
-          await getCurrentUser();
-
-        if (!user) {
-          showToast(
-            "Please log in before requesting a service.",
-            "error"
-          );
-
-          window.location.href =
-            "account.html";
-
-          return;
-        }
-
-        openRequestModal(provider);
-      }
-    );
-
-
-    return card;
-  }
-
-
-  /* =======================================================
-     REQUEST MODAL
-     ======================================================= */
-
-  function openRequestModal(provider) {
-    const modal =
-      $("#requestModal");
-
-    const providerName =
-      $("#requestProviderName");
-
-    const description =
-      $("#requestDescription");
-
-    const location =
-      $("#requestLocation");
-
-    const phone =
-      $("#requestPhone");
-
-    const message =
-      $("#requestMessage");
-
-    if (!modal) {
-      showToast(
-        "Request form is unavailable.",
-        "error"
-      );
-      return;
-    }
-
-    window.__quickfixSelectedProvider =
-      provider;
-
-    if (providerName) {
-      providerName.textContent =
-        provider.name ||
-        "Service Provider";
-    }
-
-    if (description) {
-      description.value = "";
-    }
-
-    if (location) {
-      location.value = "";
-    }
-
-    if (phone) {
-      phone.value =
-        provider.phone || "";
-    }
-
-    if (message) {
-      message.textContent = "";
-    }
-
-    openModal(modal);
-  }
-
-
-  async function submitServiceRequest() {
-    const provider =
-      window.__quickfixSelectedProvider;
-
-    if (!provider) {
-      showToast(
-        "Please select a provider first.",
-        "error"
-      );
-      return;
-    }
-
-    const user =
-      await requireUser();
-
-    if (!user) return;
-
-    const description =
-      $("#requestDescription")?.value.trim();
-
-    const location =
-      $("#requestLocation")?.value.trim();
-
-    const phone =
-      $("#requestPhone")?.value.trim();
-
-    const button =
-      $("#submitRequest");
-
-    const message =
-      $("#requestMessage");
-
-    if (!description) {
-      if (message) {
-        message.textContent =
-          "Please describe what you need.";
-      }
-
-      showToast(
-        "Please describe what you need.",
-        "error"
-      );
-
-      return;
-    }
-
-    setLoading(
-      button,
-      true,
-      "Sending..."
-    );
-
-    const payload = {
-      customer_id: user.id,
-      provider_id: provider.id,
-      service:
-        provider.service ||
-        "Service",
-      description,
-      location:
-        location || null,
-      phone:
-        phone || null,
-      status: "pending"
-    };
-
-    const {
-      error
-    } = await db
-      .from("service_requests")
-      .insert(payload);
-
-    setLoading(
-      button,
-      false
-    );
-
-    if (error) {
-      console.error(
-        "QuickFix request:",
-        error
-      );
-
-      if (message) {
-        message.textContent =
-          error.message ||
-          "Unable to send request.";
-      }
-
-      showToast(
-        error.message ||
-        "Unable to send request.",
-        "error"
-      );
-
-      return;
-    }
-
-    if (message) {
-      message.textContent =
-        "Request sent successfully.";
-    }
-
-    showToast(
-      "Service request sent."
-    );
-
-    setTimeout(() => {
-      closeModal(
-        $("#requestModal")
-      );
-    }, 700);
-  }
-
-
-  /* =======================================================
-     CUSTOMER REQUESTS
-     ======================================================= */
-
-  async function loadCustomerRequests() {
-    const list =
-    $("#customerRequests")
-
-    if (!list) return;
-
-    const user =
-      await getCurrentUser();
-
-    if (!user) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <h3>Please log in</h3>
-          <p>
-            Log in to see your service requests.
-          </p>
-        </div>
-      `;
-      return;
-    }
-
-    list.innerHTML = `
-      <div class="empty-state">
-        <p>Loading your requests...</p>
-      </div>
-    `;
-
-    const {
-      data,
-      error
-    } = await db
-      .from("service_requests")
-      .select("*")
-      .eq(
-        "customer_id",
-        user.id
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-    if (error) {
-      console.error(
-        "QuickFix customer requests:",
-        error
-      );
-
-      list.innerHTML = `
-        <div class="empty-state">
-          <h3>Unable to load requests</h3>
-          <p>
-            ${escapeHtml(
-              error.message ||
-              "Please try again."
-            )}
-          </p>
-        </div>
-      `;
-
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <h3>No requests yet</h3>
-
-          <p>
-            When you request a service,
-            your requests will appear here.
-          </p>
-
-          <a
-            href="find.html"
-            class="find-btn"
+          <input
+            id="accountEmail"
+            type="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            required
           >
-            Find a Service
-          </a>
+
         </div>
-      `;
 
-      return;
-    }
 
-    list.innerHTML = "";
-
-    data.forEach(request => {
-      const card =
-        document.createElement("div");
-
-      card.className =
-        "request-card";
-
-      const status =
-        request.status ||
-        "pending";
-
-      card.innerHTML = `
-        <div class="request-card-header">
-
-          <div>
-            <h3>
-              ${escapeHtml(
-                request.service ||
-                "Service request"
-              )}
-            </h3>
-
-            <p class="request-meta">
-              ${escapeHtml(
-                request.provider_name ||
-                "Provider"
-              )}
-            </p>
-          </div>
-
-          <span
-            class="status-badge ${statusClass(status)}"
+        <div class="password-wrap">
+          <input
+            id="accountPassword"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
           >
-            ${escapeHtml(
-              formatStatus(status)
-            )}
-          </span>
 
+          <button
+            type="button"
+            id="togglePassword"
+            class="password-toggle"
+            aria-label="Show password"
+            aria-pressed="false"
+          >👁</button>
         </div>
 
-        <div class="request-card-body">
 
-          <p>
-            ${escapeHtml(
-              request.description ||
-              "No description provided."
-            )}
-          </p>
-
-          <p class="request-meta">
-            📍 ${escapeHtml(
-              request.location ||
-              "Location not provided"
-            )}
-          </p>
-
-          <p class="request-meta">
-            📞 ${escapeHtml(
-              request.phone ||
-              "No phone number"
-            )}
-          </p>
-
-          <p class="request-meta">
-            🕒 ${escapeHtml(
-              formatDate(
-                request.created_at
-              )
-            )}
-          </p>
-
-          ${
-            status === "accepted"
-              ? `
-                <div class="request-actions">
-                  <a
-                    href="customer-messages.html"
-                    class="request-action-btn"
-                  >
-                    Message provider
-                  </a>
-                </div>
-              `
-              : ""
-          }
-
-        </div>
-      `;
-
-      list.appendChild(card);
-    });
-  }
+        <div
+          id="accountMessage"
+          class="account-message"
+          aria-live="polite"
+        ></div>
 
 
-  /* =======================================================
-     PROVIDER REQUESTS
-     ======================================================= */
-
-  async function getProviderProfile(userId) {
-    const {
-      data,
-      error
-    } = await db
-      .from("providers")
-      .select("*")
-      .eq(
-        "user_id",
-        userId
-      )
-      .limit(1);
-
-    if (error) {
-      console.error(
-        "QuickFix provider profile:",
-        error
-      );
-      return null;
-    }
-
-    return data?.[0] || null;
-  }
-
-
-  async function loadProviderRequests() {
-    const list =
-      $("#requestList");
-
-    if (!list) return;
-
-    const user =
-      await getCurrentUser();
-
-    if (!user) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <h3>Please log in</h3>
-          <p>
-            Log in to view customer requests.
-          </p>
-        </div>
-      `;
-      return;
-    }
-
-    const provider =
-      await getProviderProfile(
-        user.id
-      );
-
-    if (!provider) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <h3>Provider profile not found</h3>
-          <p>
-            Your provider profile could not
-            be found.
-          </p>
-        </div>
-      `;
-      return;
-    }
-
-    list.innerHTML = `
-      <div class="empty-state">
-        <p>Loading requests...</p>
-      </div>
-    `;
-
-    const {
-      data,
-      error
-    } = await db
-      .from("service_requests")
-      .select("*")
-      .eq(
-        "provider_id",
-        provider.id
-      )
-      .order(
-        "created_at",
-        {
-          ascending: false
-        }
-      );
-
-    if (error) {
-      console.error(
-        "QuickFix provider requests:",
-        error
-      );
-
-      list.innerHTML = `
-        <div class="empty-state">
-          <h3>Unable to load requests</h3>
-          <p>
-            ${escapeHtml(
-              error.message ||
-              "Please try again."
-            )}
-          </p>
-        </div>
-      `;
-
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <h3>No service requests yet</h3>
-          <p>
-            Customer requests will appear here.
-          </p>
-        </div>
-      `;
-      return;
-    }
-
-    list.innerHTML = "";
-
-    data.forEach(request => {
-      list.appendChild(
-        createProviderRequestCard(
-          request
-        )
-      );
-    });
-  }
-
-
-  function createProviderRequestCard(request) {
-    const card =
-      document.createElement("div");
-
-    card.className =
-      "request-card";
-
-    const status =
-      request.status ||
-      "pending";
-
-    card.innerHTML = `
-      <div class="request-card-header">
-
-        <div>
-          <h3>
-            ${escapeHtml(
-              request.service ||
-              "Service request"
-            )}
-          </h3>
-
-          <p class="request-meta">
-            Customer request
-          </p>
-        </div>
-
-        <span
-          class="status-badge ${statusClass(status)}"
+        <button
+          id="accountSubmit"
+          class="account-submit"
+          type="submit"
         >
-          ${escapeHtml(
-            formatStatus(status)
-          )}
-        </span>
+          Sign In
+        </button>
 
+      </form>
+
+
+      <div class="account-divider">
+        OR
       </div>
 
-      <div class="request-card-body">
+
+      <div class="provider-entry">
 
         <p>
-          <strong>Description:</strong>
-          ${escapeHtml(
-            request.description ||
-            "No description provided."
-          )}
+          Want to offer your services?
         </p>
 
-        <p class="request-meta">
-          📍 ${escapeHtml(
-            request.location ||
-            "Location not provided"
-          )}
-        </p>
-
-        <p class="request-meta">
-          📞 ${escapeHtml(
-            request.phone ||
-            "No phone number"
-          )}
-        </p>
-
-        <p class="request-meta">
-          🕒 ${escapeHtml(
-            formatDate(
-              request.created_at
-            )
-          )}
-        </p>
+        <a href="account.html?role=provider">
+          Sign in as a Provider →
+        </a>
 
       </div>
 
-      <div class="provider-request-actions">
-
-        ${
-          status === "pending"
-            ? `
-              <button
-                type="button"
-                class="request-action-btn accept-request-btn"
-                data-request-id="${escapeHtml(
-                  request.id
-                )}"
-              >
-                Accept
-              </button>
-
-              <button
-                type="button"
-                class="request-action-btn decline-request-btn"
-                data-request-id="${escapeHtml(
-                  request.id
-                )}"
-              >
-                Decline
-              </button>
-            `
-            : ""
-        }
-
-        ${
-          status === "accepted"
-            ? `
-              <a
-                href="provider-messages.html"
-                class="request-action-btn"
-              >
-                Message customer
-              </a>
-
-              <button
-                type="button"
-                class="request-action-btn"
-                data-next-status="on-the-way"
-                data-request-id="${escapeHtml(
-                  request.id
-                )}"
-              >
-                On the way
-              </button>
-            `
-            : ""
-        }
-
-        ${
-          status === "on-the-way"
-            ? `
-              <button
-                type="button"
-                class="request-action-btn"
-                data-next-status="arrived"
-                data-request-id="${escapeHtml(
-                  request.id
-                )}"
-              >
-                Mark arrived
-              </button>
-            `
-            : ""
-        }
-
-        ${
-          status === "arrived"
-            ? `
-              <button
-                type="button"
-                class="request-action-btn"
-                data-next-status="work-started"
-                data-request-id="${escapeHtml(
-                  request.id
-                )}"
-              >
-                Start work
-              </button>
-            `
-            : ""
-        }
-
-        ${
-          status === "work-started"
-            ? `
-              <button
-                type="button"
-                class="request-action-btn"
-                data-next-status="completed"
-                data-request-id="${escapeHtml(
-                  request.id
-                )}"
-              >
-                Mark completed
-              </button>
-            `
-            : ""
-        }
-
-      </div>
-    `;
+    </section>
 
 
-    $(".accept-request-btn", card)
-      ?.addEventListener(
-        "click",
-        async () => {
-          await updateRequestStatus(
-            request.id,
-            "accepted"
-          );
-        }
+    <div class="account-footer">
+      QuickFix — Find help. Get it fixed.
+    </div>
+
+  </div>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const SUPABASE_URL =
+      "https://cnusykexaahftbsohsgc.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_6KCoCn8dmj4NMQTpXu5G2Q_KuGxY4l7";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
       );
 
 
-    $(".decline-request-btn", card)
-      ?.addEventListener(
-        "click",
-        async () => {
-          await declineRequest(
-            request.id
-          );
-        }
-      );
+    const providerMode =
+      new URLSearchParams(
+        window.location.search
+      ).get("role") === "provider";
 
 
-    $$(
-      "[data-next-status]",
-      card
-    ).forEach(button => {
-      button.addEventListener(
-        "click",
-        async () => {
-          await updateRequestStatus(
-            request.id,
-            button.dataset.nextStatus
-          );
-        }
+    const loginTab =
+      document.getElementById("loginTab");
+
+    const signupTab =
+      document.getElementById("signupTab");
+
+    const form =
+      document.getElementById("accountForm");
+
+    const email =
+      document.getElementById("accountEmail");
+
+    const password =
+      document.getElementById("accountPassword");
+
+    const togglePassword =
+      document.getElementById("togglePassword");
+
+    togglePassword.addEventListener("click", function () {
+      const isHidden = password.type === "password";
+
+      password.type = isHidden ? "text" : "password";
+
+      togglePassword.textContent = isHidden ? "🙈" : "👁";
+      togglePassword.setAttribute(
+        "aria-label",
+        isHidden ? "Hide password" : "Show password"
       );
+      togglePassword.setAttribute("aria-pressed", String(isHidden));
     });
 
+    const submit =
+      document.getElementById("accountSubmit");
 
-    return card;
-  }
+    const message =
+      document.getElementById("accountMessage");
+
+    const heading =
+      document.getElementById("accountHeading");
+
+    const intro =
+      document.getElementById("accountIntro");
+
+    const eyebrow =
+      document.getElementById("accountEyebrow");
 
 
-  /* =======================================================
-     UPDATE REQUEST STATUS
-     ======================================================= */
+    let mode = "login";
 
-  async function updateRequestStatus(
-    requestId,
-    newStatus
-  ) {
-    const user =
-      await getCurrentUser();
 
-    if (!user) {
-      window.location.href =
-        "account.html";
-      return false;
-    }
+    function setMode(newMode) {
 
-    const provider =
-      await getProviderProfile(
-        user.id
+      mode = newMode;
+
+      const signup =
+        mode === "signup";
+
+
+      loginTab.classList.toggle(
+        "active",
+        !signup
       );
 
-    if (!provider) {
-      showToast(
-        "Provider profile not found.",
-        "error"
-      );
-      return false;
-    }
-
-    const {
-      error
-    } = await db
-      .from("service_requests")
-      .update({
-        status: newStatus
-      })
-      .eq(
-        "id",
-        requestId
-      )
-      .eq(
-        "provider_id",
-        provider.id
+      signupTab.classList.toggle(
+        "active",
+        signup
       );
 
-    if (error) {
-      console.error(
-        "QuickFix status update:",
-        error
-      );
 
-      showToast(
-        error.message ||
-        "Unable to update request.",
-        "error"
-      );
+      submit.textContent =
+        signup
+          ? "Create Account"
+          : "Sign In";
 
-      return false;
-    }
 
-    showToast(
-      `Request ${formatStatus(
-        newStatus
-      ).toLowerCase()}.`
-    );
+      if (providerMode) {
 
-    await loadProviderRequests();
+        eyebrow.textContent =
+          "QUICKFIX PROVIDER";
 
-    return true;
-  }
+        heading.textContent =
+          signup
+            ? "Create your provider account."
+            : "Provider sign in.";
 
+        intro.textContent =
+          signup
+            ? "Create your QuickFix account, then set up your provider profile."
+            : "Sign in to manage your services, requests and earnings.";
 
-  /* =======================================================
-     DECLINE REQUEST
-     ======================================================= */
+      } else {
 
-  async function declineRequest(
-    requestId
-  ) {
-    const reason =
-      window.prompt(
-        "Why are you declining this request?"
-      );
+        eyebrow.textContent =
+          "QUICKFIX ACCOUNT";
 
-    if (reason === null) {
-      return;
-    }
+        heading.textContent =
+          signup
+            ? "Create your account."
+            : "Welcome back.";
 
-    const cleanReason =
-      reason.trim();
+        intro.textContent =
+          signup
+            ? "Create your QuickFix account and get started."
+            : "Sign in to manage your requests, messages and profile.";
 
-    if (!cleanReason) {
-      showToast(
-        "Please enter a decline reason.",
-        "error"
-      );
-      return;
-    }
-
-    const user =
-      await getCurrentUser();
-
-    if (!user) {
-      window.location.href =
-        "account.html";
-      return;
-    }
-
-    const provider =
-      await getProviderProfile(
-        user.id
-      );
-
-    if (!provider) {
-      showToast(
-        "Provider profile not found.",
-        "error"
-      );
-      return;
-    }
-
-    /*
-      decline_reason is intentionally included here.
-      The database must contain this column before
-      the decline reason can be stored successfully.
-    */
-
-    const {
-      error
-    } = await db
-      .from("service_requests")
-      .update({
-        status: "declined",
-        decline_reason: cleanReason
-      })
-      .eq(
-        "id",
-        requestId
-      )
-      .eq(
-        "provider_id",
-        provider.id
-      );
-
-    if (error) {
-      console.error(
-        "QuickFix decline:",
-        error
-      );
-
-      showToast(
-        error.message ||
-        "Unable to decline request.",
-        "error"
-      );
-
-      return;
-    }
-
-    showToast(
-      "Request declined."
-    );
-
-    await loadProviderRequests();
-  }
-
-
-  /* =======================================================
-     SERVICE CARD SHORTCUTS
-     ======================================================= */
-
-  function initializeServiceCards() {
-    $$(".service-card").forEach(card => {
-      card.addEventListener(
-        "click",
-        () => {
-          const service =
-            card.dataset.service ||
-            $("h3", card)?.textContent.trim();
-
-          if (!service) return;
-
-          const input =
-            $("#searchInput");
-
-          if (!input) return;
-
-          input.value = service;
-
-          searchProviders();
-        }
-      );
-    });
-  }
-
-
-  /* =======================================================
-     FIND PAGE
-     ======================================================= */
-
-  function initializeFindPage() {
-    const searchButton =
-      $("#searchButton");
-
-    const searchInput =
-      $("#searchInput");
-
-    if (!searchButton && !searchInput) {
-      return;
-    }
-
-    searchButton?.addEventListener(
-      "click",
-      searchProviders
-    );
-
-    searchInput?.addEventListener(
-      "keydown",
-      event => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          searchProviders();
-        }
-      }
-    );
-
-    const previousSearch =
-      localStorage.getItem(
-        STORAGE.lastSearch
-      );
-
-    if (
-      previousSearch &&
-      searchInput &&
-      !searchInput.value
-    ) {
-      searchInput.value =
-        previousSearch;
-    }
-  }
-
-
-  /* =======================================================
-     REQUEST PAGE ELEMENTS
-     ======================================================= */
-
-  function initializeRequestModal() {
-    const modal =
-      $("#requestModal");
-
-    const closeButton =
-      $("#closeRequest");
-
-    const submitButton =
-      $("#submitRequest");
-
-    if (!modal) return;
-
-    closeButton?.addEventListener(
-      "click",
-      () => closeModal(modal)
-    );
-
-    submitButton?.addEventListener(
-      "click",
-      submitServiceRequest
-    );
-
-    modal.addEventListener(
-      "click",
-      event => {
-        if (event.target === modal) {
-          closeModal(modal);
-        }
-      }
-    );
-
-    attachLocationButton(
-      $("#requestLocation")
-    );
-  }
-
-
-  /* =======================================================
-     CUSTOMER DASHBOARD
-     ======================================================= */
-
-  async function initializeCustomerDashboard() {
-    const list =
-      $("#customerRequests")
-
-    if (!list) return;
-
-    const user =
-      await getCurrentUser();
-
-    if (!user) {
-      window.location.href =
-        "account.html";
-      return;
-    }
-
-    await loadCustomerRequests();
-
-    $("#customerLogout")
-      ?.addEventListener(
-        "click",
-        logout
-      );
-  }
-
-
-  /* =======================================================
-     PROVIDER DASHBOARD
-     ======================================================= */
-
-  async function initializeProviderDashboard() {
-    const list =
-      $("#requestList");
-
-    if (!list) return;
-
-    const user =
-      await getCurrentUser();
-
-    if (!user) {
-      window.location.href =
-        "account.html";
-      return;
-    }
-
-    await loadProviderRequests();
-  }
-
-
-  /* =======================================================
-     GENERIC LOGOUT BUTTONS
-     ======================================================= */
-
-  function initializeLogoutButtons() {
-    $(
-      "#logoutButton, #providerLogout"
-    );
-
-    const buttons = [
-      ...$$(
-        "#logoutButton"
-      ),
-      ...$$(
-        "#providerLogout"
-      ),
-      ...$$(
-        "#customerLogout"
-      )
-    ];
-
-    buttons.forEach(button => {
-      if (
-        button.dataset.quickfixLogout
-      ) {
-        return;
       }
 
-      button.dataset.quickfixLogout =
-        "true";
 
-      button.addEventListener(
-        "click",
-        async event => {
-          event.preventDefault();
-
-          setLoading(
-            button,
-            true,
-            "Signing out..."
-          );
-
-          await logout();
-        }
-      );
-    });
-  }
+      password.autocomplete =
+        signup
+          ? "new-password"
+          : "current-password";
 
 
-  /* =======================================================
-     ACCOUNT PAGE
-     ======================================================= */
+      message.textContent = "";
 
-  function initializeAccountPage() {
-    /*
-      account.html currently contains its own
-      authentication UI.
-
-      We deliberately do NOT attach another
-      authentication form here.
-
-      This prevents two competing auth systems.
-    */
-  }
+    }
 
 
-  /* =======================================================
-     NAVIGATION SAFETY
-     ======================================================= */
-
-  function initializeNavigation() {
-    $$(".qf-quick-service").forEach(
-      button => {
-        button.addEventListener(
-          "click",
-          () => {
-            const service =
-              button.dataset.service;
-
-            if (!service) return;
-
-            const input =
-              $("#searchInput");
-
-            if (input) {
-              input.value = service;
-              searchProviders();
-              return;
-            }
-
-            window.location.href =
-              `find.html?service=${encodeURIComponent(
-                service
-              )}`;
-          }
-        );
+    loginTab.addEventListener(
+      "click",
+      function () {
+        setMode("login");
       }
     );
 
 
-    const joinProvider =
-      $("#joinProvider");
-
-    joinProvider?.addEventListener(
+    signupTab.addEventListener(
       "click",
-      () => {
-        window.location.href =
-          "account.html?role=provider";
+      function () {
+        setMode("signup");
       }
     );
 
 
-    const accountButton =
-      $("#accountButton");
+    form.addEventListener(
+      "submit",
+      async function (event) {
 
-    accountButton?.addEventListener(
-      "click",
-      async event => {
         event.preventDefault();
 
-        const user =
-          await getCurrentUser();
 
-        if (user) {
-          window.location.href =
-            "customer.html";
-        } else {
-          window.location.href =
-            "account.html";
+        const userEmail =
+          email.value.trim();
+
+        const userPassword =
+          password.value;
+
+
+        if (!userEmail || !userPassword) {
+
+          message.textContent =
+            "Enter your email and password.";
+
+          return;
+
         }
+
+
+        submit.disabled = true;
+
+        submit.textContent =
+          mode === "signup"
+            ? "Creating..."
+            : "Signing in...";
+
+        message.textContent = "";
+
+
+        try {
+
+          let result;
+
+
+          if (mode === "signup") {
+
+            result =
+              await supabaseClient.auth.signUp({
+                email: userEmail,
+                password: userPassword
+              });
+
+          } else {
+
+            result =
+              await supabaseClient.auth.signInWithPassword({
+                email: userEmail,
+                password: userPassword
+              });
+
+          }
+
+
+          if (result.error) {
+            throw result.error;
+          }
+
+
+          if (mode === "signup") {
+
+            message.textContent =
+              "Account created. Check your email if verification is required.";
+
+            if (!providerMode) {
+              form.reset();
+            }
+
+          } else {
+
+            const user = result.data?.user || null;
+
+            if (!user) {
+              throw new Error("Unable to determine the signed-in user.");
+            }
+
+            const { data: providerRows, error: providerError } = await supabaseClient
+              .from("providers")
+              .select("id")
+              .eq("user_id", user.id)
+              .limit(1);
+
+            if (providerError) {
+              throw providerError;
+            }
+
+            message.textContent =
+              "Signed in. Redirecting...";
+
+            setTimeout(function () {
+              if (providerRows && providerRows.length > 0) {
+                window.location.href = "provider.html";
+              } else {
+                window.location.href = "customer.html";
+              }
+            }, 400);
+
+          }
+
+
+        } catch (error) {
+
+          message.textContent =
+            error.message ||
+            "Something went wrong. Please try again.";
+
+        } finally {
+
+          submit.disabled = false;
+
+          submit.textContent =
+            mode === "signup"
+              ? "Create Account"
+              : "Sign In";
+
+        }
+
       }
     );
-  }
 
 
-  /* =======================================================
-     AUTH STATE
-     ======================================================= */
-
-  db.auth.onAuthStateChange(
-    (event, session) => {
-      console.log(
-        "QuickFix auth:",
-        event
-      );
-
-      if (
-        event === "SIGNED_OUT"
-      ) {
-        console.log(
-          "QuickFix user signed out."
-        );
-      }
-
-      if (session?.user) {
-        document.documentElement.dataset.authenticated =
-          "true";
-      } else {
-        document.documentElement.dataset.authenticated =
-          "false";
-      }
-    }
-  );
+    setMode("login");
 
 
-  /* =======================================================
-     ONLINE / OFFLINE
-     ======================================================= */
+    supabaseClient.auth.getSession()
+      .then(async function ({ data }) {
 
-  function updateConnection() {
-    document.documentElement.dataset.online =
-      navigator.onLine
-        ? "true"
-        : "false";
-  }
+        if (data && data.session) {
+          const user = data.session.user;
 
-  window.addEventListener(
-    "online",
-    () => {
-      updateConnection();
-      showToast(
-        "You're back online."
-      );
-    }
-  );
+          if (user) {
+            const { data: providerRows, error } = await supabaseClient
+              .from("providers")
+              .select("id")
+              .eq("user_id", user.id)
+              .limit(1);
 
-  window.addEventListener(
-    "offline",
-    () => {
-      updateConnection();
-      showToast(
-        "You're offline. Some features may not work.",
-        "error"
-      );
-    }
-  );
-
-
-  /* =======================================================
-     KEYBOARD SHORTCUTS
-     ======================================================= */
-
-  document.addEventListener(
-    "keydown",
-    event => {
-      const tag =
-        document.activeElement?.tagName;
-
-      if (
-        event.key === "/" &&
-        tag !== "INPUT" &&
-        tag !== "TEXTAREA"
-      ) {
-        const search =
-          $("#searchInput");
-
-        if (search) {
-          event.preventDefault();
-          search.focus();
+            if (!error && providerRows && providerRows.length > 0) {
+              window.location.href = "provider.html";
+            } else {
+              window.location.href = "customer.html";
+            }
+          }
         }
-      }
 
-      if (
-        (event.ctrlKey ||
-          event.metaKey) &&
-        event.key.toLowerCase() === "k"
-      ) {
-        const search =
-          $("#searchInput");
+      });
 
-        if (search) {
-          event.preventDefault();
-          search.focus();
-        }
-      }
-    }
-  );
+  });
+
+</script>
+
+</body>
+</html>
 
 
-  /* =======================================================
-     START QUICKFIX
-     ======================================================= */
-
-  async function initQuickFix() {
-    updateConnection();
-
-    initializeServiceCards();
-
-    initializeFindPage();
-
-    initializeRequestModal();
-
-    initializeNavigation();
-
-    initializeAccountPage();
-
-    initializeLogoutButtons();
-
-    await initializeCustomerDashboard();
-
-    await initializeProviderDashboard();
-
-    document.documentElement.dataset.quickfixReady =
-      "true";
-
-    console.log(
-      "%cQuickFix 2026 core loaded.",
-      "font-weight:700;font-size:16px;"
-    );
-  }
 
 
-  /* =======================================================
-     DOM READY
-     ======================================================= */
-
-  if (
-    document.readyState ===
-    "loading"
-  ) {
-    document.addEventListener(
-      "DOMContentLoaded",
-      initQuickFix,
-      {
-        once: true
-      }
-    );
-  } else {
-    initQuickFix();
-  }
 
 
-  /* =======================================================
-     PUBLIC API
-     ======================================================= */
 
-  window.QuickFix.searchProviders =
-    searchProviders;
 
-  window.QuickFix.getCurrentUser =
-    getCurrentUser;
 
-  window.QuickFix.loadCustomerRequests =
-    loadCustomerRequests;
 
-  window.QuickFix.loadProviderRequests =
-    loadProviderRequests;
 
-  window.QuickFix.updateRequestStatus =
-    updateRequestStatus;
 
-  window.QuickFix.logout =
-    logout;
 
-})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
